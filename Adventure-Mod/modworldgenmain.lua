@@ -365,12 +365,13 @@ AddStartLocation("adv7", {
 
 -- hack into the island worlds, to make them no island. Then they will load at leat....
 local islandtasks = {"IslandHop_Start","IslandHop_Hounds","IslandHop_Forest","IslandHop_Savanna","IslandHop_Rocky","IslandHop_Merm","Land of Plenty","The other side",}
-for _,tasks in pairs(islandtasks) do
-    AddTaskPreInit(tasks,function(task)
-        task.entrance_room = {"ImpassableWall"} -- instead of island, the lands are connected, but blocked with undestroyable basalt stone
-        if tasks=="IslandHop_Start" then
+for _,taskname in pairs(islandtasks) do
+    AddTaskPreInit(taskname,function(task)
+        if taskname~="IslandHop_Start" and taskname~="Land of Plenty" then
+            task.entrance_room = {"ImpassableWall"} -- instead of island, the lands are connected, but blocked with undestroyable basalt stone
+        end
+        if taskname=="IslandHop_Start" then
             task.room_choices["Wormhole"] = 5  -- unfortunately they are connected randomly... so not any help.... in modmain we could change the target, but we need to know if wormhole is located in IslandHop_Start or where...
-            -- task.room_choices["Sinkhole"] = 2 -- does not do anything... 
         else
             task.room_choices["Wormhole"] = 1
         end
@@ -390,8 +391,14 @@ if adventure_stuff then -- is only true, if we just adventure_jumped
 end
 
 -- testing
-GLOBAL.OVERRIDELEVEL_GEN= 4 -- force loading this level
-
+GLOBAL.OVERRIDELEVEL_GEN = 4 -- force loading this level
+-- A Cold Reception = 1
+-- King of Winter = 2
+-- The Game is Afoot = 3
+-- Archipelago = 4
+-- Two Worlds = 5
+-- Darkness = 6
+-- MaxwellHome = 7
 -- if GLOBAL.OVERRIDELEVEL_GEN==4 then HackGenChecksForIslands() end -- island hack.. -- a try to solve the broken island generation... but this only results in Stop of world generation after 1 island is generated
 
 print("Level gen1 is "..tostring(GLOBAL.OVERRIDELEVEL_GEN).." Chapter is "..tostring(GLOBAL.CHAPTER_GEN))
@@ -597,7 +604,7 @@ AddTaskSetPreInitAny(function(tasksetdata)
             summer = "shortseason",
 		}
     elseif GLOBAL.OVERRIDELEVEL_GEN==5 then -- Two Worlds
-        tasksetdata.override_level_string=true -- test out what this does ?
+        -- tasksetdata.override_level_string=true -- test out what this does ?
         tasksetdata.tasks = {"Land of Plenty", -- Part 1 - Easy peasy - lots of stuff
                             "The other side",}	-- Part 2 - Lets kill them off
         -- tasksetdata.numoptionaltasks = 4 -- evlt vllt doch 0, mal Beschreibung genauer lesen, was darin vorkommen sollte...
@@ -611,8 +618,7 @@ AddTaskSetPreInitAny(function(tasksetdata)
                 ["ResurrectionStone"] = { count=2, tasks={"Land of Plenty", "The other side" } },}
         tasksetdata.substitutes = GetRandomSubstituteList(SUBS_1, 3)
         tasksetdata.ordered_story_setpieces = teleportato_layouts
-        table.insert(required_prefabs,"pigking") -- this level should have a pigking
-        tasksetdata.required_prefabs = required_prefabs
+        tasksetdata.required_prefabs = required_prefabs -- GLOBAL.ArrayUnion(required_prefabs,{"pigking"})
         tasksetdata.overrides={
 			day  =  (GetModConfigData("difficulty")==0 and "default") or (GetModConfigData("difficulty")==1 and "longday") or (GetModConfigData("difficulty")==2 and "default") or (GetModConfigData("difficulty")==3 and "longdusk") or "default", 
 			season_start  =  "autumn",

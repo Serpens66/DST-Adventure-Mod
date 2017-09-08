@@ -179,7 +179,6 @@ end
 
 
 
-
 local function SpawnMaxwell(world)
     world:DoTaskInTime(4,function(world)
         if GLOBAL.CHAPTER then
@@ -357,6 +356,7 @@ local function OnPlayerSpawn(inst)
     if not GLOBAL.TheNet:GetIsServer() then 
         return
     end
+
     inst:ListenForEvent("invalidrpc", function(inst,data) print("Debug: InvalidRPC player "..tostring(data.player).." RPCName: "..tostring(data.rpcname)) end)
     if GLOBAL.TUNING.BLUEPRINTMODE and GLOBAL.OVERRIDELEVEL~=0 then
         inst:DoTaskInTime(1,function(inst)
@@ -489,6 +489,34 @@ AddModRPCHandler("adventure", "confirm", ConfirmAdventure)
 if not GLOBAL.TheNet:GetIsServer() then 
 	return
 end
+
+AddPrefabPostInit("wormhole",function(inst)
+    if inst.components.teleporter then
+        inst:DoTaskInTime(0,function(inst)
+            local x, y, z = inst.Transform:GetWorldPosition() 
+            local n = GLOBAL.GetClosestNode(x,y)
+            -- print("HHIER")
+            -- if n and type(n)=="table" then
+                -- for a,b in pairs(n) do 
+                    -- print(a)
+                    -- print(b)
+                -- end
+            -- end
+            
+            -- neighbours    table: 5D1D4268    enthält 3 zahlen
+            -- type    0    
+            -- c    7    
+            -- tags    table: 0C20C030    
+            -- cent    table: 0C20C648    
+            -- y    -19    
+            -- poly    table: 0C20C300    
+            -- validedges    table: 5D18C428    
+            -- x    42    
+            -- area    323 
+            
+        end)
+    end
+end)
 
 
 -- mod the builder component to change recipes availibilty
