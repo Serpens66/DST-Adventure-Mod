@@ -209,7 +209,17 @@ LLayouts["WinterStartEasy_new"] = require("map/layouts/WinterStartEasy_new")
 LLayouts["BargainStart_new"] = require("map/layouts/BargainStart_new")
 LLayouts["WinterStartMedium_new"] = require("map/layouts/WinterStartMedium_new")
 LLayouts["Wormhole_Mod"] = require("map/layouts/Wormhole_Mod")
-
+LLayouts["ImpassableBlock"] = require("map/layouts/ImpassableBlock")
+AddRoom("ImpassableWall", {
+				colour={r=0.2,g=0.0,b=0.2,a=0.3},
+				value = GLOBAL.GROUND.IMPASSABLE,
+				tags = {"ForceConnected", "RoadPoison"},
+				contents =  {
+								countstaticlayouts= {
+									["ImpassableBlock"]=1,
+								}, 
+							}
+			})
 
 local function GetRandomSubstituteList( substitutes, num_choices )	
 	local subs = {}
@@ -357,7 +367,13 @@ AddStartLocation("adv7", {
 local islandtasks = {"IslandHop_Start","IslandHop_Hounds","IslandHop_Forest","IslandHop_Savanna","IslandHop_Rocky","IslandHop_Merm","Land of Plenty","The other side",}
 for _,tasks in pairs(islandtasks) do
     AddTaskPreInit(tasks,function(task)
-        task.entrance_room = nil -- now the world is loading but of course without islands... 
+        task.entrance_room = {"ImpassableWall"} -- instead of island, the lands are connected, but blocked with undestroyable basalt stone
+        if tasks=="IslandHop_Start" then
+            task.room_choices["Wormhole"] = 5  -- unfortunately they are connected randomly... so not any help.... in modmain we could change the target, but we need to know if wormhole is located in IslandHop_Start or where...
+            -- task.room_choices["Sinkhole"] = 2 -- does not do anything... 
+        else
+            task.room_choices["Wormhole"] = 1
+        end
     end)
 end
 
@@ -374,7 +390,7 @@ if adventure_stuff then -- is only true, if we just adventure_jumped
 end
 
 -- testing
--- GLOBAL.OVERRIDELEVEL_GEN= 5 -- force loading this level
+GLOBAL.OVERRIDELEVEL_GEN= 4 -- force loading this level
 
 -- if GLOBAL.OVERRIDELEVEL_GEN==4 then HackGenChecksForIslands() end -- island hack.. -- a try to solve the broken island generation... but this only results in Stop of world generation after 1 island is generated
 
@@ -382,7 +398,7 @@ print("Level gen1 is "..tostring(GLOBAL.OVERRIDELEVEL_GEN).." Chapter is "..tost
 
 AddTaskSetPreInitAny(function(tasksetdata)
 -- AddLevelPreInitAny(function(tasksetdata)  -- what is the differnce ?!
-
+    
     if tasksetdata.location ~= "forest" then 
         if tasksetdata.location=="cave" then -- make cave super tiny in case it does exist
             tasksetdata.tasks = {"CaveExitTask1"}
