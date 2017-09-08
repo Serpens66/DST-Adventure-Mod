@@ -391,7 +391,7 @@ if adventure_stuff then -- is only true, if we just adventure_jumped
 end
 
 -- testing
-GLOBAL.OVERRIDELEVEL_GEN = 4 -- force loading this level
+-- GLOBAL.OVERRIDELEVEL_GEN = 4 -- force loading this level
 -- A Cold Reception = 1
 -- King of Winter = 2
 -- The Game is Afoot = 3
