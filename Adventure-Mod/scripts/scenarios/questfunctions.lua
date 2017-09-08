@@ -111,21 +111,21 @@ local function GetNewBlueprints(num)
                 table.insert(blueprints,thing.."_blueprint")
             end
         else -- if it is empty, add the next blueprint stuff
-            if OVERRIDELEVEL==1 then
+            if TUNING.ADVENTUREMOD.WORLDS[OVERRIDELEVEL].name=="A Cold Reception" then
                 if next(TheWorld.components.adv_rememberstuff.stuff3.winterblueprints) then
                     pick = MyPickSome(num, TheWorld.components.adv_rememberstuff.stuff3.winterblueprints)
                 else
                     pick = MyPickSome(num, TheWorld.components.adv_rememberstuff.stuff3.springblueprints)
                 end
-            elseif OVERRIDELEVEL==2 then
+            elseif TUNING.ADVENTUREMOD.WORLDS[OVERRIDELEVEL].name=="King of Winter" then
                 pick = MyPickSome(num, TheWorld.components.adv_rememberstuff.stuff3.winterblueprints)
-            elseif OVERRIDELEVEL==3 then -- The Game is Afoot
+            elseif TUNING.ADVENTUREMOD.WORLDS[OVERRIDELEVEL].name=="The Game is Afoot" then -- The Game is Afoot
                 pick = MyPickSome(num, TheWorld.components.adv_rememberstuff.stuff3.springblueprints)
-            elseif OVERRIDELEVEL==4 then -- Archipel
+            elseif TUNING.ADVENTUREMOD.WORLDS[OVERRIDELEVEL].name=="Archipelago" then -- Archipel
                 pick = {} -- all seasons are veryshort, so I think it can be survived without special season blueprints
-            elseif OVERRIDELEVEL==5 then -- Two Worlds
+            elseif TUNING.ADVENTUREMOD.WORLDS[OVERRIDELEVEL].name=="Two Worlds" then -- Two Worlds
                 pick = MyPickSome(num, TheWorld.components.adv_rememberstuff.stuff3.summerblueprints)
-            elseif OVERRIDELEVEL==6 then  -- darkness
+            elseif TUNING.ADVENTUREMOD.WORLDS[OVERRIDELEVEL].name=="Darkness" then  -- darkness
                 pick = MyPickSome(num, TheWorld.components.adv_rememberstuff.stuff3.darknessblueprints)
             end
             

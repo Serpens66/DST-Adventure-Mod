@@ -1,49 +1,23 @@
 -- print("HIER WORLDGEN")
 
 
--- # Anstatt Inseln zu machen, könnte man evtl auch verbundene inseln machen, die aber zb. mit basalt blokciert sind (vgl übergang mit sanityrocks), sodass man letzlich doch wormholes benutzen muss
+-- other mods, loaded previously, should add their worldgeneration stuff in this GLOBAL variable. And this API mod then will be able to choose and start worlds from other mods
+if not GLOBAL.TUNING.ADVENTUREMOD then
+    GLOBAL.TUNING.ADVENTUREMOD = {}
+end
+if not GLOBAL.TUNING.ADVENTUREMOD.WORLDS then
+    GLOBAL.TUNING.ADVENTUREMOD.WORLDS = {}
+end
 
------------spawn mode------------------------------------------------
--- local SpawnMode = GetModConfigData("spawn_mode")
 
--- GLOBAL.GAME_MODES["custom_game"].spawn_mode = SpawnMode
-
-
-----------ghost sanity drain--------------------------------------------
--- local GhostSanityDrain = GetModConfigData("ghost_sanity_drain")
-
--- GLOBAL.GAME_MODES["custom_game"].ghost_sanity_drain = GhostSanityDrain
-
------------ghost enabled------------------------------------------------
--- local GhostEnabled = GetModConfigData("ghost_enable")
-
--- GLOBAL.GAME_MODES["custom_game"].ghost_enabled = GhostEnabled
-
-----------------reset timer-----------------------------
--- local ResetTime = GetModConfigData("reset_time")
-
--- if ResetTime then
-	-- GLOBAL.GAME_MODES["custom_game"].reset_time = { time = 120, loadingtime = 180 }
--- end
-
--------------------------poratl revival------------------------------
-
--- local PortalRez = GetModConfigData("portal_rez")
-
--- GLOBAL.GAME_MODES["custom_game"].portal_rez = PortalRez
-
------------------banned items-----------------------------------------
--- local BanResItems = GetModConfigData("ban_rez")
-
--- if BanResItems then
-	-- GLOBAL.GAME_MODES["custom_game"].invalid_recipes = { "reviver", "lifeinjector", "amulet", "resurrections" }
--- end
+-- sometimes the mod does crash back to desktop without any error message in logfiles ?! ... 
+-- it happend one time when doing worldjump while maxwell was still talking
+-- and it happend one time I hit "disconnec",also while maxwell was talking ...
+-- also the world savegame is corrupted then, it is called "new world" instead of my world
 
 
 
-
-
-
+-- maxwellshome is suddenly the other way round? The whole world as to be rotated bei 180°
 
 
 -- TODO :
@@ -379,13 +353,13 @@ for _,taskname in pairs(islandtasks) do
 end
 
 
-GLOBAL.OVERRIDELEVEL_GEN = 0
+GLOBAL.OVERRIDELEVEL_GEN = 1
 GLOBAL.CHAPTER_GEN = 0
 GLOBAL.ADVENTURE_STUFF = nil
 local adventure_stuff = GLOBAL.GetTemporalAdventureContent() -- eg. {"current_level":3,"level_list":[3,4,5,1,6,7]}
 if adventure_stuff then -- is only true, if we just adventure_jumped 
     GLOBAL.ADVENTURE_STUFF = adventure_stuff
-    GLOBAL.OVERRIDELEVEL_GEN = adventure_stuff.level_list[adventure_stuff.current_level] or 0
+    GLOBAL.OVERRIDELEVEL_GEN = adventure_stuff.level_list[adventure_stuff.current_level] or 1
     GLOBAL.CHAPTER_GEN = adventure_stuff.current_level or 0
     print("Adventure: adventurestuff loaded successfully")
 end
@@ -402,6 +376,375 @@ end
 -- if GLOBAL.OVERRIDELEVEL_GEN==4 then HackGenChecksForIslands() end -- island hack.. -- a try to solve the broken island generation... but this only results in Stop of world generation after 1 island is generated
 
 print("Level gen1 is "..tostring(GLOBAL.OVERRIDELEVEL_GEN).." Chapter is "..tostring(GLOBAL.CHAPTER_GEN))
+
+
+
+local function AdventurePortalWorld(tasksetdata)
+    if not tasksetdata.ordered_story_setpieces then
+            tasksetdata.ordered_story_setpieces = {}
+        end
+    table.insert(tasksetdata.ordered_story_setpieces,adventureportal)
+    tasksetdata.tasks = {"Tentacle-Blocked Spider Swamp"}
+    tasksetdata.numoptionaltasks = 0
+    tasksetdata.optionaltasks = {}
+    tasksetdata.set_pieces = {
+        ["ResurrectionStoneWinter"] = { count=1, tasks={"Tentacle-Blocked Spider Swamp"}},
+    }
+    tasksetdata.required_prefabs = {"spawnpoint_master","adventure_portal"}
+    tasksetdata.substitutes = GetRandomSubstituteList(SUBS_1, 1)
+    tasksetdata.overrides={
+        world_size  =  "small",
+        wormhole_prefab = "wormhole",
+        layout_mode = "LinkNodesByKeys",
+        deerclops  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
+        dragonfly  =  "never",
+        bearger  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
+        goosemoose  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
+        season_start  =  "autumn",
+        autumn = "veryshortseason",
+        winter = "veryshortseason",
+        spring = "veryshortseason",
+        summer = "veryshortseason",
+    }
+    return tasksetdata
+end
+table.insert(GLOBAL.TUNING.ADVENTUREMOD.WORLDS, {name="Maxwells Door", taskdatafunction=AdventurePortalWorld, location="forest", defaultpositions={1}, positions=GetModConfigData("maxwellsdoor")})
+
+local function AdventureColdReception(tasksetdata) -- A Cold Reception
+    tasksetdata.numoptionaltasks = 4
+    tasksetdata.tasks = {"Make a pick","Easy Blocked Dig that rock","Great Plains","Guarded Speak to the king",}
+    tasksetdata.optionaltasks = {"Waspy Beeeees!","Guarded Squeltch","Guarded Forest hunters","Befriend the pigs","Guarded For a nice walk","Walled Kill the spiders","Killer bees!",
+        "Make a Beehat","Waspy The hunters","Hounded Magic meadow","Wasps and Frogs and bugs","Guarded Walrus Desolate",}
+    tasksetdata.set_pieces = {                
+            -- ["WesUnlock"] = { restrict_to="background", tasks= adventure1_setpieces_tasks},
+            ["ResurrectionStoneWinter"] = { count=1, tasks=adventure1_setpieces_tasks},
+        }
+    tasksetdata.substitutes = GetRandomSubstituteList(SUBS_1, 1)
+    tasksetdata.ordered_story_setpieces = teleportato_layouts
+    tasksetdata.required_prefabs = required_prefabs
+    tasksetdata.overrides={
+        world_size  =  "default",
+        day  =  "longdusk", 
+        weather  =  "often",
+        frograin   =  "often",
+        
+        season_start  =  "spring",
+        
+        deerclops  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
+        dragonfly  =  "never",
+        bearger  =  "never",
+        goosemoose  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
+        hounds  =  "never",
+        mactusk  =  "always",
+        leifs  =  "always",
+        
+        trees  =  "often",
+        carrot  =  "default",
+        berrybush  =  "never",
+        
+        wormhole_prefab = "wormhole",
+        layout_mode = "LinkNodesByKeys",
+        start_location = "adv1",
+        autumn = "noseason",
+        winter = "veryshortseason",
+        spring = "shortseason",
+        summer = "noseason",
+    }
+    return tasksetdata
+end
+table.insert(GLOBAL.TUNING.ADVENTUREMOD.WORLDS, {name="A Cold Reception", taskdatafunction=AdventureColdReception, location="forest", defaultpositions={2,3,4,5}, positions=GetModConfigData("acoldreception")})
+
+local function AdventureKingWinter(tasksetdata)
+    tasksetdata.numoptionaltasks = 2
+    tasksetdata.tasks = {"Resource-rich Tier2","Sanity-Blocked Great Plains","Hounded Greater Plains","Insanity-Blocked Necronomicon",}
+    tasksetdata.optionaltasks = {"Walrus Desolate","Walled Kill the spiders","The Deep Forest","Forest hunters",}
+    tasksetdata.set_pieces = {                
+            -- ["WesUnlock"] = { restrict_to="background", tasks={ "Hounded Greater Plains", "Walrus Desolate", "Walled Kill the spiders", "The Deep Forest", "Forest hunters" }},
+            ["ResurrectionStoneWinter"] = { count=1, tasks={"Resource-rich Tier2","Sanity-Blocked Great Plains","Hounded Greater Plains","Insanity-Blocked Necronomicon", 
+                                                    "Walrus Desolate","Walled Kill the spiders","The Deep Forest","Forest hunters"}},
+            ["MacTuskTown"] = { tasks={"Insanity-Blocked Necronomicon", "Hounded Greater Plains", "Sanity-Blocked Great Plains"} },
+        }
+    tasksetdata.substitutes = GetRandomSubstituteList(SUBS_1, 1)
+    tasksetdata.ordered_story_setpieces = teleportato_layouts
+    tasksetdata.required_prefabs = required_prefabs
+    tasksetdata.overrides={
+        world_size = "default",
+        wormhole_prefab = "wormhole",
+        layout_mode = "LinkNodesByKeys",
+        day  =  "longdusk", 
+
+        start_location = "adv2",
+
+        loop  =  "never",
+        branching  =  "least",
+        
+        season_start  =  "winter",
+        weather  =  (GetModConfigData("difficulty")==0 and "often") or (GetModConfigData("difficulty")==1 and "often") or (GetModConfigData("difficulty")==2 and "always") or (GetModConfigData("difficulty")==3 and "always") or "often",		
+        
+        deerclops  =  (GetModConfigData("difficulty")==0 and "often") or (GetModConfigData("difficulty")==1 and "default") or (GetModConfigData("difficulty")==2 and "often") or (GetModConfigData("difficulty")==3 and "always") or "often",
+        dragonfly  =  "never",
+        bearger  =  "never",
+        goosemoose  =  "never",
+        hounds  =  "never",
+        mactusk  =  "always",
+        
+        carrot = (GetModConfigData("difficulty")==0 and "rare") or (GetModConfigData("difficulty")==1 and "default") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "never") or "rare",          
+        berrybush  =  (GetModConfigData("difficulty")==0 and "rare") or (GetModConfigData("difficulty")==1 and "default") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "never") or "rare",
+        
+        autumn = "noseason",
+        winter = "verylongseason",
+        spring = "noseason",
+        summer = "noseason",
+    }
+    return tasksetdata
+end
+table.insert(GLOBAL.TUNING.ADVENTUREMOD.WORLDS, {name="King of Winter", taskdatafunction=AdventureKingWinter, location="forest", defaultpositions={2,3,4,5}, positions=GetModConfigData("kingofwinter")})
+
+
+local function AdventureGameAfoot(tasksetdata)
+    tasksetdata.numoptionaltasks = 4
+    tasksetdata.tasks = {-- Enemies: Lots of hound mounds and maxwell traps everywhere. Frequent hound invasions.
+        "Resource-Rich","Lots-o-Spiders","Lots-o-Tentacles","Lots-o-Tallbirds","Lots-o-Chessmonsters",}
+    tasksetdata.optionaltasks = {"The hunters","Trapped Forest hunters","Wasps and Frogs and bugs","Tentacle-Blocked The Deep Forest","Hounded Greater Plains","Merms ahoy",}
+    tasksetdata.set_pieces = {                
+            ["SimpleBase"] = { tasks={"Lots-o-Spiders", "Lots-o-Tentacles", "Lots-o-Tallbirds", "Lots-o-Chessmonsters"}},
+            -- ["WesUnlock"] = { restrict_to="background", tasks={ "The hunters", "Trapped Forest hunters", "Wasps and Frogs and bugs", "Tentacle-Blocked The Deep Forest", "Hounded Greater Plains", "Merms ahoy" }},
+            ["ResurrectionStone"] = { count=1, tasks={"Resource-Rich","Lots-o-Spiders","Lots-o-Tentacles","Lots-o-Tallbirds","Lots-o-Chessmonsters", "The hunters","Trapped Forest hunters",
+                                                    "Wasps and Frogs and bugs","Tentacle-Blocked The Deep Forest","Hounded Greater Plains","Merms ahoy"} },
+        }
+    tasksetdata.substitutes = GetRandomSubstituteList(SUBS_1, 3)
+    tasksetdata.ordered_story_setpieces = teleportato_layouts
+    tasksetdata.required_prefabs = required_prefabs
+    tasksetdata.overrides={
+        day = "longdusk", 
+
+        season_start = "winter",
+        spiders = "often",
+        world_size = "default",
+        branching = "default",
+        loop = "never",
+        
+        deerclops  =  (GetModConfigData("difficulty")==0 and "default") or (GetModConfigData("difficulty")==1 and "rare") or (GetModConfigData("difficulty")==2 and "default") or (GetModConfigData("difficulty")==3 and "often") or "default",
+        dragonfly  =  "never",
+        bearger  =  "never",
+        goosemoose  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
+        wormhole_prefab = "wormhole",
+        layout_mode = "LinkNodesByKeys",
+        start_location = "adv3",
+        autumn = (GetModConfigData("difficulty")==1 and "veryshortseason") or "noseason",
+        winter = "noseason",
+        spring = "verylongseason",
+        summer = "noseason",
+    }
+    return tasksetdata
+end
+table.insert(GLOBAL.TUNING.ADVENTUREMOD.WORLDS, {name="The Game is Afoot", taskdatafunction=AdventureGameAfoot, location="forest", defaultpositions={2,3,4,5}, positions=GetModConfigData("thegameisafoot")})
+
+
+local function AdventureArchipelago(tasksetdata)
+    tasksetdata.numoptionaltasks = 0
+    tasksetdata.tasks = {"IslandHop_Start","IslandHop_Hounds","IslandHop_Forest","IslandHop_Savanna","IslandHop_Rocky","IslandHop_Merm",}
+    tasksetdata.optionaltasks = {}
+    -- tasksetdata.optionaltasks = {"The hunters","Trapped Forest hunters","Wasps and Frogs and bugs","Tentacle-Blocked The Deep Forest","Hounded Greater Plains","Merms ahoy",}
+    tasksetdata.set_pieces = {                
+            -- ["WesUnlock"] = { restrict_to="background", tasks={ "IslandHop_Start", "IslandHop_Hounds", "IslandHop_Forest", "IslandHop_Savanna", "IslandHop_Rocky", "IslandHop_Merm" } },
+            -- ["Wormhole_Mod"] = { count= 1, tasks={ "IslandHop_Start", "IslandHop_Hounds", "IslandHop_Forest", "IslandHop_Savanna", "IslandHop_Rocky", "IslandHop_Merm" } },
+        }
+    tasksetdata.substitutes = GetRandomSubstituteList(SUBS_1, 3)
+    tasksetdata.ordered_story_setpieces = teleportato_layouts
+    tasksetdata.required_prefabs = required_prefabs
+    tasksetdata.overrides={
+        -- loop  =  "always",
+        -- branching  =  "never",   -- hilft leider auch nicht -.-
+    
+    
+        islands = "always",	
+        roads = "never",	
+        weather = (GetModConfigData("difficulty")==0 and "default") or (GetModConfigData("difficulty")==1 and "rare") or (GetModConfigData("difficulty")==2 and "default") or (GetModConfigData("difficulty")==3 and "often") or "default",
+        deerclops = (GetModConfigData("difficulty")==0 and "default") or (GetModConfigData("difficulty")==1 and "rare") or (GetModConfigData("difficulty")==2 and "default") or (GetModConfigData("difficulty")==3 and "often") or "default",
+        dragonfly  =  "never",
+        bearger  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
+        goosemoose  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
+        season_start = "default",
+        wormhole_prefab = "wormhole",
+        -- layout_mode = "LinkNodesByKeys",
+        layout_mode = "RestrictNodesByKey",
+        start_location = "adv4",
+        autumn = "shortseason",
+        winter = "shortseason",
+        spring = "shortseason",
+        summer = "shortseason",
+    }
+    return tasksetdata
+end
+table.insert(GLOBAL.TUNING.ADVENTUREMOD.WORLDS, {name="Archipelago", taskdatafunction=AdventureArchipelago, location="forest", defaultpositions={2,3,4,5}, positions=GetModConfigData("archipelago")})
+
+
+local function AdventureTwoWorlds(tasksetdata)
+    -- tasksetdata.override_level_string=true -- test out what this does ?
+    tasksetdata.tasks = {"Land of Plenty", -- Part 1 - Easy peasy - lots of stuff
+                        "The other side",}	-- Part 2 - Lets kill them off
+    -- tasksetdata.numoptionaltasks = 4 -- evlt vllt doch 0, mal Beschreibung genauer lesen, was darin vorkommen sollte...
+    -- tasksetdata.optionaltasks = {"Befriend the pigs","For a nice walk","Kill the spiders","Killer bees!","Make a Beehat",
+            -- "The hunters","Magic meadow","Frogs and bugs",} -- in adventure.lua keine optionaltasks definiert. Aber wenn es 0 sein sollte, würde das da stehen, also vermutlich default werte? 
+    tasksetdata.numoptionaltasks = 0
+    tasksetdata.optionaltasks = {}
+    tasksetdata.set_pieces = {                
+            ["MaxPigShrine"] = {tasks={"Land of Plenty"}},
+            ["MaxMermShrine"] = {tasks={"The other side"}},
+            ["ResurrectionStone"] = { count=2, tasks={"Land of Plenty", "The other side" } },}
+    tasksetdata.substitutes = GetRandomSubstituteList(SUBS_1, 3)
+    tasksetdata.ordered_story_setpieces = teleportato_layouts
+    tasksetdata.required_prefabs = required_prefabs -- GLOBAL.ArrayUnion(required_prefabs,{"pigking"})
+    tasksetdata.overrides={
+        day  =  (GetModConfigData("difficulty")==0 and "default") or (GetModConfigData("difficulty")==1 and "longday") or (GetModConfigData("difficulty")==2 and "default") or (GetModConfigData("difficulty")==3 and "longdusk") or "default", 
+        season_start  =  "autumn",
+        
+        weather = (GetModConfigData("difficulty")==0 and "rare") or (GetModConfigData("difficulty")==1 and "rare") or (GetModConfigData("difficulty")==2 and "default") or (GetModConfigData("difficulty")==3 and "often") or "rare", 
+        
+        islands  =  "always",	
+        roads  =  "never",	
+        dragonfly  =  "never",
+        bearger  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
+        goosemoose  =  "never",
+        world_size = "default",
+        wormhole_prefab = "wormhole",
+        layout_mode = "LinkNodesByKeys",
+        start_location = "adv5",
+        autumn = (GetModConfigData("difficulty")==1 and "veryshortseason") or "noseason",
+        winter = "noseason",
+        spring = "noseason",
+        summer = "verylongseason",
+    }
+    -- tasksetdata.override_triggers = {
+        -- ["START"] = {	-- Quick (localised) fix for area-aware bug #677
+                                -- {"weather", "never"}, 
+                                -- {"day", "longday"},
+                            -- },
+        -- ["Land of Plenty"] = {	
+                                -- {"weather", "never"},   -- testen ob und wie sowas funktioniert... wird wohl wetter und tag wechsel sein, der erwähnt wurde... in mehrspieler ist das natürlich schwer umsetzbar
+                                -- {"day", "longday"},
+                            -- },
+        -- ["The other side"] = {	
+                                -- {"weather", "often"}, 
+                                -- {"day", "longdusk"},
+                            -- },
+    -- }
+    return tasksetdata
+end
+table.insert(GLOBAL.TUNING.ADVENTUREMOD.WORLDS, {name="Two Worlds", taskdatafunction=AdventureTwoWorlds, location="forest", defaultpositions={4,5}, positions=GetModConfigData("twoworlds")})
+
+
+local function AdventureDarkness(tasksetdata)
+    tasksetdata.tasks = {"Swamp start","Battlefield","Walled Kill the spiders","Sanity-Blocked Spider Queendom",}
+    tasksetdata.numoptionaltasks = 2
+    tasksetdata.optionaltasks = {"Killer bees!","Chessworld","Tentacle-Blocked The Deep Forest","Tentacle-Blocked Spider Swamp",
+        "Trapped Forest hunters","Waspy The hunters","Hounded Magic meadow",}
+    tasksetdata.set_pieces = {
+            ["RuinedBase"] = {tasks={"Swamp start", "Battlefield", "Walled Kill the spiders", "Killer bees!"}},
+            ["ResurrectionStoneLit"] = { count=4, tasks={"Swamp start", "Battlefield", "Walled Kill the spiders", "Sanity-Blocked Spider Queendom","Killer bees!",
+            "Chessworld","Tentacle-Blocked The Deep Forest", "Tentacle-Blocked Spider Swamp","Trapped Forest hunters","Waspy The hunters","Hounded Magic meadow", }},}
+    tasksetdata.substitutes = GLOBAL.MergeMaps( {["pighouse"] = {perstory=1,weight=1,pertask=1}},GetRandomSubstituteList(SUBS_1, 3) )
+    tasksetdata.ordered_story_setpieces = teleportato_layouts
+    tasksetdata.required_prefabs = required_prefabs
+    tasksetdata.overrides={
+        branching = "never",
+        day = "onlynight", 
+        season_start = "autumn",
+        weather = "often",
+
+        boons = "always",
+        
+        roads = "never",
+        berrybush = "never",
+        spiders = "often",
+
+        fireflies = (GetModConfigData("difficulty")==3 and "often") or "always",
+        
+        bunnymen = (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "default") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "rare") or "never",
+        flower_cave = (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "always") or (GetModConfigData("difficulty")==2 and "often") or (GetModConfigData("difficulty")==3 and "default") or "never",
+        
+        maxwelllight_area = (GetModConfigData("difficulty")==0 and "always") or (GetModConfigData("difficulty")==1 and "always") or (GetModConfigData("difficulty")==2 and "often") or (GetModConfigData("difficulty")==3 and "default") or "always", 
+        dragonfly  =  "never",
+        bearger  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
+        goosemoose  =  "never",
+        world_size = "default",
+        wormhole_prefab = "wormhole",
+        layout_mode = "LinkNodesByKeys",
+        start_location = "adv6",
+        autumn = (GetModConfigData("difficulty")==0 and "noseason") or (GetModConfigData("difficulty")==1 and "shortseason") or (GetModConfigData("difficulty")==2 and "veryshortseason") or (GetModConfigData("difficulty")==3 and "noseason") or "noseason",
+        winter = "noseason",
+        spring = "noseason",
+        summer = (GetModConfigData("difficulty")==0 and "verylongseason") or (GetModConfigData("difficulty")==1 and "shortseason") or (GetModConfigData("difficulty")==2 and "default") or (GetModConfigData("difficulty")==3 and "verylongseason"),
+    }
+    return tasksetdata
+end
+table.insert(GLOBAL.TUNING.ADVENTUREMOD.WORLDS, {name="Darkness", taskdatafunction=AdventureDarkness, location="forest", defaultpositions={6}, positions=GetModConfigData("darkness")})
+
+
+local function AdventureMaxwellHome(tasksetdata)
+    tasksetdata.nomaxwell=true
+    tasksetdata.hideminimap = true
+    tasksetdata.teleportaction = "restart"
+    tasksetdata.teleportmaxwell = "ADVENTURE_6_TELEPORTFAIL"
+    tasksetdata.tasks = {"MaxHome"}--,"Make a pick",}
+    tasksetdata.valid_start_tasks = {"MaxHome",}  
+    tasksetdata.numoptionaltasks = 0
+    tasksetdata.optionaltasks = {}
+    tasksetdata.set_pieces = {} -- vermutlich keine
+    tasksetdata.required_prefabs = {}
+    tasksetdata.overrides={
+        start_location = "adv7",  --- wenn wir keine startlocation zufügen, wird default verwendet, welches default setpiece und clearing verwendet, welches ein multiplayer portal beinhaltet.
+        wormhole_prefab = "wormhole",
+        layout_mode = "LinkNodesByKeys",  
+        -- layout_mode = "RestrictNodesByKey",
+        day  =  "onlynight", 
+        weather  =  "never",
+        creepyeyes  =  "always",
+        -- waves  =  "off",
+        boons  =  "never",
+        deerclops = "never",
+        dragonfly  =  "never",
+        bearger  =  "never",
+        goosemoose  =  "never",
+        world_size = "default",
+        autumn = "verylongseason", -- only summer would be rubbish
+        winter = "noseason",
+        spring = "noseason",
+        summer = "noseason",
+    }
+    -- tasksetdata.override_triggers = {
+        -- ["MaxHome"] = {	
+            -- {"areaambient", "VOID"}, 
+        -- },
+    -- }
+    return tasksetdata
+end
+table.insert(GLOBAL.TUNING.ADVENTUREMOD.WORLDS, {name="MaxwellHome", taskdatafunction=AdventureMaxwellHome, location="forest", defaultpositions={7}, positions=GetModConfigData("maxwellhome")})
+-- name -> shown in title
+-- taskdatafunction -> this function is called in AddTaskSetPreInitAny in modwordgenmain of the base mod to set the taskdata of the world, so you mod is loaded.
+-- location -> forest or cave
+-- positions -> only 5 maps per game. maps chosen randomly or disallow certain positions. eg. {2,3} you world may only load at second or third world. {1,2,3,4,5} you world may load regardless on which position.
+GLOBAL.TUNING.ADVENTUREMOD.POSITIONS = {{},{},{},{},{},{},{}}
+for i,world in ipairs(GLOBAL.TUNING.ADVENTUREMOD.WORLDS) do
+    world.positions = string.split(world.positions, ",") --world.positions:GLOBAL.split(",") -- in modconfig tables as setting are not allowed, so we used strings and have to convert them here
+    for _,pos in ipairs(world.positions) do
+        table.insert(GLOBAL.TUNING.ADVENTUREMOD.POSITIONS[GLOBAL.tonumber(pos)], i)
+    end
+end
+-- for k,v in pairs(GLOBAL.TUNING.ADVENTUREMOD.POSITIONS) do
+    -- print("Chapter "..GLOBAL.tostring(k).." kann folgende Welt sein")
+    -- for _,c in pairs(v) do
+        -- print(c)
+    -- end
+    -- print("---")
+-- end
+GLOBAL.TUNING.ADVENTUREMOD.DEFAULTPOSITIONS = {{},{},{},{},{},{},{}} -- just in case user set too less worlds, then use the defaultpositions too fill
+for i,world in ipairs(GLOBAL.TUNING.ADVENTUREMOD.WORLDS) do
+    for _,pos in ipairs(world.defaultpositions) do
+        table.insert(GLOBAL.TUNING.ADVENTUREMOD.DEFAULTPOSITIONS[pos], i)
+    end
+end
 
 AddTaskSetPreInitAny(function(tasksetdata)
 -- AddLevelPreInitAny(function(tasksetdata)  -- what is the differnce ?!
@@ -422,316 +765,7 @@ AddTaskSetPreInitAny(function(tasksetdata)
         return
     end
     
-    if GLOBAL.OVERRIDELEVEL_GEN==0 then-- load a normal world, but place the adventure portal somewhere
-        if not tasksetdata.ordered_story_setpieces then
-            tasksetdata.ordered_story_setpieces = {}
-        end
-        table.insert(tasksetdata.ordered_story_setpieces,adventureportal)
-        tasksetdata.tasks = {"Tentacle-Blocked Spider Swamp"}
-        tasksetdata.numoptionaltasks = 0
-        tasksetdata.optionaltasks = {}
-        tasksetdata.set_pieces = {
-            ["ResurrectionStoneWinter"] = { count=1, tasks={"Tentacle-Blocked Spider Swamp"}},
-            -- ["InsanePighouse"] = { count=1, tasks={"Tentacle-Blocked Spider Swamp"}},
-            -- ["PigTown"] = { count=1, tasks={"Tentacle-Blocked Spider Swamp"}},
-        }
-        tasksetdata.required_prefabs = {"spawnpoint_master","adventure_portal"}
-        tasksetdata.substitutes = GetRandomSubstituteList(SUBS_1, 1)
-        tasksetdata.overrides={
-            world_size  =  "small",
-            wormhole_prefab = "wormhole",
-            layout_mode = "LinkNodesByKeys",
-            deerclops  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
-            dragonfly  =  "never",
-            bearger  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
-            goosemoose  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
-            season_start  =  "autumn",
-            autumn = "veryshortseason",
-            winter = "veryshortseason",
-            spring = "veryshortseason",
-            summer = "veryshortseason",
-        }
-    elseif GLOBAL.OVERRIDELEVEL_GEN==1 then
-        tasksetdata.numoptionaltasks = 4
-        tasksetdata.tasks = {"Make a pick","Easy Blocked Dig that rock","Great Plains","Guarded Speak to the king",}
-        tasksetdata.optionaltasks = {"Waspy Beeeees!","Guarded Squeltch","Guarded Forest hunters","Befriend the pigs","Guarded For a nice walk","Walled Kill the spiders","Killer bees!",
-            "Make a Beehat","Waspy The hunters","Hounded Magic meadow","Wasps and Frogs and bugs","Guarded Walrus Desolate",}
-        tasksetdata.set_pieces = {                
-                -- ["WesUnlock"] = { restrict_to="background", tasks= adventure1_setpieces_tasks},
-                ["ResurrectionStoneWinter"] = { count=1, tasks=adventure1_setpieces_tasks},
-            }
-        tasksetdata.substitutes = GetRandomSubstituteList(SUBS_1, 1)
-        tasksetdata.ordered_story_setpieces = teleportato_layouts
-        tasksetdata.required_prefabs = required_prefabs
-        tasksetdata.overrides={
-            world_size  =  "default",
-            day  =  "longdusk", 
-            weather  =  "often",
-            frograin   =  "often",
-            
-            season_start  =  "spring",
-            
-            deerclops  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
-            dragonfly  =  "never",
-            bearger  =  "never",
-            goosemoose  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
-            hounds  =  "never",
-            mactusk  =  "always",
-            leifs  =  "always",
-            
-            trees  =  "often",
-            carrot  =  "default",
-            berrybush  =  "never",
-            
-            wormhole_prefab = "wormhole",
-            layout_mode = "LinkNodesByKeys",
-            start_location = "adv1",
-            autumn = "noseason",
-            winter = "veryshortseason",
-            spring = "shortseason",
-            summer = "noseason",
-        }
-    elseif GLOBAL.OVERRIDELEVEL_GEN==2 then
-        tasksetdata.numoptionaltasks = 2
-        tasksetdata.tasks = {"Resource-rich Tier2","Sanity-Blocked Great Plains","Hounded Greater Plains","Insanity-Blocked Necronomicon",}
-        tasksetdata.optionaltasks = {"Walrus Desolate","Walled Kill the spiders","The Deep Forest","Forest hunters",}
-        tasksetdata.set_pieces = {                
-                -- ["WesUnlock"] = { restrict_to="background", tasks={ "Hounded Greater Plains", "Walrus Desolate", "Walled Kill the spiders", "The Deep Forest", "Forest hunters" }},
-                ["ResurrectionStoneWinter"] = { count=1, tasks={"Resource-rich Tier2","Sanity-Blocked Great Plains","Hounded Greater Plains","Insanity-Blocked Necronomicon", 
-														"Walrus Desolate","Walled Kill the spiders","The Deep Forest","Forest hunters"}},
-                ["MacTuskTown"] = { tasks={"Insanity-Blocked Necronomicon", "Hounded Greater Plains", "Sanity-Blocked Great Plains"} },
-            }
-        tasksetdata.substitutes = GetRandomSubstituteList(SUBS_1, 1)
-        tasksetdata.ordered_story_setpieces = teleportato_layouts
-        tasksetdata.required_prefabs = required_prefabs
-        tasksetdata.overrides={
-            world_size = "default",
-            wormhole_prefab = "wormhole",
-            layout_mode = "LinkNodesByKeys",
-			day  =  "longdusk", 
-
-            start_location = "adv2",
-
-			loop  =  "never",
-			branching  =  "least",
-			
-			season_start  =  "winter",
-			weather  =  (GetModConfigData("difficulty")==0 and "often") or (GetModConfigData("difficulty")==1 and "often") or (GetModConfigData("difficulty")==2 and "always") or (GetModConfigData("difficulty")==3 and "always") or "often",		
-			
-			deerclops  =  (GetModConfigData("difficulty")==0 and "often") or (GetModConfigData("difficulty")==1 and "default") or (GetModConfigData("difficulty")==2 and "often") or (GetModConfigData("difficulty")==3 and "always") or "often",
-            dragonfly  =  "never",
-            bearger  =  "never",
-            goosemoose  =  "never",
-			hounds  =  "never",
-			mactusk  =  "always",
-			
-			carrot = (GetModConfigData("difficulty")==0 and "rare") or (GetModConfigData("difficulty")==1 and "default") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "never") or "rare",          
-            berrybush  =  (GetModConfigData("difficulty")==0 and "rare") or (GetModConfigData("difficulty")==1 and "default") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "never") or "rare",
-            
-            autumn = "noseason",
-            winter = "verylongseason",
-            spring = "noseason",
-            summer = "noseason",
-		}
-    elseif GLOBAL.OVERRIDELEVEL_GEN==3 then -- The Game is Afoot
-        tasksetdata.numoptionaltasks = 4
-        tasksetdata.tasks = {-- Enemies: Lots of hound mounds and maxwell traps everywhere. Frequent hound invasions.
-			"Resource-Rich","Lots-o-Spiders","Lots-o-Tentacles","Lots-o-Tallbirds","Lots-o-Chessmonsters",}
-        tasksetdata.optionaltasks = {"The hunters","Trapped Forest hunters","Wasps and Frogs and bugs","Tentacle-Blocked The Deep Forest","Hounded Greater Plains","Merms ahoy",}
-        tasksetdata.set_pieces = {                
-                ["SimpleBase"] = { tasks={"Lots-o-Spiders", "Lots-o-Tentacles", "Lots-o-Tallbirds", "Lots-o-Chessmonsters"}},
-                -- ["WesUnlock"] = { restrict_to="background", tasks={ "The hunters", "Trapped Forest hunters", "Wasps and Frogs and bugs", "Tentacle-Blocked The Deep Forest", "Hounded Greater Plains", "Merms ahoy" }},
-                ["ResurrectionStone"] = { count=1, tasks={"Resource-Rich","Lots-o-Spiders","Lots-o-Tentacles","Lots-o-Tallbirds","Lots-o-Chessmonsters", "The hunters","Trapped Forest hunters",
-														"Wasps and Frogs and bugs","Tentacle-Blocked The Deep Forest","Hounded Greater Plains","Merms ahoy"} },
-            }
-        tasksetdata.substitutes = GetRandomSubstituteList(SUBS_1, 3)
-        tasksetdata.ordered_story_setpieces = teleportato_layouts
-        tasksetdata.required_prefabs = required_prefabs
-        tasksetdata.overrides={
-			day = "longdusk", 
-
-			season_start = "winter",
-			spiders = "often",
-            world_size = "default",
-			branching = "default",
-			loop = "never",
-            
-            deerclops  =  (GetModConfigData("difficulty")==0 and "default") or (GetModConfigData("difficulty")==1 and "rare") or (GetModConfigData("difficulty")==2 and "default") or (GetModConfigData("difficulty")==3 and "often") or "default",
-            dragonfly  =  "never",
-            bearger  =  "never",
-            goosemoose  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
-            wormhole_prefab = "wormhole",
-            layout_mode = "LinkNodesByKeys",
-            start_location = "adv3",
-            autumn = (GetModConfigData("difficulty")==1 and "veryshortseason") or "noseason",
-            winter = "noseason",
-            spring = "verylongseason",
-            summer = "noseason",
-		}
-    elseif GLOBAL.OVERRIDELEVEL_GEN==4 then -- Archipel
-                
-        tasksetdata.numoptionaltasks = 0
-        tasksetdata.tasks = {"IslandHop_Start","IslandHop_Hounds","IslandHop_Forest","IslandHop_Savanna","IslandHop_Rocky","IslandHop_Merm",}
-        tasksetdata.optionaltasks = {}
-        -- tasksetdata.optionaltasks = {"The hunters","Trapped Forest hunters","Wasps and Frogs and bugs","Tentacle-Blocked The Deep Forest","Hounded Greater Plains","Merms ahoy",}
-        tasksetdata.set_pieces = {                
-                -- ["WesUnlock"] = { restrict_to="background", tasks={ "IslandHop_Start", "IslandHop_Hounds", "IslandHop_Forest", "IslandHop_Savanna", "IslandHop_Rocky", "IslandHop_Merm" } },
-                -- ["Wormhole_Mod"] = { count= 1, tasks={ "IslandHop_Start", "IslandHop_Hounds", "IslandHop_Forest", "IslandHop_Savanna", "IslandHop_Rocky", "IslandHop_Merm" } },
-            }
-        tasksetdata.substitutes = GetRandomSubstituteList(SUBS_1, 3)
-        tasksetdata.ordered_story_setpieces = teleportato_layouts
-        tasksetdata.required_prefabs = required_prefabs
-        tasksetdata.overrides={
-            -- loop  =  "always",
-			-- branching  =  "never",   -- hilft leider auch nicht -.-
-        
-        
-			islands = "always",	
-			roads = "never",	
-			weather = (GetModConfigData("difficulty")==0 and "default") or (GetModConfigData("difficulty")==1 and "rare") or (GetModConfigData("difficulty")==2 and "default") or (GetModConfigData("difficulty")==3 and "often") or "default",
-            deerclops = (GetModConfigData("difficulty")==0 and "default") or (GetModConfigData("difficulty")==1 and "rare") or (GetModConfigData("difficulty")==2 and "default") or (GetModConfigData("difficulty")==3 and "often") or "default",
-            dragonfly  =  "never",
-            bearger  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
-            goosemoose  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
-            season_start = "default",
-            wormhole_prefab = "wormhole",
-            -- layout_mode = "LinkNodesByKeys",
-            layout_mode = "RestrictNodesByKey",
-            start_location = "adv4",
-            autumn = "shortseason",
-            winter = "shortseason",
-            spring = "shortseason",
-            summer = "shortseason",
-		}
-    elseif GLOBAL.OVERRIDELEVEL_GEN==5 then -- Two Worlds
-        -- tasksetdata.override_level_string=true -- test out what this does ?
-        tasksetdata.tasks = {"Land of Plenty", -- Part 1 - Easy peasy - lots of stuff
-                            "The other side",}	-- Part 2 - Lets kill them off
-        -- tasksetdata.numoptionaltasks = 4 -- evlt vllt doch 0, mal Beschreibung genauer lesen, was darin vorkommen sollte...
-        -- tasksetdata.optionaltasks = {"Befriend the pigs","For a nice walk","Kill the spiders","Killer bees!","Make a Beehat",
-				-- "The hunters","Magic meadow","Frogs and bugs",} -- in adventure.lua keine optionaltasks definiert. Aber wenn es 0 sein sollte, würde das da stehen, also vermutlich default werte? 
-        tasksetdata.numoptionaltasks = 0
-        tasksetdata.optionaltasks = {}
-        tasksetdata.set_pieces = {                
-                ["MaxPigShrine"] = {tasks={"Land of Plenty"}},
-                ["MaxMermShrine"] = {tasks={"The other side"}},
-                ["ResurrectionStone"] = { count=2, tasks={"Land of Plenty", "The other side" } },}
-        tasksetdata.substitutes = GetRandomSubstituteList(SUBS_1, 3)
-        tasksetdata.ordered_story_setpieces = teleportato_layouts
-        tasksetdata.required_prefabs = required_prefabs -- GLOBAL.ArrayUnion(required_prefabs,{"pigking"})
-        tasksetdata.overrides={
-			day  =  (GetModConfigData("difficulty")==0 and "default") or (GetModConfigData("difficulty")==1 and "longday") or (GetModConfigData("difficulty")==2 and "default") or (GetModConfigData("difficulty")==3 and "longdusk") or "default", 
-			season_start  =  "autumn",
-			
-            weather = (GetModConfigData("difficulty")==0 and "rare") or (GetModConfigData("difficulty")==1 and "rare") or (GetModConfigData("difficulty")==2 and "default") or (GetModConfigData("difficulty")==3 and "often") or "rare", 
-            
-			islands  =  "always",	
-			roads  =  "never",	
-            dragonfly  =  "never",
-            bearger  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
-            goosemoose  =  "never",
-            world_size = "default",
-            wormhole_prefab = "wormhole",
-            layout_mode = "LinkNodesByKeys",
-            start_location = "adv5",
-            autumn = (GetModConfigData("difficulty")==1 and "veryshortseason") or "noseason",
-            winter = "noseason",
-            spring = "noseason",
-            summer = "verylongseason",
-		}
-		-- tasksetdata.override_triggers = {
-			-- ["START"] = {	-- Quick (localised) fix for area-aware bug #677
-									-- {"weather", "never"}, 
-									-- {"day", "longday"},
-							 	-- },
-			-- ["Land of Plenty"] = {	
-									-- {"weather", "never"},   -- testen ob und wie sowas funktioniert... wird wohl wetter und tag wechsel sein, der erwähnt wurde... in mehrspieler ist das natürlich schwer umsetzbar
-									-- {"day", "longday"},
-							 	-- },
-			-- ["The other side"] = {	
-									-- {"weather", "often"}, 
-									-- {"day", "longdusk"},
-							 	-- },
-		-- }
-    elseif GLOBAL.OVERRIDELEVEL_GEN==6 then -- Darkness
-        tasksetdata.tasks = {"Swamp start","Battlefield","Walled Kill the spiders","Sanity-Blocked Spider Queendom",}
-        tasksetdata.numoptionaltasks = 2
-        tasksetdata.optionaltasks = {"Killer bees!","Chessworld","Tentacle-Blocked The Deep Forest","Tentacle-Blocked Spider Swamp",
-			"Trapped Forest hunters","Waspy The hunters","Hounded Magic meadow",}
-        tasksetdata.set_pieces = {
-                ["RuinedBase"] = {tasks={"Swamp start", "Battlefield", "Walled Kill the spiders", "Killer bees!"}},
-                ["ResurrectionStoneLit"] = { count=4, tasks={"Swamp start", "Battlefield", "Walled Kill the spiders", "Sanity-Blocked Spider Queendom","Killer bees!",
-                "Chessworld","Tentacle-Blocked The Deep Forest", "Tentacle-Blocked Spider Swamp","Trapped Forest hunters","Waspy The hunters","Hounded Magic meadow", }},}
-        tasksetdata.substitutes = GLOBAL.MergeMaps( {["pighouse"] = {perstory=1,weight=1,pertask=1}},GetRandomSubstituteList(SUBS_1, 3) )
-        tasksetdata.ordered_story_setpieces = teleportato_layouts
-        tasksetdata.required_prefabs = required_prefabs
-        tasksetdata.overrides={
-			branching = "never",
-			day = "onlynight", 
-			season_start = "autumn",
-			weather = "often",
-
-			boons = "always",
-			
-			roads = "never",
-			berrybush = "never",
-			spiders = "often",
-
-			fireflies = (GetModConfigData("difficulty")==3 and "often") or "always",
-            
-            bunnymen = (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "default") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "rare") or "never",
-            flower_cave = (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "always") or (GetModConfigData("difficulty")==2 and "often") or (GetModConfigData("difficulty")==3 and "default") or "never",
-			
-            maxwelllight_area = (GetModConfigData("difficulty")==0 and "always") or (GetModConfigData("difficulty")==1 and "always") or (GetModConfigData("difficulty")==2 and "often") or (GetModConfigData("difficulty")==3 and "default") or "always", 
-            dragonfly  =  "never",
-            bearger  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
-            goosemoose  =  "never",
-            world_size = "default",
-            wormhole_prefab = "wormhole",
-            layout_mode = "LinkNodesByKeys",
-            start_location = "adv6",
-            autumn = (GetModConfigData("difficulty")==0 and "noseason") or (GetModConfigData("difficulty")==1 and "shortseason") or (GetModConfigData("difficulty")==2 and "veryshortseason") or (GetModConfigData("difficulty")==3 and "noseason") or "noseason",
-            winter = "noseason",
-            spring = "noseason",
-            summer = (GetModConfigData("difficulty")==0 and "verylongseason") or (GetModConfigData("difficulty")==1 and "shortseason") or (GetModConfigData("difficulty")==2 and "default") or (GetModConfigData("difficulty")==3 and "verylongseason"),
-		}
-    elseif GLOBAL.OVERRIDELEVEL_GEN==7 then
-        tasksetdata.nomaxwell=true
-        tasksetdata.hideminimap = true
-		tasksetdata.teleportaction = "restart"
-        tasksetdata.teleportmaxwell = "ADVENTURE_6_TELEPORTFAIL"
-        tasksetdata.tasks = {"MaxHome"}--,"Make a pick",}
-        tasksetdata.valid_start_tasks = {"MaxHome",}  
-        tasksetdata.numoptionaltasks = 0
-        tasksetdata.optionaltasks = {}
-        tasksetdata.set_pieces = {} -- vermutlich keine
-        tasksetdata.required_prefabs = {}
-        tasksetdata.overrides={
-            start_location = "adv7",  --- wenn wir keine startlocation zufügen, wird default verwendet, welches default setpiece und clearing verwendet, welches ein multiplayer portal beinhaltet.
-            wormhole_prefab = "wormhole",
-            layout_mode = "LinkNodesByKeys",  
-            -- layout_mode = "RestrictNodesByKey",
-			day  =  "onlynight", 
-			weather  =  "never",
-			creepyeyes  =  "always",
-			waves  =  "off",
-			boons  =  "never",
-            deerclops = "never",
-            dragonfly  =  "never",
-            bearger  =  "never",
-            goosemoose  =  "never",
-            world_size = "default",
-            autumn = "verylongseason", -- only summer would be rubbish
-            winter = "noseason",
-            spring = "noseason",
-            summer = "noseason",
-		}
-        -- tasksetdata.override_triggers = {
-			-- ["MaxHome"] = {	
-				-- {"areaambient", "VOID"}, 
-			-- },
-		-- }
-    end
+    tasksetdata = GLOBAL.TUNING.ADVENTUREMOD.WORLDS[GLOBAL.OVERRIDELEVEL_GEN].taskdatafunction(tasksetdata)
 end)
 
 

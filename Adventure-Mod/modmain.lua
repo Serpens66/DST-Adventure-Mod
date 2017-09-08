@@ -61,6 +61,26 @@ GLOBAL.TUNING.BLUEPRINTMODE = GetModConfigData("blueprintonly")
 GLOBAL.OVERRIDELEVEL = nil
 GLOBAL.CHAPTER = nil
 
+if not GLOBAL.TUNING.ADVENTUREMOD then
+    GLOBAL.TUNING.ADVENTUREMOD = {}
+end
+if not GLOBAL.TUNING.ADVENTUREMOD.WORLDS then
+    GLOBAL.TUNING.ADVENTUREMOD.WORLDS = {}
+end
+
+WORLDS = GLOBAL.TUNING.ADVENTUREMOD.WORLDS
+
+
+modes = {"survival","wilderness","endless"} -- overwriting every gamemode to the same, so regardless wich mode you choose, it is always the following
+for i,mode in ipairs(modes) do
+    GLOBAL.GAME_MODES[mode].spawn_mode = "fixed"
+    GLOBAL.GAME_MODES[mode].ghost_sanity_drain = true
+    GLOBAL.GAME_MODES[mode].ghost_enabled = true
+    GLOBAL.GAME_MODES[mode].reset_time = { time = 120, loadingtime = 180 }
+    GLOBAL.GAME_MODES[mode].portal_rez = true
+    GLOBAL.GAME_MODES[mode].invalid_recipes = {} -- "lifeinjector", "resurrectionstatue", "reviver"
+    GLOBAL.GAME_MODES[mode].resource_renewal = true
+end
 
 
 local shoptab = AddRecipeTab("Blueprints", 979, "images/inventoryimages.xml", "blueprint.tex", nil)	
@@ -92,7 +112,7 @@ end
 
 -- local function ChangeSomeTechLevels()
     -- seems it does not work with ChangeSomeTechLevels, cause with it there is no firepit blueprint (which was none before)...
-    if TUNING.BLUEPRINTMODE and GLOBAL.OVERRIDELEVEL~=0 then -- change tech_level of some things
+    if TUNING.BLUEPRINTMODE then--and WORLDS[GLOBAL.OVERRIDELEVEL].name~="Maxwells Door" then -- change tech_level of some things
         for k,v in pairs(GLOBAL.AllRecipes) do
             if v.level==GLOBAL.TECH.NONE and v.builder_tag == nil then -- character specific items should stay NONE tech, if they are before 
                 if not table.contains(GLOBAL.TUNING.PREFABSALWAYS,v.name) then
@@ -104,7 +124,7 @@ end
         end
     end
     
-    if TUNING.BLUEPRINTMODE and GLOBAL.OVERRIDELEVEL~=0 then --blueprint recipes to buy
+    if TUNING.BLUEPRINTMODE then-- and WORLDS[GLOBAL.OVERRIDELEVEL].name~="Maxwells Door" then --blueprint recipes to buy
         local names = {}
         local recipes = GLOBAL.AllRecipes 
         for k,v in pairsOrdered(recipes, function(t,a,b) return tostring(GLOBAL.STRINGS.NAMES[string.upper(t[b].name)]) > tostring(GLOBAL.STRINGS.NAMES[string.upper(t[a].name)]) end) do -- add the blueprint recipes alphabetically sorted
@@ -129,12 +149,12 @@ local function recipetestfn(recname,recipe,builder)
         if not GLOBAL.TheNet:GetIsServer() and not GLOBAL.POPULATING and builder["mynetvar"..tostring(recname)] then
             isreleased = builder["mynetvar"..tostring(recname)]:value()
         end
-        if GLOBAL.TUNING.BLUEPRINTMODE and GLOBAL.OVERRIDELEVEL~=0 and isreleased then
+        if GLOBAL.TUNING.BLUEPRINTMODE and WORLDS[GLOBAL.OVERRIDELEVEL].name~="Maxwells Door" and isreleased then
             return true
         else
             return false
         end
-    elseif GLOBAL.TUNING.BLUEPRINTMODE and GLOBAL.OVERRIDELEVEL~=0 then -- remove researchlabs
+    elseif GLOBAL.TUNING.BLUEPRINTMODE and WORLDS[GLOBAL.OVERRIDELEVEL].name~="Maxwells Door" then -- remove researchlabs
         if recname=="researchlab" or recname=="researchlab2" or recname=="researchlab3" or recname=="researchlab4" then
             return false
         end
@@ -205,10 +225,10 @@ local function TitleStufff(inst) -- inst is player
     local subtitle = "test"
     if chapter and chapter > 0 then -- show title and chapter
         -- TheNet:Announce("Congratulation! You won the adventure!")
-        title = GLOBAL.STRINGS.UI.SANDBOXMENU.ADVENTURELEVELS[level]
+        title = WORLDS[level].name
         subtitle = GLOBAL.STRINGS.UI.SANDBOXMENU.CHAPTERS[chapter]
     elseif chapter and chapter == 0 then
-        title = "Maxwells Door"--"-Sandbox-"
+        title = WORLDS[level].name
         subtitle = "Chapter 0 of 5"
         GLOBAL.TheCamera:SetDistance(12)
     end
@@ -235,7 +255,7 @@ local function StartItems(inst)
 
         if GLOBAL.TheWorld.components.adv_rememberstuff and GLOBAL.TheWorld.components.adv_rememberstuff.stuff2 and GLOBAL.TheWorld.components.adv_rememberstuff.stuff2.firepit then GLOBAL.TheWorld.components.adv_rememberstuff.stuff2.firepit.components.fueled:DoDelta( GLOBAL.TUNING.MED_FUEL ) end
         
-        if GLOBAL.OVERRIDELEVEL==0 then
+        if WORLDS[GLOBAL.OVERRIDELEVEL].name=="Maxwells Door" then
             inst:DoTaskInTime(4,function(inst)
                 inst.components.talker:ShutUp()
                 local strings = {"We have to find maxwells door!","Somewhere in this area we will find maxwells door","Lets find maxwells door"}
@@ -253,13 +273,13 @@ local function StartItems(inst)
             questfunctions.SpawnPrefabAtLandPlotNearInst("rock1",inst,150,0,150,7,15,15) -- some stone boulder, since its only swamp map
             questfunctions.SpawnPrefabAtLandPlotNearInst("rock2",inst,150,0,150,5,15,15) -- gold boulder
             
-        elseif GLOBAL.OVERRIDELEVEL==1 then
+        elseif WORLDS[GLOBAL.OVERRIDELEVEL].name=="A Cold Reception" then
             questfunctions.SpawnPrefabAtLandPlotNearInst("axe",inst,15,0,15,1,3,3)
             questfunctions.SpawnPrefabAtLandPlotNearInst("grass_umbrella",inst,15,0,15,1,3,3)
             questfunctions.SpawnPrefabAtLandPlotNearInst("cutgrass",inst,15,0,15,3,3,3)
             questfunctions.SpawnPrefabAtLandPlotNearInst("twigs",inst,15,0,15,3,3,3)
-            questfunctions.SpawnPrefabAtLandPlotNearInst("flint",inst,15,0,15,3,3,3)
-        elseif GLOBAL.OVERRIDELEVEL==2 then
+            questfunctions.SpawnPrefabAtLandPlotNearInst("flint",inst,15,0,15,6,3,3)
+        elseif WORLDS[GLOBAL.OVERRIDELEVEL].name=="King of Winter" then
             questfunctions.SpawnPrefabAtLandPlotNearInst("cutgrass",inst,15,0,15,3,3,3)
             questfunctions.SpawnPrefabAtLandPlotNearInst("twigs",inst,15,0,15,3,3,3)
             questfunctions.SpawnPrefabAtLandPlotNearInst("flint",inst,15,0,15,3,3,3)
@@ -273,7 +293,7 @@ local function StartItems(inst)
             chest.components.scenariorunner:SetScript("packloot_winter_start_medium") 
             chest.components.scenariorunner:Run()
             MakeFireProof(chest,20)
-        elseif GLOBAL.OVERRIDELEVEL==3 then
+        elseif WORLDS[GLOBAL.OVERRIDELEVEL].name=="The Game is Afoot" then
             questfunctions.SpawnPrefabAtLandPlotNearInst("cutgrass",inst,15,0,15,3,3,3)
             questfunctions.SpawnPrefabAtLandPlotNearInst("twigs",inst,15,0,15,3,3,3)
             questfunctions.SpawnPrefabAtLandPlotNearInst("flint",inst,15,0,15,3,3,3)
@@ -282,18 +302,18 @@ local function StartItems(inst)
             chest:AddComponent("scenariorunner")
             chest.components.scenariorunner:SetScript("chest_presummer") 
             chest.components.scenariorunner:Run()
-        elseif GLOBAL.OVERRIDELEVEL==4 then
+        elseif WORLDS[GLOBAL.OVERRIDELEVEL].name=="Archipelago" then
             questfunctions.SpawnPrefabAtLandPlotNearInst("axe",inst,15,0,15,1,3,3)
             questfunctions.SpawnPrefabAtLandPlotNearInst("cutgrass",inst,15,0,15,3,3,3)
             questfunctions.SpawnPrefabAtLandPlotNearInst("twigs",inst,15,0,15,3,3,3)
             questfunctions.SpawnPrefabAtLandPlotNearInst("flint",inst,15,0,15,3,3,3)
-        elseif GLOBAL.OVERRIDELEVEL==5 then
+        elseif WORLDS[GLOBAL.OVERRIDELEVEL].name=="Two Worlds" then
             questfunctions.SpawnPrefabAtLandPlotNearInst("cutgrass",inst,15,0,15,3,3,3)
             questfunctions.SpawnPrefabAtLandPlotNearInst("twigs",inst,15,0,15,3,3,3)
             questfunctions.SpawnPrefabAtLandPlotNearInst("flint",inst,15,0,15,3,3,3)
             questfunctions.SpawnPrefabAtLandPlotNearInst("nitre",inst,15,0,15,3,3,3)
             questfunctions.SpawnPrefabAtLandPlotNearInst("grass_umbrella",inst,15,0,15,1,3,3)
-        elseif GLOBAL.OVERRIDELEVEL==6 then
+        elseif WORLDS[GLOBAL.OVERRIDELEVEL].name=="Darkness" then
             local chest = questfunctions.SpawnPrefabAtLandPlotNearInst("backpack",inst,15,0,15,1,3,3)
             chest:AddComponent("scenariorunner")
             chest.components.scenariorunner:SetScript("packloot_nightmare") 
@@ -342,33 +362,34 @@ local function OnPlayerSpawn(inst)
     inst.mynetvarAdvChapter:set(0) -- set a default value
     -- inst:DoTaskInTime(0, RegisterListenersAdvChapter)
     inst.mynetvarAdvLevel = GLOBAL.net_tinybyte(inst.GUID, "AdvLevelNetStuff", "DirtyEventAdvLevel") -- value from 0 to 7
-    inst.mynetvarAdvLevel:set(0) -- set a default value
+    inst.mynetvarAdvLevel:set(1) -- set a default value
     -- inst:DoTaskInTime(0, RegisterListenersAdvLevel)
-    
-    if GLOBAL.TUNING.BLUEPRINTMODE and GLOBAL.OVERRIDELEVEL~=0 then
-        for k,v in pairs(GLOBAL.AllRecipes) do 
-            if string.match(v.name,"_blueprint_shop") then -- we need a boolean netvar for every blueprintshop recipe, cause client builder can't check the components...
-                inst["mynetvar"..tostring(v.name)] = GLOBAL.net_bool(inst.GUID, tostring(v.name).."NetStuff", "DirtyEvent"..tostring(v.name)) -- false or true
-                inst["mynetvar"..tostring(v.name)]:set(false) -- store in world does not work
-            end
-        end
-    end
-    if not GLOBAL.TheNet:GetIsServer() then 
-        return
-    end
-
-    inst:ListenForEvent("invalidrpc", function(inst,data) print("Debug: InvalidRPC player "..tostring(data.player).." RPCName: "..tostring(data.rpcname)) end)
-    if GLOBAL.TUNING.BLUEPRINTMODE and GLOBAL.OVERRIDELEVEL~=0 then
-        inst:DoTaskInTime(1,function(inst)
-            for k,v in pairs(GLOBAL.AllRecipes) do
+    inst:DoTaskInTime(0.25,function(inst)
+        if GLOBAL.TUNING.BLUEPRINTMODE and WORLDS[GLOBAL.OVERRIDELEVEL].name~="Maxwells Door" then
+            for k,v in pairs(GLOBAL.AllRecipes) do 
                 if string.match(v.name,"_blueprint_shop") then -- we need a boolean netvar for every blueprintshop recipe, cause client builder can't check the components...
-                    if inst["mynetvar"..tostring(v.name)] then
-                        inst["mynetvar"..tostring(v.name)]:set(GLOBAL.TheWorld.components.adv_rememberstuff and GLOBAL.TheWorld.components.adv_rememberstuff.stuff1 and GLOBAL.TheWorld.components.adv_rememberstuff.stuff1[v.name] or false)
-                    end
+                    inst["mynetvar"..tostring(v.name)] = GLOBAL.net_bool(inst.GUID, tostring(v.name).."NetStuff", "DirtyEvent"..tostring(v.name)) -- false or true
+                    inst["mynetvar"..tostring(v.name)]:set(false) -- store in world does not work
                 end
             end
-        end)
-    end
+        end
+        if not GLOBAL.TheNet:GetIsServer() then 
+            return
+        end
+
+        inst:ListenForEvent("invalidrpc", function(inst,data) print("Debug: InvalidRPC player "..tostring(data.player).." RPCName: "..tostring(data.rpcname)) end)
+        if GLOBAL.TUNING.BLUEPRINTMODE and WORLDS[GLOBAL.OVERRIDELEVEL].name~="Maxwells Door" then
+            inst:DoTaskInTime(1,function(inst)
+                for k,v in pairs(GLOBAL.AllRecipes) do
+                    if string.match(v.name,"_blueprint_shop") then -- we need a boolean netvar for every blueprintshop recipe, cause client builder can't check the components...
+                        if inst["mynetvar"..tostring(v.name)] then
+                            inst["mynetvar"..tostring(v.name)]:set(GLOBAL.TheWorld.components.adv_rememberstuff and GLOBAL.TheWorld.components.adv_rememberstuff.stuff1 and GLOBAL.TheWorld.components.adv_rememberstuff.stuff1[v.name] or false)
+                        end
+                    end
+                end
+            end)
+        end
+    end)
     inst:DoTaskInTime(0.2,SetChapterStuffForPlayer)
     inst:AddComponent("adv_startstuff")
     inst.components.adv_startstuff:GiveStartStuffIn(0.3,StartItems,"StartItems") -- should be done after the world did his adv_startstuff and maxwellspawn-- dealy of 0.3 is needed, cause otherwise the client netvar stuff does not work everytime...
@@ -395,7 +416,7 @@ local function DoStartStuff(world)
         local fire = questfunctions.SpawnPrefabAtLandPlotNearInst("firepit",spawnpointpos,7,0,7,1,3,3)
         world.components.adv_rememberstuff.stuff2.firepit=fire
 
-        if GLOBAL.OVERRIDELEVEL==0 then -- in lvl 0 add a pond to get some food
+        if WORLDS[GLOBAL.OVERRIDELEVEL].name=="Maxwells Door" then -- in lvl 0 add a pond to get some food
             questfunctions.SpawnPrefabAtLandPlotNearInst("pond",spawnpointpos,30,0,30,1,15,15)
             questfunctions.SpawnPrefabAtLandPlotNearInst("rock_ice",spawnpointpos,50,0,50,2,20,20)
             questfunctions.SpawnPrefabAtLandPlotNearInst("rabbithole",spawnpointpos,50,0,50,5,20,20)
@@ -407,7 +428,7 @@ local function DoStartStuff(world)
             questfunctions.SpawnPrefabAtLandPlotNearInst("berrybush",spawnpointpos,100,0,100,10,15,15)
             questfunctions.SpawnPrefabAtLandPlotNearInst("berrybush_juicy",spawnpointpos,100,0,100,10,15,15)
             questfunctions.SpawnPrefabAtLandPlotNearInst("flower",spawnpointpos,20,0,20,5,5,5)
-        elseif GLOBAL.OVERRIDELEVEL==5 then -- in twoworlds some saplings would be good
+        elseif WORLDS[GLOBAL.OVERRIDELEVEL].name=="Two Worlds" then -- in twoworlds some saplings would be good
             questfunctions.SpawnPrefabAtLandPlotNearInst("sapling",spawnpointpos,20,0,20,5,5,5)
         end
     end
@@ -417,6 +438,7 @@ end
 
 
 AddPrefabPostInit("world", function(world)
+    -- world:DoTaskInTime(0.25,ChangeSomeTechLevels) -- has to be called AFTER SetChapterStuffForPlayer, to use the right GLOBAL.OVERRIDELEVEL also for clients
     if not GLOBAL.TheNet:GetIsServer() then 
         return
     end
@@ -430,12 +452,12 @@ AddPrefabPostInit("world", function(world)
         world:AddComponent("adventurejump") -- better add this after worldjump, cause the jump itself uses worldjump
         world:DoTaskInTime(0.001,function(world) -- use DoTaskInTime cause otherwise component is not loaded completely
             if world.components.adventurejump.adventure_info.level_list then 
-                GLOBAL.OVERRIDELEVEL = world.components.adventurejump.adventure_info.level_list[world.components.adventurejump.adventure_info.current_level] or 0 -- this is to now the level when loading a world
+                GLOBAL.OVERRIDELEVEL = world.components.adventurejump.adventure_info.level_list[world.components.adventurejump.adventure_info.current_level] or 1 -- this is to now the level when loading a world
                 print("Adventure: OVERRIDELEVEL defined to "..tostring(GLOBAL.OVERRIDELEVEL)) -- is nil when world just generated, then we will set it to _GEN in StartStuff fn
                 GLOBAL.CHAPTER = world.components.adventurejump.adventure_info.current_level or 0 -- the load from the component, if world is 0, it will be nil most likely
                 print("Adventure: CHAPTER defined to "..tostring(GLOBAL.CHAPTER))
             else
-                GLOBAL.OVERRIDELEVEL = 0 -- this is to now the level when loading a world
+                GLOBAL.OVERRIDELEVEL = 1 -- this is to now the level when loading a world
                 print("Adventure: OVERRIDELEVEL defined to "..tostring(GLOBAL.OVERRIDELEVEL)) -- is nil when world just generated, then we will set it to _GEN in StartStuff fn
                 GLOBAL.CHAPTER = 0 -- the load from the component, if world is 0, it will be nil most likely
                 print("Adventure: CHAPTER defined to "..tostring(GLOBAL.CHAPTER))
@@ -532,14 +554,6 @@ AddComponentPostInit("builder", function(self)
 	end
 end)
 
-
-
--- if _G.TheNet:GetServerGameMode() ~= "adventure" then
-    -- print("You have to choose adventure as game mode!! "..errortoabortgame)
--- end
--- idea from megarandom mod
-s = "\n\n-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n*\n                                                                                             !\n*\n                                                     You have to choose adventure as game mode!\n                                                                                                                                \n*\n*\n               ↑                  ↑                 ↑               ↑                  ↑                 ↑               ↑                  ↑                 ↑           ↑\n*\n-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n\n\n\n\n\n\n"
-_G.assert( not _G.TheNet:GetServerGameMode() ~= "adventure", s)
 
 
 
@@ -771,7 +785,7 @@ AddPrefabPostInit("teleportato_base", TeleportatoPostInit)
 
 -- chance to find blueprints when slow picking/working something e.g grass
 local function OnPicked(inst)
-    if GLOBAL.TUNING.BLUEPRINTMODE and GLOBAL.OVERRIDELEVEL~=0 then -- we have to define what blueprint, which is not easy possible with lootdropper, so we assign them only to slow pickable things
+    if GLOBAL.TUNING.BLUEPRINTMODE and WORLDS[GLOBAL.OVERRIDELEVEL].name~="Maxwells Door" then -- we have to define what blueprint, which is not easy possible with lootdropper, so we assign them only to slow pickable things
         local blueprint = nil
         local dospawn = false
         if math.random() < GetModConfigData("findblueprints") then -- 0.2 for high chance and 0.005 for low chance. default 0.02
@@ -788,7 +802,7 @@ local function OnPicked(inst)
 end
 
 local function OnWorked(inst,worker,workleft) -- is called for every hit... so it has to be very small chance... we cant use the finish event, cause it is rarely called, cause inst is removed before -.-
-    if GLOBAL.TUNING.BLUEPRINTMODE and GLOBAL.OVERRIDELEVEL~=0 then -- we have to define what blueprint, which is not easy possible with lootdropper, so we assign them only to slow pickable things
+    if GLOBAL.TUNING.BLUEPRINTMODE and WORLDS[GLOBAL.OVERRIDELEVEL].name~="Maxwells Door" then -- we have to define what blueprint, which is not easy possible with lootdropper, so we assign them only to slow pickable things
         local blueprint = nil
         local dospawn = false
         if math.random() < GetModConfigData("findblueprints")/5 then
@@ -822,7 +836,7 @@ AddPrefabPostInit("blueprint",function(inst)
     if not GLOBAL.TheNet:GetIsServer() then -- ?
         return
     end
-    if GLOBAL.TUNING.BLUEPRINTMODE and GLOBAL.OVERRIDELEVEL~=0 then
+    if GLOBAL.TUNING.BLUEPRINTMODE then
         inst:DoTaskInTime(0,function(inst)
             GLOBAL.AddHauntableCustomReaction(inst, function(inst,haunter) end, true, false, true) -- remove the "change blueprint" haunt effect for this mode
         end)

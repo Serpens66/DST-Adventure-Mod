@@ -17,26 +17,6 @@ icon = "modicon.tex"
 priority = -5
 
 
--- game mode, use Wilderness, since it is simular to what I want and mode check does not work in modworldgenmain... ?!
-game_modes =
-{
-	{
-		name = "adventure",
-		label = "Adventure",
-		description = "Play DS Adventure with your friends!",
-        settings =
-		{
-            mod_game_mode = true,
-            spawn_mode = "fixed",
-            resource_renewal = true,
-            ghost_sanity_drain = true,
-            ghost_enabled = true,
-            portal_rez = true, -- there is no portal except in world 0 and 7
-            reset_time = { time = 120, loadingtime = 180 },
-            invalid_recipes = { }, -- "lifeinjector", "resurrectionstatue", "reviver"
-		}
-	}
-}
 
 configuration_options = 
 {
@@ -136,5 +116,160 @@ configuration_options =
             {description = "Insane High", data = 0.9, hover="\n"},
         },
 		default = 0.015,
+    },
+    {
+		name = "null_option",
+		label = "WORLDS",
+		hover = "Select which worlds should be acitve:",
+		options =	{
+						{description = "\n", data = 0, hover = "\n"},
+					},
+		default = 0,
+	},
+    {
+		name = "maxwellsdoor",
+		label = "Maxwells Door",
+		hover = "Enable/Disable the default adventure worlds\nfor some you can also set the position when they will started.\nthere are more mods out there which adds new worlds.",
+		options = 
+		{
+            {description = "off", data = "", hover="Dont load this world. But you have to enable another\starting world, otherwise a random starting world is loaded"},
+            {description = "1", data = "1", hover="Load this world as starting map"},
+        },                   
+		default = "1",
+    },
+    {
+		name = "acoldreception",
+		label = "A Cold Reception",
+		hover = "Enable/Disable the default adventure worlds\nfor some you can also set the position when they will started.\nthere are more mods out there which adds new worlds.",
+		options = 
+		{
+            {description = "off", data = "", hover="Dont load this world. But if not enough worlds are active,\nrandom ones will load, even it they are disabled."},
+            {description = "2", data = "2", hover="\n"},
+            {description = "3", data = "3", hover="\n"},
+            {description = "4", data = "4", hover="\n"},
+            {description = "5", data = "5", hover="\n"},
+            {description = "2,3,4,5", data = "2,3,4,5", hover="Randomly between 2 and 5"},
+            {description = "2,3", data = "2,3", hover="\n"},
+            {description = "2,4", data = "2,4", hover="\n"},
+            {description = "2,5", data = "2,5", hover="\n"},
+            {description = "3,4", data = "3,4", hover="\n"},
+            {description = "3,5", data = "3,5", hover="\n"},
+            {description = "4,5", data = "4,5", hover="\n"},
+            {description = "2,3,4", data = "2,3,4", hover="\n"},
+            {description = "3,4,5", data = "3,4,5", hover="\n"},
+            {description = "2,4,5", data = "2,4,5", hover="\n"},
+            {description = "2,3,5", data = "2,3,5", hover="\n"},
+        },                   
+		default = "2,3,4,5",
+    },
+    {
+		name = "kingofwinter",
+		label = "King of Winter",
+		hover = "Enable/Disable the default adventure worlds\nfor some you can also set the position when they will started.\nthere are more mods out there which adds new worlds.",
+		options = 
+		{
+            {description = "off", data = "", hover="Dont load this world. But if not enough worlds are active,\nrandom ones will load, even it they are disabled."},
+            {description = "2", data = "2", hover="\n"},
+            {description = "3", data = "3", hover="\n"},
+            {description = "4", data = "4", hover="\n"},
+            {description = "5", data = "5", hover="\n"},
+            {description = "2,3,4,5", data = "2,3,4,5", hover="Randomly between 2 and 5"},
+            {description = "2,3", data = "2,3", hover="\n"},
+            {description = "2,4", data = "2,4", hover="\n"},
+            {description = "2,5", data = "2,5", hover="\n"},
+            {description = "3,4", data = "3,4", hover="\n"},
+            {description = "3,5", data = "3,5", hover="\n"},
+            {description = "4,5", data = "4,5", hover="\n"},
+            {description = "2,3,4", data = "2,3,4", hover="\n"},
+            {description = "3,4,5", data = "3,4,5", hover="\n"},
+            {description = "2,4,5", data = "2,4,5", hover="\n"},
+            {description = "2,3,5", data = "2,3,5", hover="\n"},
+        },                   
+		default = "2,3,4,5",
+    },
+    {
+		name = "thegameisafoot",
+		label = "The Game is Afoot",
+		hover = "Enable/Disable the default adventure worlds\nfor some you can also set the position when they will started.\nthere are more mods out there which adds new worlds.",
+		options = 
+		{
+            {description = "off", data = "", hover="Dont load this world. But if not enough worlds are active,\nrandom ones will load, even it they are disabled."},
+            {description = "2", data = "2", hover="\n"},
+            {description = "3", data = "3", hover="\n"},
+            {description = "4", data = "4", hover="\n"},
+            {description = "5", data = "5", hover="\n"},
+            {description = "2,3,4,5", data = "2,3,4,5", hover="Randomly between 2 and 5"},
+            {description = "2,3", data = "2,3", hover="\n"},
+            {description = "2,4", data = "2,4", hover="\n"},
+            {description = "2,5", data = "2,5", hover="\n"},
+            {description = "3,4", data = "3,4", hover="\n"},
+            {description = "3,5", data = "3,5", hover="\n"},
+            {description = "4,5", data = "4,5", hover="\n"},
+            {description = "2,3,4", data = "2,3,4", hover="\n"},
+            {description = "3,4,5", data = "3,4,5", hover="\n"},
+            {description = "2,4,5", data = "2,4,5", hover="\n"},
+            {description = "2,3,5", data = "2,3,5", hover="\n"},
+        },                   
+		default = "2,3,4,5",
+    },
+    {
+		name = "archipelago",
+		label = "Archipelago",
+		hover = "Enable/Disable the default adventure worlds\nfor some you can also set the position when they will started.\nthere are more mods out there which adds new worlds.",
+		options = 
+		{
+            {description = "off", data = "", hover="Dont load this world. But if not enough worlds are active,\nrandom ones will load, even it they are disabled."},
+            {description = "2", data = "2", hover="\n"},
+            {description = "3", data = "3", hover="\n"},
+            {description = "4", data = "4", hover="\n"},
+            {description = "5", data = "5", hover="\n"},
+            {description = "2,3,4,5", data = "2,3,4,5", hover="Randomly between 2 and 5"},
+            {description = "2,3", data = "2,3", hover="\n"},
+            {description = "2,4", data = "2,4", hover="\n"},
+            {description = "2,5", data = "2,5", hover="\n"},
+            {description = "3,4", data = "3,4", hover="\n"},
+            {description = "3,5", data = "3,5", hover="\n"},
+            {description = "4,5", data = "4,5", hover="\n"},
+            {description = "2,3,4", data = "2,3,4", hover="\n"},
+            {description = "3,4,5", data = "3,4,5", hover="\n"},
+            {description = "2,4,5", data = "2,4,5", hover="\n"},
+            {description = "2,3,5", data = "2,3,5", hover="\n"},
+        },                   
+		default = "2,3,4,5",
+    },
+    {
+		name = "twoworlds",
+		label = "Two Worlds",
+		hover = "Enable/Disable the default adventure worlds\nfor some you can also set the position when they will started.\nthere are more mods out there which adds new worlds.",
+		options = 
+		{
+            {description = "off", data = "", hover="Dont load this world. But if not enough worlds are active,\nrandom ones will load, even it they are disabled."},
+            {description = "4", data = "4", hover="\n"},
+            {description = "5", data = "5", hover="\n"},
+            {description = "4,5", data = "4,5", hover="Randomly between 4 and 5"},
+        },                   
+		default = "4,5",
+    },
+    {
+		name = "darkness",
+		label = "Darkness",
+		hover = "Enable/Disable the default adventure worlds\nfor some you can also set the position when they will started.\nthere are more mods out there which adds new worlds.",
+		options = 
+		{
+            {description = "off", data = "", hover="Dont load this world. But you have to enable another\6th world, otherwise a random 6th world is loaded"},
+            {description = "6", data = "6", hover="Load this world as 6th map"},
+        },                   
+		default = "6",
+    },
+    {
+		name = "maxwellhome",
+		label = "MaxwellHome",
+		hover = "Enable/Disable the default adventure worlds\nfor some you can also set the position when they will started.\nthere are more mods out there which adds new worlds.",
+		options = 
+		{
+            {description = "off", data = "", hover="Dont load this world. But you have to enable another\ending world, otherwise a random ending world is loaded"},
+            {description = "7", data = "7", hover="Load this world as ending map"},
+        },                   
+		default = "7",
     },
 }
