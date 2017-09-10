@@ -182,7 +182,6 @@ LLayouts["PreSummerStart_new"] = require("map/layouts/PreSummerStart_new") -- al
 LLayouts["WinterStartEasy_new"] = require("map/layouts/WinterStartEasy_new")
 LLayouts["BargainStart_new"] = require("map/layouts/BargainStart_new")
 LLayouts["WinterStartMedium_new"] = require("map/layouts/WinterStartMedium_new")
-LLayouts["Wormhole_Mod"] = require("map/layouts/Wormhole_Mod")
 LLayouts["ImpassableBlock"] = require("map/layouts/ImpassableBlock")
 AddRoom("ImpassableWall", {
 				colour={r=0.2,g=0.0,b=0.2,a=0.3},
@@ -365,14 +364,14 @@ if adventure_stuff then -- is only true, if we just adventure_jumped
 end
 
 -- testing
--- GLOBAL.OVERRIDELEVEL_GEN = 4 -- force loading this level
--- A Cold Reception = 1
--- King of Winter = 2
--- The Game is Afoot = 3
--- Archipelago = 4
--- Two Worlds = 5
--- Darkness = 6
--- MaxwellHome = 7
+GLOBAL.OVERRIDELEVEL_GEN = 5 -- force loading this level
+-- A Cold Reception = 2
+-- King of Winter = 3
+-- The Game is Afoot = 4
+-- Archipelago = 5
+-- Two Worlds = 6
+-- Darkness = 7
+-- MaxwellHome = 8
 -- if GLOBAL.OVERRIDELEVEL_GEN==4 then HackGenChecksForIslands() end -- island hack.. -- a try to solve the broken island generation... but this only results in Stop of world generation after 1 island is generated
 
 print("Level gen1 is "..tostring(GLOBAL.OVERRIDELEVEL_GEN).." Chapter is "..tostring(GLOBAL.CHAPTER_GEN))
@@ -541,6 +540,7 @@ end
 table.insert(GLOBAL.TUNING.ADVENTUREMOD.WORLDS, {name="The Game is Afoot", taskdatafunction=AdventureGameAfoot, location="forest", defaultpositions={2,3,4,5}, positions=GetModConfigData("thegameisafoot")})
 
 
+
 local function AdventureArchipelago(tasksetdata)
     tasksetdata.numoptionaltasks = 0
     tasksetdata.tasks = {"IslandHop_Start","IslandHop_Hounds","IslandHop_Forest","IslandHop_Savanna","IslandHop_Rocky","IslandHop_Merm",}
@@ -548,7 +548,7 @@ local function AdventureArchipelago(tasksetdata)
     -- tasksetdata.optionaltasks = {"The hunters","Trapped Forest hunters","Wasps and Frogs and bugs","Tentacle-Blocked The Deep Forest","Hounded Greater Plains","Merms ahoy",}
     tasksetdata.set_pieces = {                
             -- ["WesUnlock"] = { restrict_to="background", tasks={ "IslandHop_Start", "IslandHop_Hounds", "IslandHop_Forest", "IslandHop_Savanna", "IslandHop_Rocky", "IslandHop_Merm" } },
-            -- ["Wormhole_Mod"] = { count= 1, tasks={ "IslandHop_Start", "IslandHop_Hounds", "IslandHop_Forest", "IslandHop_Savanna", "IslandHop_Rocky", "IslandHop_Merm" } },
+            -- ["Wormhole_Mod"] = { count= 5, tasks={ "IslandHop_Start"}}--, "IslandHop_Hounds", "IslandHop_Forest", "IslandHop_Savanna", "IslandHop_Rocky", "IslandHop_Merm" } },
         }
     tasksetdata.substitutes = GetRandomSubstituteList(SUBS_1, 3)
     tasksetdata.ordered_story_setpieces = teleportato_layouts
@@ -767,5 +767,4 @@ AddTaskSetPreInitAny(function(tasksetdata)
     
     tasksetdata = GLOBAL.TUNING.ADVENTUREMOD.WORLDS[GLOBAL.OVERRIDELEVEL_GEN].taskdatafunction(tasksetdata)
 end)
-
 

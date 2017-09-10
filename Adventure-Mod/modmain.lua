@@ -512,30 +512,84 @@ if not GLOBAL.TheNet:GetIsServer() then
 	return
 end
 
+local function GetRoom(entity) -- written by ptr, thanks.
+    local closestdist = math.huge
+    local closestid = nil
+    x,_,y=entity.Transform:GetWorldPosition()
+    for i,v in pairs(GLOBAL.TheWorld.topology.nodes) do
+        if #v.neighbours > 0 then
+            local dx = math.floor((math.abs(v.x - x)+2)/4)
+            local dy = math.floor((math.abs(v.y - y)+2)/4)
+            local distsq = dx*dx + dy*dy
+            if distsq < closestdist then
+                closestdist = distsq
+                closestid = i
+            end
+        end
+    end
+    return GLOBAL.TheWorld.topology.ids[closestid]
+end
+
 AddPrefabPostInit("wormhole",function(inst)
     if inst.components.teleporter then
         inst:DoTaskInTime(0,function(inst)
-            local x, y, z = inst.Transform:GetWorldPosition() 
-            local n = GLOBAL.GetClosestNode(x,y)
-            -- print("HHIER")
-            -- if n and type(n)=="table" then
-                -- for a,b in pairs(n) do 
-                    -- print(a)
-                    -- print(b)
-                -- end
-            -- end
-            
-            -- neighbours    table: 5D1D4268    enthält 3 zahlen
-            -- type    0    
-            -- c    7    
-            -- tags    table: 0C20C030    
-            -- cent    table: 0C20C648    
-            -- y    -19    
-            -- poly    table: 0C20C300    
-            -- validedges    table: 5D18C428    
-            -- x    42    
-            -- area    323 
-            
+            taskandroom = GetRoom(inst) -- eg "IslandHop_Start:2:SpiderMarsh"
+            if string.find(taskandroom,"IslandHop_Start") then
+                if not GLOBAL.TheSim:FindFirstEntityWithTag("wormhole1") then
+                    inst:AddTag("wormhole1")
+                elseif not GLOBAL.TheSim:FindFirstEntityWithTag("wormhole2") then
+                    inst:AddTag("wormhole2")
+                elseif not GLOBAL.TheSim:FindFirstEntityWithTag("wormhole3") then
+                    inst:AddTag("wormhole3")
+                elseif not GLOBAL.TheSim:FindFirstEntityWithTag("wormhole4") then
+                    inst:AddTag("wormhole4")
+                elseif not GLOBAL.TheSim:FindFirstEntityWithTag("wormhole5") then
+                    inst:AddTag("wormhole5")
+                end
+            elseif string.find(taskandroom,"IslandHop_Hounds") then
+                inst:AddTag("wormhole6")
+            elseif string.find(taskandroom,"IslandHop_Forest") then
+                inst:AddTag("wormhole7")
+            elseif string.find(taskandroom,"IslandHop_Savanna") then
+                inst:AddTag("wormhole8")
+            elseif string.find(taskandroom,"IslandHop_Rocky") then
+                inst:AddTag("wormhole9")
+            elseif string.find(taskandroom,"IslandHop_Merm") then
+                inst:AddTag("wormhole10")
+            end
+            inst:DoTaskInTime(0.1,function(inst)
+                if inst:HasTag("wormhole1") then
+                    local worm6 = GLOBAL.TheSim:FindFirstEntityWithTag("wormhole6")
+                    inst.components.teleporter.targetTeleporter = worm6
+                elseif inst:HasTag("wormhole2") then
+                    local worm7 = GLOBAL.TheSim:FindFirstEntityWithTag("wormhole7")
+                    inst.components.teleporter.targetTeleporter = worm7
+                elseif inst:HasTag("wormhole3") then
+                    local worm8 = GLOBAL.TheSim:FindFirstEntityWithTag("wormhole8")
+                    inst.components.teleporter.targetTeleporter = worm8
+                elseif inst:HasTag("wormhole4") then
+                    local worm9 = GLOBAL.TheSim:FindFirstEntityWithTag("wormhole9")
+                    inst.components.teleporter.targetTeleporter = worm9
+                elseif inst:HasTag("wormhole5") then
+                    local worm10 = GLOBAL.TheSim:FindFirstEntityWithTag("wormhole10")
+                    inst.components.teleporter.targetTeleporter = worm10
+                elseif inst:HasTag("wormhole6") then
+                    local worm1 = GLOBAL.TheSim:FindFirstEntityWithTag("wormhole1")
+                    inst.components.teleporter.targetTeleporter = worm1
+                elseif inst:HasTag("wormhole7") then
+                    local worm2 = GLOBAL.TheSim:FindFirstEntityWithTag("wormhole2")
+                    inst.components.teleporter.targetTeleporter = worm2
+                elseif inst:HasTag("wormhole8") then
+                    local worm3 = GLOBAL.TheSim:FindFirstEntityWithTag("wormhole3")
+                    inst.components.teleporter.targetTeleporter = worm3
+                elseif inst:HasTag("wormhole9") then
+                    local worm4 = GLOBAL.TheSim:FindFirstEntityWithTag("wormhole4")
+                    inst.components.teleporter.targetTeleporter = worm4
+                elseif inst:HasTag("wormhole10") then
+                    local worm5 = GLOBAL.TheSim:FindFirstEntityWithTag("wormhole5")
+                    inst.components.teleporter.targetTeleporter = worm5
+                end
+            end)
         end)
     end
 end)
