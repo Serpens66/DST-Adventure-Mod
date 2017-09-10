@@ -450,19 +450,19 @@ AddPrefabPostInit("world", function(world)
         
         world:AddComponent("worldjump") -- has to be added after adv_rememberstuff, cause it will save something there !
         world:AddComponent("adventurejump") -- better add this after worldjump, cause the jump itself uses worldjump
-        world:DoTaskInTime(0.001,function(world) -- use DoTaskInTime cause otherwise component is not loaded completely
-            if world.components.adventurejump.adventure_info.level_list then 
-                GLOBAL.OVERRIDELEVEL = world.components.adventurejump.adventure_info.level_list[world.components.adventurejump.adventure_info.current_level] or 1 -- this is to now the level when loading a world
-                print("Adventure: OVERRIDELEVEL defined to "..tostring(GLOBAL.OVERRIDELEVEL)) -- is nil when world just generated, then we will set it to _GEN in StartStuff fn
-                GLOBAL.CHAPTER = world.components.adventurejump.adventure_info.current_level or 0 -- the load from the component, if world is 0, it will be nil most likely
-                print("Adventure: CHAPTER defined to "..tostring(GLOBAL.CHAPTER))
-            else
-                GLOBAL.OVERRIDELEVEL = 1 -- this is to now the level when loading a world
-                print("Adventure: OVERRIDELEVEL defined to "..tostring(GLOBAL.OVERRIDELEVEL)) -- is nil when world just generated, then we will set it to _GEN in StartStuff fn
-                GLOBAL.CHAPTER = 0 -- the load from the component, if world is 0, it will be nil most likely
-                print("Adventure: CHAPTER defined to "..tostring(GLOBAL.CHAPTER))
-            end 
-        end) 
+        -- world:DoTaskInTime(0.001,function(world) -- use DoTaskInTime cause otherwise component is not loaded completely .. -- do it in adventurejump instead?
+            -- if world.components.adventurejump.adventure_info.level_list then 
+                -- GLOBAL.OVERRIDELEVEL = world.components.adventurejump.adventure_info.level_list[world.components.adventurejump.adventure_info.current_level] or 1 -- this is to now the level when loading a world
+                -- print("Adventure: OVERRIDELEVEL defined to "..tostring(GLOBAL.OVERRIDELEVEL)) -- is nil when world just generated, then we will set it to _GEN in StartStuff fn
+                -- GLOBAL.CHAPTER = world.components.adventurejump.adventure_info.current_level or 0 -- the load from the component, if world is 0, it will be nil most likely
+                -- print("Adventure: CHAPTER defined to "..tostring(GLOBAL.CHAPTER))
+            -- else
+                -- GLOBAL.OVERRIDELEVEL = 1 -- this is to now the level when loading a world
+                -- print("Adventure: OVERRIDELEVEL defined to "..tostring(GLOBAL.OVERRIDELEVEL)) -- is nil when world just generated, then we will set it to _GEN in StartStuff fn
+                -- GLOBAL.CHAPTER = 0 -- the load from the component, if world is 0, it will be nil most likely
+                -- print("Adventure: CHAPTER defined to "..tostring(GLOBAL.CHAPTER))
+            -- end 
+        -- end) 
         world:AddComponent("adv_startstuff") 
         world:DoTaskInTime(0,function(world) world.components.adv_startstuff:GiveStartStuffIn(0.01,DoStartStuff,"DoStartStuff") end) -- also call after adding adv_rememberstuff!
         world:DoTaskInTime(0,function(world) world.components.adv_startstuff:GiveStartStuffIn(0.01,function(inst) -- sort the items in various tables, depending how important the tech is               
@@ -488,6 +488,21 @@ AddPrefabPostInit("world", function(world)
             end
             
         end,"SetBlueprintadv_rememberstuff") end)
+        
+        world:DoTaskInTime(1, function(inst) -- connect the wormholes, do it after postinit of wormholes 0.05
+            if WORLDS[GLOBAL.OVERRIDELEVEL].name=="Archipelago" then
+                GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole1"].components.teleporter.targetTeleporter = GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole6"]
+                GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole2"].components.teleporter.targetTeleporter = GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole7"]
+                GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole3"].components.teleporter.targetTeleporter = GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole8"]
+                GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole4"].components.teleporter.targetTeleporter = GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole9"]
+                GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole5"].components.teleporter.targetTeleporter = GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole10"]
+                GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole6"].components.teleporter.targetTeleporter = GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole1"]
+                GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole7"].components.teleporter.targetTeleporter = GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole2"]
+                GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole8"].components.teleporter.targetTeleporter = GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole3"]
+                GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole9"].components.teleporter.targetTeleporter = GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole4"]
+                GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole10"].components.teleporter.targetTeleporter = GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole5"]
+            end
+        end)
     end
 end)
 
@@ -530,66 +545,36 @@ local function GetRoom(entity) -- written by ptr, thanks.
     return GLOBAL.TheWorld.topology.ids[closestid]
 end
 
+GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES = {} -- remember the wormholes and connect them in world post init
 AddPrefabPostInit("wormhole",function(inst)
     if inst.components.teleporter then
-        inst:DoTaskInTime(0,function(inst)
-            taskandroom = GetRoom(inst) -- eg "IslandHop_Start:2:SpiderMarsh"
-            if string.find(taskandroom,"IslandHop_Start") then
-                if not GLOBAL.TheSim:FindFirstEntityWithTag("wormhole1") then
-                    inst:AddTag("wormhole1")
-                elseif not GLOBAL.TheSim:FindFirstEntityWithTag("wormhole2") then
-                    inst:AddTag("wormhole2")
-                elseif not GLOBAL.TheSim:FindFirstEntityWithTag("wormhole3") then
-                    inst:AddTag("wormhole3")
-                elseif not GLOBAL.TheSim:FindFirstEntityWithTag("wormhole4") then
-                    inst:AddTag("wormhole4")
-                elseif not GLOBAL.TheSim:FindFirstEntityWithTag("wormhole5") then
-                    inst:AddTag("wormhole5")
+        inst:DoTaskInTime(0.5,function(inst) -- do it after OVERRIDELEVEL is checked (0.001) and before ARCHIPELWORMHOLES are used 0.1
+            if WORLDS[GLOBAL.OVERRIDELEVEL].name=="Archipelago" then
+                taskandroom = GetRoom(inst) -- eg "IslandHop_Start:2:SpiderMarsh"
+                if string.find(taskandroom,"IslandHop_Start") then
+                    if not GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole1"] then
+                        GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole1"] = inst
+                    elseif not GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole2"] then
+                        GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole2"] = inst
+                    elseif not GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole3"] then
+                        GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole3"] = inst
+                    elseif not GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole4"] then
+                        GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole4"] = inst
+                    elseif not GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole5"] then
+                        GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole5"] = inst
+                    end
+                elseif string.find(taskandroom,"IslandHop_Hounds") then
+                    GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole6"] = inst
+                elseif string.find(taskandroom,"IslandHop_Forest") then
+                    GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole7"] = inst
+                elseif string.find(taskandroom,"IslandHop_Savanna") then
+                    GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole8"] = inst
+                elseif string.find(taskandroom,"IslandHop_Rocky") then
+                    GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole9"] = inst
+                elseif string.find(taskandroom,"IslandHop_Merm") then
+                    GLOBAL.TUNING.ADVENTUREMOD.ARCHIPELWORMHOLES["wormhole10"] = inst
                 end
-            elseif string.find(taskandroom,"IslandHop_Hounds") then
-                inst:AddTag("wormhole6")
-            elseif string.find(taskandroom,"IslandHop_Forest") then
-                inst:AddTag("wormhole7")
-            elseif string.find(taskandroom,"IslandHop_Savanna") then
-                inst:AddTag("wormhole8")
-            elseif string.find(taskandroom,"IslandHop_Rocky") then
-                inst:AddTag("wormhole9")
-            elseif string.find(taskandroom,"IslandHop_Merm") then
-                inst:AddTag("wormhole10")
             end
-            inst:DoTaskInTime(0.1,function(inst)
-                if inst:HasTag("wormhole1") then
-                    local worm6 = GLOBAL.TheSim:FindFirstEntityWithTag("wormhole6")
-                    inst.components.teleporter.targetTeleporter = worm6
-                elseif inst:HasTag("wormhole2") then
-                    local worm7 = GLOBAL.TheSim:FindFirstEntityWithTag("wormhole7")
-                    inst.components.teleporter.targetTeleporter = worm7
-                elseif inst:HasTag("wormhole3") then
-                    local worm8 = GLOBAL.TheSim:FindFirstEntityWithTag("wormhole8")
-                    inst.components.teleporter.targetTeleporter = worm8
-                elseif inst:HasTag("wormhole4") then
-                    local worm9 = GLOBAL.TheSim:FindFirstEntityWithTag("wormhole9")
-                    inst.components.teleporter.targetTeleporter = worm9
-                elseif inst:HasTag("wormhole5") then
-                    local worm10 = GLOBAL.TheSim:FindFirstEntityWithTag("wormhole10")
-                    inst.components.teleporter.targetTeleporter = worm10
-                elseif inst:HasTag("wormhole6") then
-                    local worm1 = GLOBAL.TheSim:FindFirstEntityWithTag("wormhole1")
-                    inst.components.teleporter.targetTeleporter = worm1
-                elseif inst:HasTag("wormhole7") then
-                    local worm2 = GLOBAL.TheSim:FindFirstEntityWithTag("wormhole2")
-                    inst.components.teleporter.targetTeleporter = worm2
-                elseif inst:HasTag("wormhole8") then
-                    local worm3 = GLOBAL.TheSim:FindFirstEntityWithTag("wormhole3")
-                    inst.components.teleporter.targetTeleporter = worm3
-                elseif inst:HasTag("wormhole9") then
-                    local worm4 = GLOBAL.TheSim:FindFirstEntityWithTag("wormhole4")
-                    inst.components.teleporter.targetTeleporter = worm4
-                elseif inst:HasTag("wormhole10") then
-                    local worm5 = GLOBAL.TheSim:FindFirstEntityWithTag("wormhole5")
-                    inst.components.teleporter.targetTeleporter = worm5
-                end
-            end)
         end)
     end
 end)

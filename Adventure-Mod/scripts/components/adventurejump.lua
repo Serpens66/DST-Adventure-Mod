@@ -102,13 +102,25 @@ local function OnInit(inst, self)
             -- adventure_info.level_list = level_list
         -- end
     end
+    
+    if self.adventure_info.level_list then 
+        OVERRIDELEVEL = self.adventure_info.level_list[self.adventure_info.current_level] or 1 -- this is to now the level when loading a world
+        print("Adventure: OVERRIDELEVEL defined to "..tostring(OVERRIDELEVEL)) -- is nil when world just generated, then we will set it to _GEN in StartStuff fn
+        CHAPTER = self.adventure_info.current_level or 0 -- the load from the component, if world is 0, it will be nil most likely
+        print("Adventure: CHAPTER defined to "..tostring(CHAPTER))
+    else
+        OVERRIDELEVEL = 1 -- this is to now the level when loading a world
+        print("Adventure: OVERRIDELEVEL defined to "..tostring(OVERRIDELEVEL)) -- is nil when world just generated, then we will set it to _GEN in StartStuff fn
+        CHAPTER = 0 -- the load from the component, if world is 0, it will be nil most likely
+        print("Adventure: CHAPTER defined to "..tostring(CHAPTER))
+    end 
  
     local s = ""
     for _,worldnumber in pairs(self.adventure_info.level_list) do
         s = s .. tostring(TUNING.ADVENTUREMOD.WORLDS[tonumber(worldnumber)].name) .. " ,"
     end
     print("Adventure Mod: The Following worlds will load: "..s)
-    
+
     -- inst:DoTaskInTime(1, DelayedSaveAndClean) -- call it instead only after worldgeneration in modmain
 end
 
