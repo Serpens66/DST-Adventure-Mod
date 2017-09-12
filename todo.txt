@@ -1,0 +1,75 @@
+-- make it compatible with caves/ more then host player
+
+-- maxwellshome is suddenly the other way round? The whole world as to be rotated bei 180°
+
+
+-- TODO :
+-- [00:02:24]: Missing reference:	101481 - maxwelllock	->	103609	103609 - diviningrod(LIMBO)
+
+-- alle GetPlayer bzw ThePlayer durch eine for schleife mit AllPlayers ersetzen, wenn es mit allen Spielern passieren soll
+
+-- bei throne noch machen, dass maxwell da ist und dass player dann auf thron gesetzt wird... oder brauch ich dafür puppets? sonst mal puppest mod runterladen
+-- aktuell sitze maxwell auf den thron, nachdem das spiel beendet ist , aber vorher nicht ?!
+
+-- bei worldjump evlt auch den gewählten char speichern und übernehmen -> keine ahnung wie
+
+-- wenn alles läuft könnte man evlt auch ein caves level zufuegen, wobei dann tintybyte duch smallbyte -> 63 level geändert werden muss
+
+-- maxwell+betäubt am level anfang kann direkt in PlayerPostInit rein und startstuff component merkt es sich dann pro spieler und es wird als client ausgeführt... braucht man dann vermutlich netvars für
+
+
+--can't find grass_umbrella_blueprint -> vermutlich weil es noch None baubar ist
+
+-- die blueprints müssen hingegen schon in einer sinnvollen Reihenfolge vreteilt werden... dabei muss auch berücksichtigt werden, in welchem level wir sind...
+-- eine möglichkeit wäre sie in setpieces zu integrieren. bleibt aber noch das problem der welten.. -> vorher genau überlegen in welchem level welche blueprints werden könnten
+-- optionale blueprints können zufällig verteilt bzw beim shop angeboten werden (wenn beides passiert, dann nach aufpicken im shop preis auf 1 reduzieren? geht das? Ja mit GLOBAL.AllRecipes)
+
+
+-- COOP aufgaben:
+-- dinge können mit playerprox prüfen ob iein player in der nähe ist, und wenn ja bei ieinem anderen objekt etwas auslösen, damit spieler durch kann oderso
+-- um das anzahl problem zu lösen, könnte man immer mit aLLPlayers die Zahl checken. wenn nur ein spieler da sind, ist die Sperre nur normale sanity obelisken.
+-- sind aber zwei oder mehr spieler aktiv, dann muss die abgerundete hälfte aller spieler sich auf eine bestimmte position stellen, damit obelisekn runtergehen (shopkeeper kann hint geben)
+-- mind. einer muss dann durch und auf der anderen seite eine stelle betreten, damit obeliksen dauerhaft verschwinden (auch wenn dann nur noch 1 player da)
+
+-- in summer leveln muss man iwie an eis und gears rankommen...
+
+-- testen ob adventure und worldjump funzt, wenn einer der spieler ein Geist ist 
+
+
+-- statue/wes_enemywave einbauen, evlt in maxwellhome als endkampf ? 
+
+-- mod muss iwie noch zu adventure geforced werden, damit aufjedenfall kein wilderness mit mehreren spawnpoints wählbar ist.
+
+
+-- anim inactive trap_teeth_maxwell ... hmm die anim datei gibts eigentlich... also woher kommt der fehler? 
+
+--  sound von phonograph funzt nicht mehr
+
+
+-- two worlds welt. world generation hat lang gedauert, weil er wie bei archipel zuviele unconnected tiles hatte. Aber iwann war welt fertig, obwohl in logfile wormholes weiterhin unconnected steht?!
+-- -> alles ist connected, gibt also keine inseln. Deswegen ists wohl erfolgreich.
+
+-- den teleoprtato in maxwellhome evlt nutzbar machen, um adventure von vorn zu beginnen? dann muss char aber wieder erscheinen, damit man sich wieder bewegen kann
+
+-- einige blueprints können auch etwas teurer direkt im shop kaufbar sein.
+
+
+-- versuchen diviningrod aus game zu zerstören, ob es irreplacable ist.
+
+-- automatic health adjustment einbauen und in diesem dann adventure check einbauen. Von den einstellungen nur die Quicksettings mit "aus" übernehmen.
+-- evtl auch increased animals mit einbauen, sodass es je nach schwierigkeitsgrad mehr feindliche Wesen gibt
+
+-- mit caves testen -> cave klein gemacht und gibt auch keine eingänge.
+-- mit cave enabled kann nun clientversion getestet werden. 
+-- Wenn maxwell redet wird camera noch nicht als client rangezoomt... liegt daran, dass maxwell und seine maxwelltalker componente natürlich nur fur den server erstellt wird...
+-- man müsste also die camera befehle dort rausholen und in modmain packen, sodass sie auch von client ausgeführt werden... gilt dann natürlich auch für den maxwellthrone kram -.-
+-- man könnte sonst auch noch eine netvar verwenden, zb die TitleStuff variable, und bei bestimmten werten in der listener funktion dann die camera verändern und den wert in der maxwellcomponente ändern...
+-- -> ja funktioniert mit netvar ! :)  .. wobei es berichte gab, dass es doch nicht funzt?
+
+-- two-worlds: berrybush_juicy cant find prefab
+
+
+-- die ganzen netvars evtl besser in world speichern anstatt in player inst ? 
+
+
+-- neues clockwork bastel setpiece ist in chapter 0 ?! drin lassen, oder nicht?

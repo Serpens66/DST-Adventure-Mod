@@ -10,12 +10,7 @@ if not GLOBAL.TUNING.ADVENTUREMOD.WORLDS then
 end
 
 
--- sometimes the mod does crash back to desktop without any error message in logfiles ?! ... 
--- it happend one time when doing worldjump while maxwell was still talking
--- and it happend one time I hit "disconnec",also while maxwell was talking ...
--- also the world savegame is corrupted then, it is called "new world" instead of my world
-
-
+-- make it compatible with caves/ more then host player
 
 -- maxwellshome is suddenly the other way round? The whole world as to be rotated bei 180°
 
@@ -81,7 +76,7 @@ end
 -- Wenn maxwell redet wird camera noch nicht als client rangezoomt... liegt daran, dass maxwell und seine maxwelltalker componente natürlich nur fur den server erstellt wird...
 -- man müsste also die camera befehle dort rausholen und in modmain packen, sodass sie auch von client ausgeführt werden... gilt dann natürlich auch für den maxwellthrone kram -.-
 -- man könnte sonst auch noch eine netvar verwenden, zb die TitleStuff variable, und bei bestimmten werten in der listener funktion dann die camera verändern und den wert in der maxwellcomponente ändern...
--- -> ja funktioniert mit netvar ! :)
+-- -> ja funktioniert mit netvar ! :)  .. wobei es berichte gab, dass es doch nicht funzt?
 
 -- two-worlds: berrybush_juicy cant find prefab
 
