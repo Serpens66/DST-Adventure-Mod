@@ -330,7 +330,7 @@ AddStartLocation("adv7", {
     start_node  =  "MaxHome",  
 })
 
-
+--[===[
 -- hack into the island worlds, to make them no island. Then they will load at leat....
 local islandtasks = {"IslandHop_Start","IslandHop_Hounds","IslandHop_Forest","IslandHop_Savanna","IslandHop_Rocky","IslandHop_Merm","Land of Plenty","The other side",}
 for _,taskname in pairs(islandtasks) do
@@ -345,7 +345,7 @@ for _,taskname in pairs(islandtasks) do
         end
     end)
 end
-
+--]===]
 
 GLOBAL.OVERRIDELEVEL_GEN = 1
 GLOBAL.CHAPTER_GEN = 0
@@ -554,7 +554,8 @@ local function AdventureArchipelago(tasksetdata)
     
     
         islands = "always",	
-        roads = "never",	
+        roads = "never",
+	keep_disconnected_tiles = true,
         weather = (GetModConfigData("difficulty")==0 and "default") or (GetModConfigData("difficulty")==1 and "rare") or (GetModConfigData("difficulty")==2 and "default") or (GetModConfigData("difficulty")==3 and "often") or "default",
         deerclops = (GetModConfigData("difficulty")==0 and "default") or (GetModConfigData("difficulty")==1 and "rare") or (GetModConfigData("difficulty")==2 and "default") or (GetModConfigData("difficulty")==3 and "often") or "default",
         dragonfly  =  "never",
@@ -598,7 +599,8 @@ local function AdventureTwoWorlds(tasksetdata)
         weather = (GetModConfigData("difficulty")==0 and "rare") or (GetModConfigData("difficulty")==1 and "rare") or (GetModConfigData("difficulty")==2 and "default") or (GetModConfigData("difficulty")==3 and "often") or "rare", 
         
         islands  =  "always",	
-        roads  =  "never",	
+        roads  =  "never",
+	keep_disconnected_tiles = true,
         dragonfly  =  "never",
         bearger  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
         goosemoose  =  "never",
