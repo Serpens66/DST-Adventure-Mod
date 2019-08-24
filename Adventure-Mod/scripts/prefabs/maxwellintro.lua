@@ -352,17 +352,15 @@ local function fn(Sim)
     inst:AddComponent("maxwelltalker")
     inst.components.maxwelltalker.speeches = SPEECH
  
-    if TheSim:FindFirstEntityWithTag("diviningrod") == nil then
-        inst:DoTaskInTime(0, function()
-            -- if SaveGameIndex:GetCurrentMode(Settings.save_slot) == "adventure" then
-                local rod = SpawnPrefab("diviningrodstart")
-                if rod then
-                    local pt = Vector3(inst.Transform:GetWorldPosition()) - TheCamera:GetDownVec()*2
-                    rod.Transform:SetPosition(pt:Get() )
-                end
-            -- end
-        end)
-    end
+    inst:DoTaskInTime(0, function()
+        if TheSim:FindFirstEntityWithTag("diviningrod") == nil then
+            local rod = SpawnPrefab("diviningrodstart")
+            if rod then
+                local pt = Vector3(inst.Transform:GetWorldPosition()) - TheCamera:GetDownVec()*2
+                rod.Transform:SetPosition(pt:Get() )
+            end
+        end
+    end)
 
     return inst
 end

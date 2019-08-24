@@ -653,9 +653,9 @@ return {
           width = 0,
           height = 0,
           visible = true,
-          properties = {
-            ["scenario"] = "camera_maxwellthrone"
-          }
+          -- properties = {
+            -- ["scenario"] = "camera_maxwellthrone" -- camera things are limited in multilpayer
+          -- }
         },
         {
           name = "",
@@ -954,17 +954,6 @@ return {
         },
         {
           name = "",
-          type = "teleportato_ring",
-          shape = "rectangle",
-          x = 8336,
-          y = 32,
-          width = 0,
-          height = 0,
-          visible = true,
-          properties = {}
-        },
-        {
-          name = "",
           type = "teleportato_checkmate",
           shape = "rectangle",
           x = 2175,
@@ -975,39 +964,6 @@ return {
           properties = {
             ["data.makecomplete"] = "1"
           }
-        },
-        {
-          name = "",
-          type = "teleportato_box",
-          shape = "rectangle",
-          x = 8336,
-          y = 96,
-          width = 0,
-          height = 0,
-          visible = true,
-          properties = {}
-        },
-        {
-          name = "",
-          type = "teleportato_crank",
-          shape = "rectangle",
-          x = 8336,
-          y = 64,
-          width = 0,
-          height = 0,
-          visible = true,
-          properties = {}
-        },
-        {
-          name = "",
-          type = "teleportato_potato",
-          shape = "rectangle",
-          x = 8304,
-          y = 64,
-          width = 0,
-          height = 0,
-          visible = true,
-          properties = {}
         },
         {
           name = "",
@@ -2570,6 +2526,19 @@ return {
           height = 0,
           visible = true,
           properties = {}
+        },
+        {
+          name = "",
+          type = "nightsword",
+          shape = "rectangle",
+          x = 5630,
+          y = 5850,
+          width = 0,
+          height = 0,
+          visible = true,
+          properties = {
+            ["scenario"] = "scen_shadowpieces" -- adding shadow clockworks directly here does not work , cause they have a despawn timer
+          }
         },
         {
           name = "",
@@ -4242,17 +4211,6 @@ return {
           shape = "rectangle",
           x = 2321,
           y = 5856,
-          width = 0,
-          height = 0,
-          visible = true,
-          properties = {}
-        },
-        {
-          name = "",
-          type = "teleportato_base",
-          shape = "rectangle",
-          x = 8297,
-          y = 127,
           width = 0,
           height = 0,
           visible = true,

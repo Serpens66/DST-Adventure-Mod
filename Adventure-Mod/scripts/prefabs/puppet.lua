@@ -1,7 +1,7 @@
 local function createassets(name)
 	local assets = 
 	{
-		Asset("ANIM", "anim/"..name..".zip"),
+		Asset("ANIM", "anim/"..name..".zip"), -- crashes for new characters
         Asset("ANIM", "anim/player_basic.zip"),
         Asset("ANIM", "anim/player_throne.zip")
 	}
@@ -50,9 +50,6 @@ local prefabs = {}
 
 local charlist = GetActiveCharacterList and GetActiveCharacterList() or MAIN_CHARACTERLIST
 for i,charname in ipairs(charlist) do
-	name = charname
-	if name ~= "unknown" and name ~= "waxwell" and name ~= "webber" then
-		table.insert(prefabs, Prefab("characters/puppet_"..name, createpuppet(name), createassets(name))) 
-	end
+    table.insert(prefabs, Prefab("characters/puppet_"..charname, createpuppet(charname)))--, createassets(charname))) 
 end
 return unpack(prefabs) 

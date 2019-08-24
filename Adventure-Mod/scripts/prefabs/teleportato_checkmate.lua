@@ -18,7 +18,7 @@ local function DoTeleport(inst, wilson)
 
 	local function dowakeup(inst, wilson)
 		wilson.sg:GoToState("wakeup")
-		TheFrontEnd:Fade(true, 3)
+		-- TheFrontEnd:Fade(true, 3)
 		reset(inst)
 	end
 
@@ -27,7 +27,7 @@ local function DoTeleport(inst, wilson)
 			inst.AnimState:PlayAnimation("laugh", false)
 			inst.AnimState:PushAnimation("active_idle", true)
 			inst.SoundEmitter:PlaySound("dontstarve/common/teleportato/teleportato_maxwelllaugh", "teleportato_laugh")
-			TheFrontEnd:Fade(false, 3)
+			-- TheFrontEnd:Fade(false, 3)
 		end)
 		
 		scheduler:ExecuteInTime(110*FRAMES+3, function() 			
@@ -65,7 +65,12 @@ local function OnActivate(inst,doer)
 		end)
 
 		inst:DoTaskInTime(2.0, function()
-			DoTeleport(inst, doer)
+			-- DoTeleport(inst, doer)
+            
+            inst.AnimState:PlayAnimation("laugh", false)
+			inst.AnimState:PushAnimation("active_idle", true)
+			inst.SoundEmitter:PlaySound("dontstarve/common/teleportato/teleportato_maxwelllaugh", "teleportato_laugh")
+            inst:DoTaskInTime(3,function() TheWorld.components.adventurejump:DoJump(true,true,true)end)
 		end)
 	end
 

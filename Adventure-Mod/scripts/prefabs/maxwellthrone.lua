@@ -11,13 +11,6 @@ local assets =
 local prefabs =
 {
     "maxwellendgame",
-    -- "puppet_wilson",
-    -- "puppet_willow",
-    -- "puppet_wendy",
-    -- "puppet_wickerbottom",
-    -- "puppet_wolfgang",
-    -- "puppet_wx78",
-    -- "puppet_wes",
 }
 
 local function SpawnPuppet(inst, name)
@@ -48,7 +41,8 @@ local function ZoomAndFade4(inst)
         TheNet:Announce("Congratulation! You won the adventure!")
         player.HUD:Show()
     end
-    TheCamera:SetDefault()
+    -- TheCamera:SetDefault()
+    TheWorld:DoTaskInTime(5,function(world) world.components.adventurejump:DoJump(false,false,false) end)
 end
 
 local function ZoomAndFade3(inst)
@@ -69,9 +63,9 @@ end
 
 local function ZoomAndFade(inst)
     if not inst.isMaxwell then
-        TheCamera:SetOffset(Vector3(0, 1.45, 0))
+        -- TheCamera:SetOffset(Vector3(0, 1.45, 0))
     end
-    TheCamera:SetDistance(7)
+    -- TheCamera:SetDistance(7)
     inst:DoTaskInTime(2, ZoomAndFade2)
 end
 
@@ -105,29 +99,33 @@ local function SpawnNewPuppet2(inst)
     for _,player in pairs(AllPlayers) do
         player:Hide()
     end
-    local puppetToSpawn =  AllPlayers[1].prefab or "wilson"
-    -- if puppetToSpawn == "waxwell" then 
+    local puppetToSpawn =  AllPlayers[1]~=nil and AllPlayers[1].prefab or "wilson"
+    if puppetToSpawn == "waxwell" then 
         puppetToSpawn = "maxwellendgame" 
-    -- end
-    local puppet = SpawnPuppet(inst, puppetToSpawn)
-    if puppet.components.maxwelltalker then puppet:RemoveComponent("maxwelltalker") end    
+    end
+    local puppet = SpawnPuppet(inst, puppetToSpawn) -- puppet will be nil for new characters
+    if puppet~=nil and puppet.components.maxwelltalker then puppet:RemoveComponent("maxwelltalker") end    
     local pos = Vector3( inst.Transform:GetWorldPosition() )
     
 	TheWorld:PushEvent('ms_sendlightningstrike', pos)
 
-    -- if puppetToSpawn == "maxwellendgame" then 
+    if puppetToSpawn == "maxwellendgame" then 
         inst.AnimState:PlayAnimation("appear")
         inst.AnimState:PushAnimation("idle")
         inst.isMaxwell = true
-        puppet.AnimState:PlayAnimation("appear")
-        puppet.AnimState:PushAnimation("idle_loop", true)
-    -- else
-        -- inst.AnimState:PlayAnimation("player_appear")
-        -- inst.AnimState:PushAnimation("player_idle_loop")
-        -- inst.isMaxwell = false
-        -- puppet.AnimState:PlayAnimation("appear")
-        -- puppet.AnimState:PushAnimation("throne_loop", true)
-    -- end
+        if puppet~=nil then
+            puppet.AnimState:PlayAnimation("appear")
+            puppet.AnimState:PushAnimation("idle_loop", true)
+        end
+    else
+        inst.AnimState:PlayAnimation("player_appear")
+        inst.AnimState:PushAnimation("player_idle_loop")
+        inst.isMaxwell = false
+        if puppet~=nil then
+            puppet.AnimState:PlayAnimation("appear")
+            puppet.AnimState:PushAnimation("throne_loop", true)
+        end
+    end
 
     if inst.DynamicShadow then
         inst.DynamicShadow:Enable(true)
@@ -156,7 +154,7 @@ end
 
 local function MaxwellDie(inst)
     inst.AnimState:PlayAnimation("death")
-    -- inst.puppet.AnimState:PlayAnimation("death")
+    inst.puppet.AnimState:PlayAnimation("death")
     inst.SoundEmitter:PlaySound("dontstarve/maxwell/breakchains")    
     inst:DoTaskInTime(113 * (1/30), function() inst.SoundEmitter:PlaySound("dontstarve/maxwell/blowsaway") end)
     inst:DoTaskInTime(95 * (1/30), function() inst.SoundEmitter:PlaySound("dontstarve/maxwell/throne_scream") end)    
@@ -168,8 +166,8 @@ end
 
 local function PlayerDie(inst)
     inst.AnimState:PlayAnimation("player_death")
-    -- inst.puppet.AnimState:PlayAnimation("dismount")
-    -- inst.puppet.AnimState:PushAnimation("death", false)
+    inst.puppet.AnimState:PlayAnimation("dismount")
+    inst.puppet.AnimState:PushAnimation("death", false)
     inst:DoTaskInTime(24 * (1/30), function() inst.SoundEmitter:PlaySound("dontstarve/wilson/death") end)
     inst:DoTaskInTime(40 * (1/30), function() inst.SoundEmitter:KillSound("deathrattle") end)
     
@@ -191,52 +189,55 @@ local function SetUpCutscene3(inst)
 end
 
 local function SetUpCutscene2(inst)
-    TheCamera:SetGains(0.5, .1, .3)
+    -- TheCamera:SetGains(0.5, .1, .3)
     -- Sleep(2)
     inst:DoTaskInTime(2,SetUpCutscene3)
 end
 
 
 local function SetUpCutscene(inst)
-    -- print("HIER SetUpCutscene maxwellthrone")
-    --Put game into "cutscene" mode. 
-    -- if inst.puppet.components.maxwelltalker then
-        -- if inst.puppet.components.maxwelltalker:IsTalking() then
-            -- inst.puppet.components.maxwelltalker:StopTalking()
-        -- end
-        -- inst.puppet:RemoveComponent("maxwelltalker")
-        -- inst.puppet.AnimState:PlayAnimation("idle_loop")
-    -- end
-    local pt = Vector3(inst.Transform:GetWorldPosition())
-    for _,player in pairs(AllPlayers) do
-        player:FacePoint(Vector3(pt.x - 100, pt.y, pt.z))
-        player.components.playercontroller:Enable(false)
-        player.HUD:Hide()
-    end
-    -- GetPlayer():FacePoint(Vector3(pt.x - 100, pt.y, pt.z))
-
-    -- GetPlayer().components.playercontroller:Enable(false)
-    -- GetPlayer().HUD:Hide()
-
-    TheCamera:CutsceneMode(true)
-    TheCamera:SetCustomLocation(Vector3(pt.x, pt.y, pt.z))
-    TheCamera:SetGains(0.5, .1, 2)
-    TheCamera:SetMinDistance(5)
-
-    inst.previousLock = "waxwell"
+    if AllPlayers[1]~=nil then
     
-    TheCamera:Shake("FULL", 5, 0.033, 0.1)
-
-    inst.phonograph = TheSim:FindFirstEntityWithTag("maxwellphonograph")
-    if inst.phonograph then
-        if inst.phonograph.components.machine:IsOn() then
-            inst.phonograph.components.machine:TurnOff()
+        -- print("HIER SetUpCutscene maxwellthrone")
+        --Put game into "cutscene" mode. 
+        -- if inst.puppet.components.maxwelltalker then
+            -- if inst.puppet.components.maxwelltalker:IsTalking() then
+                -- inst.puppet.components.maxwelltalker:StopTalking()
+            -- end
+            -- inst.puppet:RemoveComponent("maxwelltalker")
+            -- inst.puppet.AnimState:PlayAnimation("idle_loop")
+        -- end
+        local pt = Vector3(inst.Transform:GetWorldPosition())
+        for _,player in pairs(AllPlayers) do
+            player:FacePoint(Vector3(pt.x - 100, pt.y, pt.z))
+            player.components.playercontroller:Enable(false)
+            player.HUD:Hide()
         end
-    end
-    inst.SoundEmitter:PlaySound("dontstarve/common/throne/thronemagic", "deathrattle")
+        -- GetPlayer():FacePoint(Vector3(pt.x - 100, pt.y, pt.z))
 
-    -- Sleep(3)
-    inst:DoTaskInTime(3,SetUpCutscene2)
+        -- GetPlayer().components.playercontroller:Enable(false)
+        -- GetPlayer().HUD:Hide()
+
+        -- TheCamera:CutsceneMode(true)
+        -- TheCamera:SetCustomLocation(Vector3(pt.x, pt.y, pt.z))
+        -- TheCamera:SetGains(0.5, .1, 2)
+        -- TheCamera:SetMinDistance(5)
+
+        inst.previousLock = "waxwell"
+        
+        TheCamera:Shake("FULL", 5, 0.033, 0.1)
+
+        inst.phonograph = TheSim:FindFirstEntityWithTag("maxwellphonograph")
+        if inst.phonograph then
+            if inst.phonograph.components.machine:IsOn() then
+                inst.phonograph.components.machine:TurnOff()
+            end
+        end
+        inst.SoundEmitter:PlaySound("dontstarve/common/throne/thronemagic", "deathrattle")
+
+        -- Sleep(3)
+        inst:DoTaskInTime(3,SetUpCutscene2)
+    end
 end
 
 local function startthread(inst)
@@ -278,8 +279,9 @@ local function fn(Sim)
         characterinthrone = "maxwellendgame"
         inst:ListenForEvent("free", function()EndGameSequence(inst) end, inst.lock) --is called when diviningrod is placed at lock
     end
-    
+    -- print("SPAWN maxwell on Throne")
     -- inst:DoTaskInTime(0, function() inst.puppet = SpawnPuppet(inst, characterinthrone) end)
+    inst:DoTaskInTime(0, function() inst.puppet = SpawnPuppet(inst, characterinthrone); inst.puppet:RemoveComponent("maxwelltalker") end) -- talker is crashing/not working properly..
     return inst
 end
 

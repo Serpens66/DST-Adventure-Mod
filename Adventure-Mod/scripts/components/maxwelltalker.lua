@@ -59,8 +59,9 @@ function MaxwellTalker:OnCancel()
             -- end
             
             if player.HUD then player.HUD:Show() end
-            TheCamera:SetDefault()
-            player.mynetvarTitleStufff:set(3)
+            -- TheCamera:SetDefault()
+            -- player.mynetvarTitleStufff:set(3)
+            player:SetCameraDistance()
         end
     end
 end
@@ -118,12 +119,13 @@ function MaxwellTalker:Initialize()
         self.inst:Hide()
 
         --zoom in
-        TheCamera:SetOffset( (Vector3(self.inst.Transform:GetWorldPosition()) - Vector3(self.inst.wilson.Transform:GetWorldPosition()))*.5  + Vector3(0,2,0) )
-        TheCamera:SetDistance(15)
-        TheCamera:Snap()
+        -- TheCamera:SetOffset( (Vector3(self.inst.Transform:GetWorldPosition()) - Vector3(self.inst.wilson.Transform:GetWorldPosition()))*.5  + Vector3(0,2,0) )
+        -- TheCamera:SetDistance(15)
+        -- TheCamera:Snap()
         for _,player in pairs(AllPlayers) do
             if player.HUD then player.HUD:Hide() end
-            player.mynetvarTitleStufff:set(2)
+            -- player.mynetvarTitleStufff:set(2) -- move the camera for client
+            player:SetCameraDistance(12)
         end
 	end
 end
@@ -137,27 +139,28 @@ local function SpeakTalk2(inst,section,self)
     self.inst = inst
     if section.string then	--If maxwell was talking it winds down here and stops the anim.
         self.inst.SoundEmitter:KillSound("talk")
-        if self.inst.speech.dialogpostanim then self.inst.AnimState:PlayAnimation(self.inst.speech.dialogpostanim) end
+        if self.inst.speech~=nil and self.inst.speech.dialogpostanim then self.inst.AnimState:PlayAnimation(self.inst.speech.dialogpostanim) end
     end
 
-    if self.inst.speech.idleanim then  self.inst.AnimState:PushAnimation(self.inst.speech.idleanim, true) end--goes to an idle animation
+    if self.inst.speech~=nil and self.inst.speech.idleanim then  self.inst.AnimState:PushAnimation(self.inst.speech.idleanim, true) end--goes to an idle animation
 
     -- Sleep(section.waitbetweenlines or 0.5)	--pauses between lines -- not needed here, it is calculated in sum
 end
 
 local function SpeakTalk(inst,section,self)
+    
     self.inst = inst
     local wait = section.wait or 1
 
     if section.anim then --If there's a custom animation it plays it here.
         self.inst.AnimState:PlayAnimation(section.anim)
-        if self.inst.speech.idleanim then self.inst.AnimState:PushAnimation(self.inst.speech.idleanim, true) end
+        if self.inst.speech~=nil and self.inst.speech.idleanim then self.inst.AnimState:PushAnimation(self.inst.speech.idleanim, true) end
     end
 
     if section.string then --If there is speech to be said, it displays the text and overwrites any custom anims with the talking anims
-        if self.inst.speech.dialogpreanim then self.inst.AnimState:PlayAnimation(self.inst.speech.dialogpreanim) end
-        if self.inst.speech.dialoganim then self.inst.AnimState:PushAnimation(self.inst.speech.dialoganim, true) end
-        self.inst.SoundEmitter:PlaySound(self.inst.speech.voice or self.defaultvoice, "talk")
+        if self.inst.speech~=nil and self.inst.speech.dialogpreanim then self.inst.AnimState:PlayAnimation(self.inst.speech.dialogpreanim) end
+        if self.inst.speech~=nil and self.inst.speech.dialoganim then self.inst.AnimState:PushAnimation(self.inst.speech.dialoganim, true) end
+        self.inst.SoundEmitter:PlaySound(self.inst.speech~=nil and self.inst.speech.voice or self.defaultvoice, "talk")
         if self.inst.components.talker then
             self.inst.components.talker:Say(section.string, wait)
         end
@@ -187,8 +190,9 @@ local function DoTalk4(inst,self)
             player:DoTaskInTime(1.5, function() 
                 player.components.playercontroller:Enable(true)			
                 if player.HUD then player.HUD:Show() end
-                TheCamera:SetDefault()
-                player.mynetvarTitleStufff:set(3)
+                -- TheCamera:SetDefault()
+                -- player.mynetvarTitleStufff:set(3)
+                player:SetCameraDistance()
             end)
         end
     end

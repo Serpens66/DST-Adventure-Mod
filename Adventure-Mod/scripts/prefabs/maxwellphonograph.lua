@@ -6,16 +6,22 @@
 assets = 
 {
 	Asset("ANIM", "anim/phonograph.zip"),
-	Asset("SOUND", "sound/maxwell.fsb"),
-	Asset("SOUND", "sound/music.fsb"),
-	Asset("SOUND", "sound/gramaphone.fsb")
+	-- Asset("SOUND", "sound/maxwell.fsb"),
+	-- Asset("SOUND", "sound/music.fsb"),
+	-- Asset("SOUND", "sound/gramaphone.fsb"),
+    Asset("SOUND", "sound/phonograph.fsb"),
 }
 
 local function play(inst)
 	-- inst.AnimState:PlayAnimation("play_loop", true)
    	-- inst.SoundEmitter:PlaySound(inst.songToPlay, "phonograph/play")
+    
+    -- inst.AnimState:PlayAnimation("play_loop", true)
+   	-- inst.SoundEmitter:PlaySound(inst.songToPlay, "phonograph/play")
+    
     inst.AnimState:PlayAnimation("play_loop", true)
-   	inst.SoundEmitter:PlaySound(inst.songToPlay, "ragtime")
+   	inst.SoundEmitter:PlaySound(inst.songToPlay, "phonograph/play")
+    
     if inst.components.playerprox then
    		inst:RemoveComponent("playerprox")
    	end
@@ -27,8 +33,9 @@ local function stop(inst)
     -- inst.SoundEmitter:KillSound("phonograph/play")
     -- inst.SoundEmitter:PlaySound("phonograph/end")
     inst.AnimState:PlayAnimation("idle")
-    inst.SoundEmitter:KillSound("ragtime")
-    inst.SoundEmitter:PlaySound("dontstarve/music/gramaphone_end")
+    inst.SoundEmitter:KillSound("phonograph/play")
+    inst.SoundEmitter:PlaySound("phonograph/end")
+    -- inst.SoundEmitter:PlaySound("dontstarve/music/gramaphone_end")
 
     inst:PushEvent("turnedoff")
 end
@@ -44,8 +51,8 @@ local function fn()
 		anim:SetBuild("phonograph")		
 		anim:PlayAnimation("idle")
 		
-		-- inst.songToPlay = "phonograph/play"
-        inst.songToPlay = "dontstarve/maxwell/ragtime"
+		inst.songToPlay = "phonograph/play"
+        -- inst.songToPlay = "dontstarve/maxwell/ragtime"
 
 		inst:AddTag("maxwellphonograph")
         
