@@ -1,5 +1,6 @@
 # DST-Adventure-Mod
 Don't Starve Together adventure. Completing several worlds one after the other.
+Steam: https://steamcommunity.com/sharedfiles/filedetails/?id=1847959350
 
-WIP and will dependent on my teleportato mod: 
+Dependent on my teleportato mod: 
 https://steamcommunity.com/sharedfiles/filedetails/?id=756229217
