@@ -1,9 +1,9 @@
-name = "A DS Coop Adventure"
-description = "[BETA]\n\nPlay Adventure, Addon to the teleportato mod (base mod required!)" 
+name = "Adventure Mode"
+description = "[BETA]\nRequires my Teleportato mod!\n\nOvercome challenging worlds, loaded one after the other in the stlye of the Dont Starve adventure!\n\nModsettings from this and teleportato mod work together, so don't forget to adjust both to your liking." 
 author = "Serpens"
 forumthread = ""
 
-version = "0.8.2"
+version = "0.9"
 api_version = 10
 
 dst_compatible = true
@@ -34,9 +34,20 @@ configuration_options =
 		default = 2,
     },
     {
+		name = "sandboxpreconfigured",
+		label = "Custom Maxwells Door",
+		hover = "Should the level -Maxwells Door- which is the first level, depend on your worldsettings or preconfigured?",
+		options = 
+		{
+            {description = "worldsettings", data = false, hover="Generate your custom worldsettings and place the portal somewhere."},
+            {description = "preconfigured", data = true, hover="A small swamp world, you will quickly find the portal and start adventure."},
+        },                   
+		default = true,
+    },
+    {
 		name = "null_option",
 		label = "WORLDS",
-		hover = "Select which worlds should be acitve:",
+		hover = "Select which worlds should be acitve, a minimum of 7 are needed in total:",
 		options =	{
 						{description = "\n", data = 0, hover = "\n"},
 					},
@@ -45,7 +56,7 @@ configuration_options =
     {
 		name = "maxwellsdoor",
 		label = "Maxwells Door",
-		hover = "Enable/Disable the default adventure worlds\nfor some you can also set the position when they will started.\nthere are more mods out there which adds new worlds.",
+		hover = "Enable/Disable the default adventure worlds\nfor some you can also set the position when they will started.",
 		options = 
 		{
             {description = "off", data = "", hover="Dont load this world. But you have to enable another\starting world, otherwise a random starting world is loaded"},
@@ -56,7 +67,7 @@ configuration_options =
     {
 		name = "acoldreception",
 		label = "A Cold Reception",
-		hover = "Enable/Disable the default adventure worlds\nfor some you can also set the position when they will started.\nthere are more mods out there which adds new worlds.",
+		hover = "Enable/Disable the default adventure worlds\nfor some you can also set the position when they will started.",
 		options = 
 		{
             {description = "off", data = "", hover="Dont load this world. But if not enough worlds are active,\nrandom ones will load, even it they are disabled."},
@@ -81,7 +92,7 @@ configuration_options =
     {
 		name = "kingofwinter",
 		label = "King of Winter",
-		hover = "Enable/Disable the default adventure worlds\nfor some you can also set the position when they will started.\nthere are more mods out there which adds new worlds.",
+		hover = "Enable/Disable the default adventure worlds\nfor some you can also set the position when they will started.",
 		options = 
 		{
             {description = "off", data = "", hover="Dont load this world. But if not enough worlds are active,\nrandom ones will load, even it they are disabled."},
@@ -106,7 +117,7 @@ configuration_options =
     {
 		name = "thegameisafoot",
 		label = "The Game is Afoot",
-		hover = "Enable/Disable the default adventure worlds\nfor some you can also set the position when they will started.\nthere are more mods out there which adds new worlds.",
+		hover = "Enable/Disable the default adventure worlds\nfor some you can also set the position when they will started.",
 		options = 
 		{
             {description = "off", data = "", hover="Dont load this world. But if not enough worlds are active,\nrandom ones will load, even it they are disabled."},
@@ -131,7 +142,7 @@ configuration_options =
     {
 		name = "archipelago",
 		label = "Archipelago",
-		hover = "Enable/Disable the default adventure worlds\nfor some you can also set the position when they will started.\nthere are more mods out there which adds new worlds.",
+		hover = "Enable/Disable the default adventure worlds\nfor some you can also set the position when they will started.",
 		options = 
 		{
             {description = "off", data = "", hover="Dont load this world. But if not enough worlds are active,\nrandom ones will load, even it they are disabled."},
@@ -156,7 +167,7 @@ configuration_options =
     {
 		name = "twoworlds",
 		label = "Two Worlds",
-		hover = "Enable/Disable the default adventure worlds\nfor some you can also set the position when they will started.\nthere are more mods out there which adds new worlds.",
+		hover = "Enable/Disable the default adventure worlds\nfor some you can also set the position when they will started.",
 		options = 
 		{
             {description = "off", data = "", hover="Dont load this world. But if not enough worlds are active,\nrandom ones will load, even it they are disabled."},
@@ -169,7 +180,7 @@ configuration_options =
     {
 		name = "darkness",
 		label = "Darkness",
-		hover = "Enable/Disable the default adventure worlds\nfor some you can also set the position when they will started.\nthere are more mods out there which adds new worlds.",
+		hover = "Enable/Disable the default adventure worlds\nfor some you can also set the position when they will started.",
 		options = 
 		{
             {description = "off", data = "", hover="Dont load this world. But you have to enable another\6th world, otherwise a random 6th world is loaded"},
@@ -180,7 +191,7 @@ configuration_options =
     {
 		name = "maxwellhome",
 		label = "MaxwellHome",
-		hover = "Enable/Disable the default adventure worlds\nfor some you can also set the position when they will started.\nthere are more mods out there which adds new worlds.",
+		hover = "Enable/Disable the default adventure worlds\nfor some you can also set the position when they will started.",
 		options = 
 		{
             {description = "off", data = "", hover="Dont load this world. But you have to enable another\ending world, otherwise a random ending world is loaded"},

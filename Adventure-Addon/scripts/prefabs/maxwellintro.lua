@@ -11,7 +11,7 @@ local prefabs =
     "diviningrodstart"
 }
 
-local SPEECH =
+local SPEECHES =
 {
 	NULL_SPEECH=
 	{
@@ -148,7 +148,7 @@ local SPEECH =
 		skippable = true,
 		{
 			string = STRINGS.MAXWELL_ADVENTUREINTROS.LEVEL_3.ONE,
-			wait = 3,
+			wait = 2.5,
 			anim = nil,
 			sound = nil,
 		},
@@ -313,6 +313,267 @@ local SPEECH =
 			sound = nil,
 		},
 	},
+    
+    
+    
+    ADVENTURE_LEVEL1 = -- sandbox
+ 	{
+		appearsound = "dontstarve/maxwell/disappear",
+	    voice = "dontstarve/maxwell/talk_LP",
+		appearanim = "appear",
+		idleanim= "idle",
+		dialogpreanim = "dialog_pre",
+		dialoganim="dial_loop",
+		dialogpostanim = "dialog_pst",
+		disappearanim = "disappear",
+		disableplayer = true,
+		skippable = true,
+		{
+			string = STRINGS.MAXWELL_SANDBOXINTROS.ONE,
+			wait = 2.5,
+			anim = nil,
+			sound = nil,
+		},
+		{
+			string = "You have some space to explore methinks.", 
+			wait = 3.5, 
+			anim = nil, 
+			sound = nil,
+		},
+	},
+
+	ADVENTURE_LEVEL2 = -- A Cold Reception
+	{		
+		delay = 2,
+	    appearsound = "dontstarve/maxwell/disappear",
+	    voice = "dontstarve/maxwell/talk_LP",
+		appearanim = "appear",
+		idleanim= "idle",
+		dialogpreanim = "dialog_pre",
+		dialoganim="dial_loop",
+		dialogpostanim = "dialog_pst",
+		disappearanim = "disappear",
+		disableplayer = true,
+		skippable = true,
+		{
+			string = "The dew has fallen with a particularly sickening thud this morning...",
+			wait = 4,
+			anim = nil,
+			sound = nil,
+		},
+		{
+			string = "I'm off to find Zem...", 
+			wait = 2, 
+			anim = nil, 
+			sound = nil,
+		},
+	},
+
+	ADVENTURE_LEVEL3 = -- King of Winter
+	{		
+		delay = 2,
+	    voice = "dontstarve/maxwell/talk_LP_world2",
+		appearanim = "appear2",
+		idleanim= "idle2_loop",
+		dialogpreanim = "dialog2_pre",
+		dialoganim="dialog2_loop",
+		dialogpostanim = "dialog2_pst",
+		disappearanim = "disappear2",
+		disableplayer = true,
+		skippable = true,
+		{
+			string = "Well would you look at that, you survived.",
+			wait = 3,
+			anim = nil,
+			sound = nil,
+		},
+        {
+			string = "Now don't get a big head, you aren't the first.",
+			wait = 3,
+			anim = nil,
+			sound = nil,
+		},
+		{
+			string = "Let's see what you're really made of.",
+			wait = 2.5, 
+			anim = nil, 
+			sound = nil,
+		},
+        {
+			string = "And by that I mean to say,",
+			wait = 2, 
+			anim = nil, 
+			sound = nil,
+		},
+        {
+			string = "I will enjoy inspecting your entrails once the Deerclops is done with you.",
+			wait = 5, 
+			anim = nil, 
+			sound = nil,
+		},
+	},
+
+	ADVENTURE_LEVEL4 = -- The Game is Afoot
+	{		
+		delay = 2,
+	    voice = "dontstarve/maxwell/talk_LP_world2",
+		appearanim = "appear2",
+		idleanim= "idle2_loop",
+		dialogpreanim = "dialog2_pre",
+		dialoganim="dialog2_loop",
+		dialogpostanim = "dialog2_pst",
+		disappearanim = "disappear2",
+		disableplayer = true,
+		skippable = true,
+		{
+			string = "Say pal, keep your chin up.",
+			wait = 2,
+			anim = nil,
+			sound = nil,
+		},
+		{
+			string = "You will probably find it hard to stay dapper.", 
+			wait = 3, 
+			anim = nil, 
+			sound = nil,
+		},
+	},
+
+
+	ADVENTURE_LEVEL5 = -- Archipelago
+	{		
+		delay = 2,
+	    voice = "dontstarve/maxwell/talk_LP_world3",
+		appearanim = "appear3",
+		idleanim= "idle3_loop",
+		dialogpreanim = "dialog3_pre",
+		dialoganim="dialog3_loop",
+		dialogpostanim = "dialog3_pst",
+		disappearanim = "disappear3",
+		disableplayer = true,
+		skippable = true,
+		{
+			string = "What? You're still here?",
+			wait = 2.5,
+			anim = nil,
+			sound = nil,
+		},
+		{
+			string = "Must I do everything myself?", 
+			wait = 2.5, 
+			anim = nil, 
+			sound = nil,
+		},
+		{
+			string = "HOUNDS! DISPOSE OF THIS PEST!", 
+			wait = 2.5, 
+			anim = nil, 
+			sound = nil, 
+		},
+	},
+
+	ADVENTURE_LEVEL6 = -- Two World
+	{		
+		delay = 2,
+	    voice = "dontstarve/maxwell/talk_LP_world4",
+		appearanim = "appear4",
+		idleanim= "idle4_loop",
+		dialogpreanim = "dialog4_pre",
+		dialoganim="dialog4_loop",
+		dialogpostanim = "dialog4_pst",
+		disappearanim = "disappear4",
+		disableplayer = true,
+		skippable = true,
+		{
+			string = STRINGS.MAXWELL_ADVENTUREINTROS.TWOLANDS.ONE,
+			wait = 1.5,
+			anim = nil,
+			sound = nil,
+		},
+		{
+			string = STRINGS.MAXWELL_ADVENTUREINTROS.TWOLANDS.TWO, 
+			wait = 4, 
+			anim = nil, 
+			sound = nil,
+		},
+		{
+			string = STRINGS.MAXWELL_ADVENTUREINTROS.TWOLANDS.THREE, 
+			wait = 3.5, 
+			anim = nil, 
+			sound = nil, 
+		},
+		{
+			string = STRINGS.MAXWELL_ADVENTUREINTROS.TWOLANDS.FOUR, 
+			wait = 2.5,
+			anim = nil,
+			sound = nil,
+		},
+	},
+    
+    ADVENTURE_LEVEL7 = -- Darkness
+	{		
+		delay = 2,
+	    voice = "dontstarve/maxwell/talk_LP_world5",
+		appearanim = "appear5",
+		idleanim= "idle5_loop",
+		dialogpreanim = "dialog5_pre",
+		dialoganim="dialog5_loop",
+		dialogpostanim = "dialog5_pst",
+		disappearanim = "disappear5",
+		disableplayer = true,
+		skippable = true,
+		{
+			string = "I left you a little something...",
+			wait = 3,
+			anim = nil,
+			sound = nil,
+		},
+		{
+			string = "I don't think it will help you though.", 
+			wait = 3, 
+			anim = nil, 
+			sound = nil,
+		},
+		{
+			string = "You know what I like about nighttime?", 
+			wait = 3, 
+			anim = nil, 
+			sound = nil, 
+		},
+        {
+			string = "All the spiders.", 
+			wait = 2, 
+			anim = nil, 
+			sound = nil, 
+		},
+	},
+    
+    ADVENTURE_LEVEL8 = -- MaxwellHome, currently the same like last chapter text
+	{		
+		delay = 2,
+	    voice = "dontstarve/maxwell/talk_LP_world6",
+		appearanim = "appear",
+		idleanim= "idle",
+		dialogpreanim = "dialog_pre",
+		dialoganim="dial_loop",
+		dialogpostanim = "dialog_pst",
+		disappearanim = "disappear",
+		disableplayer = true,
+		skippable = true,
+		{
+			string = STRINGS.MAXWELL_ADVENTUREINTROS.LEVEL_6.ONE,
+			wait = 3,
+			anim = nil,
+			sound = nil,
+		},
+		{
+			string = STRINGS.MAXWELL_ADVENTUREINTROS.LEVEL_6.TWO, 
+			wait = 3, 
+			anim = nil, 
+			sound = nil,
+		},
+	},
+    
 }
 
 local function fn(Sim)	
@@ -329,7 +590,23 @@ local function fn(Sim)
     anim:SetBuild("maxwell_build")
 
     inst:AddTag("notarget")
-
+    
+    
+    -- inst:AddComponent("talker")
+    -- inst.components.talker.fontsize = 40
+    -- inst.components.talker.font = TALKINGFONT
+    -- inst.components.talker.colour = Vector3(133/255, 140/255, 167/255)
+    -- inst.components.talker.offset = Vector3(0,-700,0)
+    inst:AddComponent("DStalker") -- the old DS talker component, because here the Say() has still a funcitonal time argument
+    inst.components.DStalker.fontsize = 40
+    inst.components.DStalker.font = TALKINGFONT
+    inst.components.DStalker.colour = Vector3(133/255, 140/255, 167/255)
+    inst.components.DStalker.offset = Vector3(0,-700,0)
+    
+    
+    inst:AddComponent("maxwelltalker")
+    inst.components.maxwelltalker.speeches = SPEECHES
+    
     inst.entity:SetPristine()
 	
 	 if not TheWorld.ismastersim then
@@ -339,18 +616,8 @@ local function fn(Sim)
     inst:AddComponent("named")
     inst.components.named:SetName("Maxwell")
 
-    inst:AddComponent("talker")
-    inst.components.talker.fontsize = 40
-    inst.components.talker.font = TALKINGFONT
-    --inst.components.talker.colour = Vector3(133/255, 140/255, 167/255)
-    inst.components.talker.offset = Vector3(0,-700,0)
-
-    
     inst:AddComponent("inspectable")
     inst.components.inspectable.nameoverride = "maxwell"
-    
-    inst:AddComponent("maxwelltalker")
-    inst.components.maxwelltalker.speeches = SPEECH
  
     inst:DoTaskInTime(0, function()
         if TheSim:FindFirstEntityWithTag("diviningrod") == nil then

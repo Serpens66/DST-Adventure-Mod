@@ -13,7 +13,8 @@ local function createpuppet(name)
 	    local inst = CreateEntity()
 		local trans = inst.entity:AddTransform()
 		local anim = inst.entity:AddAnimState()
-		local sound = inst.entity:AddSoundEmitter()	
+		local sound = inst.entity:AddSoundEmitter()
+        inst.entity:AddNetwork()
 		MakeObstaclePhysics(inst, 2)
 		inst.Transform:SetFourFaced()
 		anim:SetBank("wilson")
@@ -21,6 +22,14 @@ local function createpuppet(name)
 		anim:PlayAnimation("throne_loop", true)
 		inst.AnimState:Hide("ARM_carry") 
         inst.AnimState:Show("ARM_normal")
+        
+        inst.entity:SetPristine()
+	
+         if not TheWorld.ismastersim then
+            return inst
+        end
+        
+        
         inst:AddComponent("named")
         inst:AddComponent("inspectable")
         inst.components.named:SetName(STRINGS.CHARACTER_NAMES[name])

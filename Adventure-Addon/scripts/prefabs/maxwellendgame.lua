@@ -202,7 +202,7 @@ local function activateintrospeech(inst)
         if inst.components.maxwelltalker then
             if inst.components.maxwelltalker:IsTalking() then inst.components.maxwelltalker:StopTalking() end
             inst.components.maxwelltalker.speech = "INTRO"
-            inst.task = inst:StartThread(function()   inst.components.maxwelltalker:DoTalk(inst) end)
+            inst.task = inst:StartThread(function()   inst.components.maxwelltalker:DoTalk(true) end)
             inst:RemoveComponent("playerprox")
         end
     end)
@@ -227,11 +227,10 @@ local function OnHit(inst, attacker)
     local doer = attacker
     if doer then
         local pos = Vector3( doer.Transform:GetWorldPosition() )
-        -- GetSeasonManager():DoLightningStrike(pos)
         TheWorld:PushEvent('ms_sendlightningstrike', pos)
         
         if doer.components.combat then
-			doer.components.combat:GetAttacked(nil, TUNING.UNARMED_DAMAGE)
+			doer.components.combat:GetAttacked(inst, TUNING.UNARMED_DAMAGE)
 		end
 		
 		if doer.components.inventory then
@@ -252,7 +251,7 @@ local function OnHit(inst, attacker)
         inst.components.maxwelltalker:StopTalking()
     end
     
-    inst.task = inst:StartThread(function() inst.components.maxwelltalker:DoTalk(inst) end)
+    inst.task = inst:StartThread(function() inst.components.maxwelltalker:DoTalk(true) end)
     
 end
 
@@ -260,7 +259,7 @@ local function phonographon(inst)
     if inst.components.maxwelltalker then
         if inst.components.maxwelltalker:IsTalking() then inst.components.maxwelltalker:StopTalking() end
         inst.components.maxwelltalker.speech = "PHONOGRAPHON"
-        inst.task = inst:StartThread(function() inst.components.maxwelltalker:DoTalk(inst) end)
+        inst.task = inst:StartThread(function() inst.components.maxwelltalker:DoTalk(true) end)
     end
 end
 
@@ -268,7 +267,7 @@ local function phonographoff(inst)
     if inst.components.maxwelltalker then
         if inst.components.maxwelltalker:IsTalking() then inst.components.maxwelltalker:StopTalking() end
         inst.components.maxwelltalker.speech = "PHONOGRAPHOFF"  
-        inst.task = inst:StartThread(function() inst.components.maxwelltalker:DoTalk(inst) end)
+        inst.task = inst:StartThread(function() inst.components.maxwelltalker:DoTalk(true) end)
     end
 end
 
@@ -280,7 +279,7 @@ local function teleportfail(inst)
     if inst.components.maxwelltalker then
         if inst.components.maxwelltalker:IsTalking() then inst.components.maxwelltalker:StopTalking() end
         inst.components.maxwelltalker.speech = "TELEPORTFAIL"
-        inst.task = inst:StartThread(function() inst.components.maxwelltalker:DoTalk(inst) end)
+        inst.task = inst:StartThread(function() inst.components.maxwelltalker:DoTalk(true) end)
     end
     if not inst.components.talkable then
         local conv_index = 1
@@ -305,13 +304,20 @@ local function fn()
 	local trans = inst.entity:AddTransform()
 	local anim = inst.entity:AddAnimState()
 	local sound = inst.entity:AddSoundEmitter()
-
+    inst.entity:AddNetwork()
     MakeObstaclePhysics(inst, 2)
 
     inst.AnimState:SetBank("maxwellthrone")
     inst.AnimState:SetBuild("maxwell_endgame")
     inst.AnimState:PlayAnimation("idle_loop", true)
-    inst.entity:AddNetwork()
+    
+    
+    inst:AddComponent("talker")
+    inst.components.talker.fontsize = 40
+    inst.components.talker.font = TALKINGFONT
+    inst.components.talker.colour = Vector3(133/255, 140/255, 167/255)
+    inst.components.talker.offset = Vector3(0,-700,0)
+    
     
     inst.entity:SetPristine()
 	
@@ -319,18 +325,29 @@ local function fn()
         return inst
     end
     
-    inst:AddComponent("talker")
-    inst.components.talker.fontsize = 40
-    inst.components.talker.font = TALKINGFONT
-    --inst.components.talker.colour = Vector3(133/255, 140/255, 167/255)
-    inst.components.talker.offset = Vector3(0,-700,0)
-
+    inst:AddComponent("inspectable")
+    
+    local _GetDescription = inst.components.inspectable.GetDescription
+    inst.components.inspectable.GetDescription = function(self, viewer,...) -- replacement for non working talkable
+        viewer.components.locomotor:Stop()
+        if self.inst.components.talkable and self.inst.components.maxwelltalker then
+            self.inst:DoTaskInTime(1,function()
+                if not self.inst.components.maxwelltalker:IsTalking() then
+                    self.inst:PushEvent("talkedto")
+                    self.inst.task = self.inst:StartThread(function() self.inst.components.maxwelltalker:DoTalk(true) end)
+                end
+            end)
+        end
+        return ""
+    end
+    
     inst:AddComponent("named")
     inst.components.named:SetName("Maxwell")
 
     inst:AddComponent("maxwelltalker")
     inst.components.maxwelltalker.speeches = SPEECH
-
+    
+    
     inst:AddComponent("playerprox")
     inst.components.playerprox:SetDist(12, 15)
     inst.components.playerprox:SetOnPlayerNear(activateintrospeech)
@@ -340,6 +357,7 @@ local function fn()
         inst:ListenForEvent("turnedon", function() phonographon(inst) end, inst.phonograph)
         inst:ListenForEvent("turnedoff",function() phonographoff(inst) end, inst.phonograph)
     end
+    
 
     inst.telefail = teleportfail
 

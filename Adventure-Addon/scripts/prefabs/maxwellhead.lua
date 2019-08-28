@@ -110,16 +110,17 @@ local function fn()
     inst.Label:SetFont(TALKINGFONT)
     inst.Label:SetPos(0,5,0)    
     inst.Label:Enable(false)
+    inst:AddComponent("talker")
     
     inst.entity:SetPristine()
 	
 	 if not TheWorld.ismastersim then
         return inst
     end
-	inst:AddComponent("talker")
+	
 	inst:AddComponent("inspectable")
 
-	print(inst.speech)
+	-- print(inst.speech)
 
 	inst:AddComponent("maxwelltalker")
     inst.components.maxwelltalker.speeches = SPEECH

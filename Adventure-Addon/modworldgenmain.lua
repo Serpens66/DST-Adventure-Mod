@@ -1,78 +1,10 @@
 
 local _G = GLOBAL
 print("HIER WORLDGEN adv")
--- other mods, loaded previously, should add their worldgeneration stuff in this GLOBAL variable. And this API mod then will be able to choose and start worlds from other mods
--- make it compatible with caves/ more then host player
 
--- maxwellshome is suddenly the other way round? The whole world as to be rotated bei 180°
-
-
--- TODO :
--- [00:02:24]: Missing reference:	101481 - maxwelllock	->	103609	103609 - diviningrod(LIMBO)
-
--- alle GetPlayer bzw ThePlayer durch eine for schleife mit AllPlayers ersetzen, wenn es mit allen Spielern passieren soll
-
--- bei throne noch machen, dass maxwell da ist und dass player dann auf thron gesetzt wird... oder brauch ich dafür puppets? sonst mal puppest mod runterladen
--- aktuell sitze maxwell auf den thron, nachdem das spiel beendet ist , aber vorher nicht ?!
-
--- bei worldjump evlt auch den gewählten char speichern und übernehmen -> keine ahnung wie
-
--- wenn alles läuft könnte man evlt auch ein caves level zufuegen, wobei dann tintybyte duch smallbyte -> 63 level geändert werden muss
-
--- maxwell+betäubt am level anfang kann direkt in PlayerPostInit rein und startstuff component merkt es sich dann pro spieler und es wird als client ausgeführt... braucht man dann vermutlich netvars für
-
-
---can't find grass_umbrella_blueprint -> vermutlich weil es noch None baubar ist
-
-
--- in summer leveln muss man iwie an eis und gears rankommen...
-
-
--- statue/wes_enemywave einbauen, evlt in maxwellhome als endkampf ? 
-
-
--- anim inactive trap_teeth_maxwell ... hmm die anim datei gibts eigentlich... also woher kommt der fehler? 
-
---  sound von phonograph funzt nicht mehr
-
-
-
--- den teleoprtato in maxwellhome evlt nutzbar machen, um adventure von vorn zu beginnen? dann muss char aber wieder erscheinen, damit man sich wieder bewegen kann
-
-
-
--- Wenn maxwell redet wird camera noch nicht als client rangezoomt... liegt daran, dass maxwell und seine maxwelltalker componente natürlich nur fur den server erstellt wird...
--- man müsste also die camera befehle dort rausholen und in modmain packen, sodass sie auch von client ausgeführt werden... gilt dann natürlich auch für den maxwellthrone kram -.-
--- man könnte sonst auch noch eine netvar verwenden, zb die TitleStuff variable, und bei bestimmten werten in der listener funktion dann die camera verändern und den wert in der maxwellcomponente ändern...
--- -> ja funktioniert mit netvar ! :)  .. wobei es berichte gab, dass es doch nicht funzt?
-
--- two-worlds: berrybush_juicy cant find prefab
-
-
-
--- GLOBALs sind in forest/cave unterschiedlich, also darauf achten, dass ich alle globals immer für alle welten setze!
-
--- wollten wir nur einen welt mod aufeinmal aktiv haben, bräuchte es diese WORLDS Liste vermutlich nicht.
--- doch wir wollen, dass mehrere mods ihre welten zu der liste zufügen können und dann zufällig zwischen ihnen ausgewählt werden kann. dafür ist die liste nötig.
-
-
--- als client testen, auch _G.TheWorld.mynetvarAdvChapter:value() in konstole printen um zu sehen obs funzt
--- -> mynetvarAdvChapter ist als client nil
--- es wird kein titelscreen gezeigt nicht rangezoomed inst.Camera und maxwell hat keinen Text 
--- UI ein/ausblenden klappt aber
--- test/reden von maxwell we have to find the door, kommt auch nicht
--- karte wird in maxhome auch nicht gedreht.
--- nach divingingrod um maxwell zu befreien: [string "../mods/Adventure-Addon/scripts/prefabs/max..."]:214: attempt to index field 'HUD' (a nil value)
-
--- Say() zb find maxwells door, wird doch fuer client angezeigt, obowhl nur server es ausführt, ist vermutlich richtig so, aber talker muss halt für beide zugefügt worden sein
--- was bei maxwell evlt nicht so ist?
-
--- player:SetCameraDistance() innerhalb des server modmain teil wo ich auch "search door" saye, funcktioniert, aber innerhalb vom maxwelltaler nicht, obwohl AllPlayer[x] defintiv inst des players ist.
-
-
--- maxwelltalker am besten durch die talker component ersetzen ... leider macht dieser nicht nur das talken, sondern auch viel mehr bzl animation und camrea..
--- den text ekommt man aber, wenn man die Say() fkt mit { {message="hallo"},{message="ich"},{message="bin"},{message="doof"} } aufruft.
-
+ 
+-- GLOBAL values are seperated for forest and cave, so make sure that they are always set up equally or keep in mind that they might be different.
+-- LEVEL and CHAPTER should be the same in cave like in overworld, but not tested yet.
 
 
 --##########################################
@@ -81,8 +13,11 @@ print("HIER WORLDGEN adv")
 
 -- Level is the number of chosen map. There can be unlimited maps. starts at 1
 -- Chapter: starts at 0. max number is 6. ->Only 7 maps are chosen from the level list.
--- for testing you can do TheWorld.components.adventurejump:DoJump(true,true,true) within console
+-- for testing you can do TheWorld.components.adventurejump:DoJump() within console
 -- to see what overrides you can choose for your world, see scripts\map\customise.lua
+
+-- mods can add their worlds to the WORLDS list, so players could also use several such mods and the teleoprtato mod will choose randomly between those levels to fill the chapters.
+-- those mods must load before the teleportato mod, so priority must be higher than 8888 (no clue why I chose this value)
 
 -- if you want a teleportato (add_teleportato in taskdata), but don't want to create setpieces for it and want the teleportato mod to simply spawn them, you can either
 -- make _G.TUNING.TELEPORTATOMOD.teleportato_layouts["forest"]=nil, then the setpieces from teleportato mod are used. OR you can set it {}, then no setpieces are used, 
@@ -99,6 +34,8 @@ print("HIER WORLDGEN adv")
 
 -- do not use tasksetdata.ordered_story_setpieces, since this is only made to work with original DS adventure worlds. Only use it if you know what you are doing.
 -- use taskdata.set_pieces instead for normal set_pieces and add_teleportato for the tele stuff.
+
+-- do not use "_G.TUNING.TELEPORTATOMOD.LEVEL == x" within your code, use instead _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="mylevel"
 
 ------------------------------------------------------------------
 
@@ -227,8 +164,9 @@ local adv_helpers = _G.require("adv_helpers")
 
 
 -- testing
--- _G.TUNING.TELEPORTATOMOD.LEVEL_GEN = 8 -- force loading this level
--- _G.TUNING.TELEPORTATOMOD.CHAPTER_GEN = 0
+-- _G.TUNING.TELEPORTATOMOD.LEVEL_GEN = 8 -- force loading this level, starts at 1 anjd goes up to unlimited (max 63 due to netvars)
+-- _G.TUNING.TELEPORTATOMOD.CHAPTER_GEN = 6 -- force loading this chapter, starts at 0 and goes up to 6
+-- Sandbox (adventureportal) = 1
 -- A Cold Reception = 2
 -- King of Winter = 3
 -- The Game is Afoot = 4
@@ -319,34 +257,43 @@ end
 -- the LEVEL is determined by the order you add them to the _G.TUNING.TELEPORTATOMOD.WORLDS list
 
 local function AdventurePortalWorld(tasksetdata)
-    tasksetdata.tasks = {"Tentacle-Blocked Spider Swamp"}--{"Swamp start","Tentacle-Blocked Spider Swamp"}--{"Tentacle-Blocked Spider Swamp"} -- {"Swamp start"}
-    tasksetdata.numoptionaltasks = 0
-    tasksetdata.optionaltasks = {}
-    tasksetdata.set_pieces = {}
-        -- ["ResurrectionStoneWinter"] = { count=1, tasks={"Tentacle-Blocked Spider Swamp"}},
-    -- }
-    tasksetdata.required_setpieces = {}
-    table.insert(tasksetdata.required_setpieces,adventureportal) -- adventure portal is NOT added by teleportato mod
-    tasksetdata.numrandom_set_pieces = 0
-    tasksetdata.random_set_pieces = {}
-    tasksetdata.required_prefabs = {"spawnpoint_master","adventure_portal"}
-    tasksetdata.overrides={
-        world_size  =  "small",
-        wormhole_prefab = "wormhole",
-        layout_mode = "LinkNodesByKeys",
-        deerclops  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
-        dragonfly  =  "never",
-        bearger  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
-        goosemoose  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
-        season_start  =  "autumn",
-        autumn = "veryshortseason",
-        winter = "veryshortseason",
-        spring = "veryshortseason",
-        summer = "veryshortseason",
-        keep_disconnected_tiles = true,
-		no_joining_islands = true,
-		has_ocean = true,
-    }
+    
+    if GetModConfigData("sandboxpreconfigured") then
+        tasksetdata.tasks = {"Tentacle-Blocked Spider Swamp"}--{"Swamp start","Tentacle-Blocked Spider Swamp"}--{"Tentacle-Blocked Spider Swamp"} -- {"Swamp start"}
+        tasksetdata.numoptionaltasks = 0
+        tasksetdata.optionaltasks = {}
+        tasksetdata.set_pieces = {}
+            -- ["ResurrectionStoneWinter"] = { count=1, tasks={"Tentacle-Blocked Spider Swamp"}},
+        -- }
+        tasksetdata.required_setpieces = {}
+        table.insert(tasksetdata.required_setpieces,adventureportal) -- adventure portal is NOT added by teleportato mod. only if it is a level with name Maxwells Door and the world has no portal
+        tasksetdata.numrandom_set_pieces = 0
+        tasksetdata.random_set_pieces = {}
+        tasksetdata.required_prefabs = {"spawnpoint_master","adventure_portal"}
+        tasksetdata.overrides={
+            world_size  =  "small",
+            wormhole_prefab = "wormhole",
+            layout_mode = "LinkNodesByKeys",
+            deerclops  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
+            dragonfly  =  "never",
+            bearger  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
+            goosemoose  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
+            antlion = "never",
+            season_start  =  "autumn",
+            autumn = "veryshortseason",
+            winter = "veryshortseason",
+            spring = "veryshortseason",
+            summer = "veryshortseason",
+            keep_disconnected_tiles = true,
+            no_joining_islands = true,
+            has_ocean = true,
+        }
+    else -- load normal worldsettings, but with portal
+        if tasksetdata.required_setpieces==nil then
+            tasksetdata.required_setpieces = {}
+        end
+        table.insert(tasksetdata.required_setpieces,adventureportal) -- adventure portal is NOT added by teleportato mod. only if it is a level with name Maxwells Door and the world has no portal
+    end
     return tasksetdata
 end
 table.insert(_G.TUNING.TELEPORTATOMOD.WORLDS, {name="Maxwells Door", taskdatafunctions={forest=AdventurePortalWorld, cave=AlwaysTinyCave}, defaultpositions={1}, positions=GetModConfigData("maxwellsdoor")})
@@ -383,6 +330,7 @@ local function AdventureColdReception(tasksetdata) -- A Cold Reception
         dragonfly  =  "never",
         bearger  =  "never",
         goosemoose  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
+        antlion = "never",
         hounds  =  "never",
         mactusk  =  "always",
         leifs  =  "always",
@@ -446,6 +394,7 @@ local function AdventureKingWinter(tasksetdata)
         dragonfly  =  "never",
         bearger  =  "never",
         goosemoose  =  "never",
+        antlion = "never",
         hounds  =  "never",
         mactusk  =  "always",
         
@@ -499,7 +448,8 @@ local function AdventureGameAfoot(tasksetdata)
         deerclops  =  (GetModConfigData("difficulty")==0 and "default") or (GetModConfigData("difficulty")==1 and "rare") or (GetModConfigData("difficulty")==2 and "default") or (GetModConfigData("difficulty")==3 and "often") or "default",
         dragonfly  =  "never",
         bearger  =  "never",
-        goosemoose  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
+        goosemoose  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "rare") or (GetModConfigData("difficulty")==2 and "default") or (GetModConfigData("difficulty")==3 and "often") or "never",
+        antlion = "never",
         wormhole_prefab = "wormhole",
         layout_mode = "LinkNodesByKeys",
         start_location = "adv3",
@@ -523,7 +473,6 @@ local function AdventureArchipelago(tasksetdata)
     -- tasksetdata.optionaltasks = {"The hunters","Trapped Forest hunters","Wasps and Frogs and bugs","Tentacle-Blocked The Deep Forest","Hounded Greater Plains","Merms ahoy",}
     tasksetdata.set_pieces = {                
             -- ["WesUnlock"] = { restrict_to="background", tasks={ "IslandHop_Start", "IslandHop_Hounds", "IslandHop_Forest", "IslandHop_Savanna", "IslandHop_Rocky", "IslandHop_Merm" } },
-            -- ["Wormhole_Mod"] = { count= 5, tasks={ "IslandHop_Start"}}--, "IslandHop_Hounds", "IslandHop_Forest", "IslandHop_Savanna", "IslandHop_Rocky", "IslandHop_Merm" } },
         }
     tasksetdata.required_setpieces = {}
     tasksetdata.numrandom_set_pieces = 0
@@ -544,6 +493,8 @@ local function AdventureArchipelago(tasksetdata)
         dragonfly  =  "never",
         bearger  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
         goosemoose  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
+        antlion = "never",
+        hounds = (GetModConfigData("difficulty")==0 and "default") or (GetModConfigData("difficulty")==1 and "default") or (GetModConfigData("difficulty")==2 and "often") or (GetModConfigData("difficulty")==3 and "always") or "default",
         season_start = "default",
         wormhole_prefab = "wormhole",
         layout_mode = "LinkNodesByKeys",
@@ -596,6 +547,7 @@ local function AdventureTwoWorlds(tasksetdata)
         dragonfly  =  "never",
         bearger  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
         goosemoose  =  "never",
+        antlion = "never",
         world_size = "medium",
         wormhole_prefab = "wormhole",
         layout_mode = "LinkNodesByKeys",
@@ -657,6 +609,7 @@ local function AdventureDarkness(tasksetdata)
         dragonfly  =  "never",
         bearger  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
         goosemoose  =  "never",
+        antlion = "never",
         world_size = "medium",
         wormhole_prefab = "wormhole",
         layout_mode = "LinkNodesByKeys",
@@ -700,6 +653,7 @@ local function AdventureMaxwellHome(tasksetdata)
         dragonfly  =  "never",
         bearger  =  "never",
         goosemoose  =  "never",
+        antlion = "never",
         world_size = "medium",
         autumn = "verylongseason", -- only summer would be rubbish
         winter = "noseason",

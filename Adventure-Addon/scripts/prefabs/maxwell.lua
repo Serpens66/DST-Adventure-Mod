@@ -20,12 +20,6 @@ local function fn(Sim)
     anim:SetBank("maxwell")
     anim:SetBuild("maxwell_build")
     anim:PlayAnimation("appear")
-
-    inst.entity:SetPristine()
-	
-	 if not TheWorld.ismastersim then
-        return inst
-    end
     
     inst:AddComponent("talker")
     inst.components.talker.fontsize = 28
@@ -34,10 +28,16 @@ local function fn(Sim)
     inst.components.talker.offset = Vector3(0,-600,0)
 
     
+    inst.entity:SetPristine()
+	
+	 if not TheWorld.ismastersim then
+        return inst
+    end
+    
     inst:AddComponent("inspectable")
-
-    --inst:ListenForEvent( "ontalk", function(inst, data) inst.AnimState:PlayAnimation("dialog_pre") inst.AnimState:PushAnimation("dial_loop", true) end)
-    --inst:ListenForEvent( "donetalking", function(inst, data) inst.AnimState:PlayAnimation("dialog_pst") inst.AnimState:PushAnimation("idle", true) end)
+    inst:ListenForEvent( "ontalk", function(inst, data) inst.AnimState:PlayAnimation("dialog_pre") inst.AnimState:PushAnimation("dial_loop", true) end)
+    inst:ListenForEvent( "donetalking", function(inst, data) inst.AnimState:PlayAnimation("dialog_pst") inst.AnimState:PushAnimation("idle", true) end)
+    
 	inst.persists = false
     return inst
 end

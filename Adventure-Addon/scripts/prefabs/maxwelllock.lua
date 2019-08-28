@@ -18,7 +18,10 @@ local function OnUnlock(inst, key, doer)
     inst.throne.lock = inst
 	
     inst.SoundEmitter:PlaySound("dontstarve/common/teleportato/teleportato_add_divining")
-    inst.throne.startthread(inst.throne)
+    inst.throne.startthread(inst.throne,doer,false)
+    for _,player in pairs(AllPlayers) do
+        player.mynetvarMCutscene:set(true) -- execute it also for clients
+    end
     
     -- local character = AllPlayers[1]~=nil and AllPlayers[1].prefab
     -- if character~=nil then
@@ -66,20 +69,22 @@ local function fn(Sim)
     anim:SetBuild("diviningrod_maxwell")
     anim:PlayAnimation("activate_loop", true)
     
+    inst:AddTag("maxwelllock")
+
+    
     inst.entity:SetPristine()
 	
 	 if not TheWorld.ismastersim then
         return inst
     end
     
-    inst:AddComponent("inspectable")
-
-    inst:AddTag("maxwelllock")
-
     inst:AddComponent("lock")
     inst.components.lock.locktype = "maxwell"
     inst.components.lock:SetOnUnlockedFn(OnUnlock)
     inst.components.lock:SetOnLockedFn(OnLock)
+    
+    
+    inst:AddComponent("inspectable")
 
     return inst
 end
