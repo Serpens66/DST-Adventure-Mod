@@ -200,8 +200,8 @@ helpers["FuelNearFires"] = FuelNearFires
 
 local ClockworkEnemiesList = {"bishop","knight","rook","knight_nightmare","bishop_nightmare","rook_nightmare","bishop","knight","knight_nightmare","bishop_nightmare",}
 local ClockworkEnemiesListWithoutRook = {"bishop","knight","knight_nightmare","bishop_nightmare","bishop","knight","knight_nightmare","bishop_nightmare",}
-local ClockworkEnemies = {bishop={1,2},knight={1,2},rook={0,1},knight_nightmare={0,2},bishop_nightmare={0,2},rook_nightmare={0,1},}
-local ClockworkEnemiesWithoutRook = {bishop={1,3},knight={1,3},knight_nightmare={1,3},bishop_nightmare={1,3}}
+local ClockworkEnemies = {bishop={1,2},knight={1,2},rook={0,1},knight_nightmare={0,1},bishop_nightmare={0,1},rook_nightmare={0,1},}
+local ClockworkEnemiesWithoutRook = {bishop={1,2},knight={1,2},knight_nightmare={0,2},bishop_nightmare={0,2}}
 local HoundEnemies = {houndmound={3,6},icehound={0,2},firehound={0,2},}
 local SpiderEnemies = {spiderden={3,6},spider_dropper={0,2},spider_hider={0,2},spider_spitter={0,2},spider_moon={0,2},}
 local CaveSpiderEnemies = {spiderden={1,2},dropperweb={1,2},spiderhole={1,3}}
@@ -212,8 +212,8 @@ local CaveShadows = {crawlingnightmare={1,3},nightmarebeak={1,3}}
 local CaveWorms = {worm={2,4},}
 local Enemies = {ClockworkEnemies,HoundEnemies,SpiderEnemies,PigEnemies,KillerBeeEnemies,MermEnemies,HoundEnemies,SpiderEnemies}
 local CaveEnemies = {ClockworkEnemies,CaveSpiderEnemies,CaveShadows,CaveSpiderEnemies,CaveWorms}
-local function SpawnEnemies(world)
-    -- print("SpawnEnemies1")
+local function SpawnEnemies(inst,world) -- inst may be the base but also a random tele part, so better dont use it
+    print("SpawnEnemies1")
     if TUNING.TELEPORTATOMOD.Enemies > 0 then
         local multi = TUNING.TELEPORTATOMOD.Enemies
         local ChosenEnemies = nil
@@ -346,6 +346,26 @@ local function SpawnOrnateChest(inst) -- if big chest, 2 additional enemy
     end
 end
 helpers["SpawnOrnateChest"] = SpawnOrnateChest
+
+local function CallthisfnIfthatfnIsTrue(inst,thisfn,thatfn,maxcounter,...)
+    -- print("CallthisfnIfthatfnIsTrue")
+    -- print(inst)
+    -- print(thisfn)
+    -- print(thatfn)
+    -- print(...)
+    if thatfn(inst) then
+        thisfn(...)
+    else
+        -- print("call CallthisfnIfthatfnIsTrue again later...")
+        if maxcounter>0 then -- only try it that often to prevent endless loop
+            maxcounter = maxcounter-1
+            inst:DoTaskInTime(0.1,CallthisfnIfthatfnIsTrue,thisfn,thatfn,maxcounter,...)
+        else
+            print("CallthisfnIfthatfnIsTrue: Gave up, tried maxcounter times, but thatfn "..tostring(thatfn).." was never true, thisfn was never called: "..tostring(thisfn))
+        end
+    end
+end
+helpers["CallthisfnIfthatfnIsTrue"] = CallthisfnIfthatfnIsTrue
 
 
 return helpers

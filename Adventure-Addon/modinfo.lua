@@ -3,7 +3,7 @@ description = "[BETA]\nRequires my Teleportato mod!\n\nOvercome challenging worl
 author = "Serpens"
 forumthread = ""
 
-version = "0.9"
+version = "0.93"
 api_version = 10
 
 dst_compatible = true
@@ -23,13 +23,13 @@ configuration_options =
 	{
 		name = "difficulty",
 		label = "Difficulty",
-		hover = "Dont change this for a running game.",
+		hover = "You also can set this to DS! Dont change this for a running game.",
 		options = 
 		{
 			{description = "DS", data = 0, hover="Only necessary changes. It will be the same like the DS adventure for the most parts."},
             {description = "Easy", data = 1, hover="More starting items, an easy adventure."},
             {description = "Medium", data = 2, hover="Moderate starting items, a normal adventure."},
-            {description = "Hard", data = 3, hover="Few starting items, a hard adventure."},
+            {description = "Hard", data = 3, hover="Few starting items, a hard adventure."}, -- many code is dependent on these values 0-3, so do not change or add these values without adjusting all the code!
         },
 		default = 2,
     },
@@ -43,6 +43,17 @@ configuration_options =
             {description = "preconfigured", data = true, hover="A small swamp world, you will quickly find the portal and start adventure."},
         },                   
 		default = true,
+    },
+    {
+		name = "repickcharacter",
+		label = "Repick character?",
+		hover = "Currently not working, only effect is that at chapter 2 and onwards you wont get characters starting items",
+		options = 
+		{
+            {description = "repick", data = true, hover="will get starting items of chosen character everytime"},
+            {description = "no repick", data = false, hover="wont get starting items of chosen character for chapter 2 and onwards"},
+        },                   
+		default = false,
     },
     {
 		name = "null_option",
@@ -75,19 +86,19 @@ configuration_options =
             {description = "3", data = "3", hover="\n"},
             {description = "4", data = "4", hover="\n"},
             {description = "5", data = "5", hover="\n"},
-            {description = "2,3,4,5", data = "2,3,4,5", hover="Randomly between 2 and 5"},
+            {description = "2,3,4", data = "2,3,4", hover="Randomly between 2 and 4"},
             {description = "2,3", data = "2,3", hover="\n"},
             {description = "2,4", data = "2,4", hover="\n"},
             {description = "2,5", data = "2,5", hover="\n"},
             {description = "3,4", data = "3,4", hover="\n"},
             {description = "3,5", data = "3,5", hover="\n"},
             {description = "4,5", data = "4,5", hover="\n"},
-            {description = "2,3,4", data = "2,3,4", hover="\n"},
+            {description = "2,3,4,5", data = "2,3,4,5", hover="\n"},
             {description = "3,4,5", data = "3,4,5", hover="\n"},
             {description = "2,4,5", data = "2,4,5", hover="\n"},
             {description = "2,3,5", data = "2,3,5", hover="\n"},
         },                   
-		default = "2,3,4,5",
+		default = "2,3,4",
     },
     {
 		name = "kingofwinter",

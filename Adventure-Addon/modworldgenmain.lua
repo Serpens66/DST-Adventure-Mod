@@ -164,7 +164,7 @@ local adv_helpers = _G.require("adv_helpers")
 
 
 -- testing
--- _G.TUNING.TELEPORTATOMOD.LEVEL_GEN = 8 -- force loading this level, starts at 1 anjd goes up to unlimited (max 63 due to netvars)
+-- _G.TUNING.TELEPORTATOMOD.LEVEL_GEN = 7 -- force loading this level, starts at 1 anjd goes up to unlimited (max 63 due to netvars)
 -- _G.TUNING.TELEPORTATOMOD.CHAPTER_GEN = 6 -- force loading this chapter, starts at 0 and goes up to 6
 -- Sandbox (adventureportal) = 1
 -- A Cold Reception = 2
@@ -221,22 +221,53 @@ if _G.TUNING.TELEPORTATOMOD.teleportato_layouts["cave"]==nil then -- may also be
     end
 end
 
+local function GetRandomSubstituteList( substitutes, num_choices )	
+	local subs = {}
+	local list = {}
+
+	for k,v in pairs(substitutes) do 
+		list[k] = v.weight
+	end
+
+	for i=1,num_choices do
+		local choice = GLOBAL.weighted_random_choice(list)
+		list[choice] = nil
+		subs[choice] = substitutes[choice]
+	end
+
+	return subs
+end
+local SUBS_1= { -- this is replacing stuff, (see resource_sub... gamefile) I don't like it and it seems not working 100%, but at least for DS setting we should use it
+			["evergreen"] = 		{perstory=0.5, 	pertask=1, 		weight=1}, -- weight is for GetRandomSubstituteList to choose x from that list
+			["evergreen_short"] = 	{perstory=1, 	pertask=1, 		weight=1}, -- per story is the chance per area to actually do the substitution
+			["evergreen_normal"] = 	{perstory=1, 	pertask=1, 		weight=1}, -- pertask is the percentage of how many of this prefab is replaced in this area
+			["evergreen_tall"] = 	{perstory=1, 	pertask=1, 		weight=1}, -- BUT Im not able to see this working as it should. even on 1 1 1 there are or are no subistiutions. I dont trust this, so this will only be active for DS difficulty
+			["sapling"] = 			{perstory=0.6, 	pertask=0.95,	weight=1},
+			["beefalo"] = 			{perstory=1, 	pertask=1, 		weight=1},
+			["rabbithole"] = 		{perstory=1, 	pertask=1, 		weight=1},
+			["rock1"] = 			{perstory=0.3, 	pertask=1, 		weight=1},
+			["rock2"] = 			{perstory=0.5, 	pertask=0.8, 	weight=1},
+			["grass"] = 			{perstory=0.5, 	pertask=0.9, 	weight=1},
+			["flint"] = 			{perstory=0.5, 	pertask=1,		weight=1},
+			["spiderden"] =			{perstory=1, 	pertask=1, 		weight=1},
+		}
+-- for refernce, this is by what it is replaced: (see resource_sub... gamefile)
+    -- ["rock1"] = 		{"basalt","rock_flintless"},--, "plainrock"},
+	-- ["rock2"] = 		{"basalt","rock_flintless"},--, "plainrock"},
+	-- ["evergreen"] = 	{ "evergreen_stump", "evergreen_sparse", "marsh_tree"}, --, "leif"
+	-- ["evergreen_normal"] = 	{"evergreen_burnt", "evergreen_stump", "evergreen_sparse", "marsh_tree"},-- "leif"}, 
+	-- ["evergreen_short"] = 	{"evergreen_burnt", "evergreen_stump", "evergreen_sparse", "marsh_tree"},-- "leif"}, 
+	-- ["evergreen_tall"] = 	{"evergreen_burnt", "evergreen_stump", "evergreen_sparse", "marsh_tree"},-- "leif"}, 
+	-- ["grass"] 	= 		{"depleted_grass", "flower"},
+	-- ["flint"] 	= 		{"flower"},
+	-- ["sapling"] = 		{"marsh_bush"}, --  "depleted_sapling"},
+	-- ["beefalo"] = 		{"rabbithole"},
+	-- ["rabbithole"] = 	{"beefalo"},
+	-- ["spiderden"] =		{"spiderden_2", "spiderden_3"},
+	-- ["pighouse"] =		{"pigman"},
 
 
 local function AlwaysTinyCave(tasksetdata) -- even if cave was enabled, make it always very tiny, cause we dont need it
-    -- tasksetdata.tasks = {"CaveExitTask1"}
-    -- tasksetdata.numoptionaltasks = 0
-    -- tasksetdata.optionaltasks = {}
-    -- tasksetdata.set_pieces = {}
-    -- tasksetdata.required_setpieces = {}
-    -- tasksetdata.numrandom_set_pieces = 0
-    -- tasksetdata.random_set_pieces = {}
-    -- tasksetdata.valid_start_tasks = {"CaveExitTask1"}
-    -- tasksetdata.overrides={
-        -- world_size  =  _G.PLATFORM == "PS4" and "default" or "tiny",
-        -- wormhole_prefab = "tentacle_pillar",
-        -- layout_mode = "RestrictNodesByKey",
-    -- }
     tasksetdata.tasks = {"CaveExitTask1"}
             tasksetdata.numoptionaltasks = 0
             tasksetdata.optionaltasks = {}
@@ -296,8 +327,11 @@ local function AdventurePortalWorld(tasksetdata)
     end
     return tasksetdata
 end
-table.insert(_G.TUNING.TELEPORTATOMOD.WORLDS, {name="Maxwells Door", taskdatafunctions={forest=AdventurePortalWorld, cave=AlwaysTinyCave}, defaultpositions={1}, positions=GetModConfigData("maxwellsdoor")})
-
+if GetModConfigData("sandboxpreconfigured") then
+    table.insert(_G.TUNING.TELEPORTATOMOD.WORLDS, {name="Maxwells Door", taskdatafunctions={forest=AdventurePortalWorld, cave=AlwaysTinyCave}, defaultpositions={1}, positions=GetModConfigData("maxwellsdoor")})
+else -- othjerwise, no tiny cave
+    table.insert(_G.TUNING.TELEPORTATOMOD.WORLDS, {name="Maxwells Door", taskdatafunctions={forest=AdventurePortalWorld}, defaultpositions={1}, positions=GetModConfigData("maxwellsdoor")})
+end
 
 local function AdventureColdReception(tasksetdata) -- A Cold Reception
     tasksetdata.numoptionaltasks = 4
@@ -318,6 +352,9 @@ local function AdventureColdReception(tasksetdata) -- A Cold Reception
     tasksetdata.random_set_pieces = {}
     tasksetdata.add_teleportato = true -- add teleportato within teleportato mod. ypu can set up _G.TUNING.TELEPORTATOMOD.teleportato_layouts to change the setpieces of them
     tasksetdata.required_prefabs = _G.ArrayUnion(required_prefabs,{"teleportato_base","teleportato_box","teleportato_crank","teleportato_ring","teleportato_potato"}) -- if ordered_story_setpieces is nil/empty, required_prefabs is set up in teleoprtato mod depending in settings there
+    if GetModConfigData("difficulty")==0 then
+        tasksetdata.substitutes = GetRandomSubstituteList(SUBS_1, 3)
+    end
     tasksetdata.overrides={
         world_size  =  "medium",
         day  =  "longdusk", 
@@ -352,7 +389,7 @@ local function AdventureColdReception(tasksetdata) -- A Cold Reception
     }
     return tasksetdata
 end
-table.insert(_G.TUNING.TELEPORTATOMOD.WORLDS, {name="A Cold Reception", taskdatafunctions={forest=AdventureColdReception, cave=AlwaysTinyCave}, defaultpositions={2,3,4,5}, positions=GetModConfigData("acoldreception")})
+table.insert(_G.TUNING.TELEPORTATOMOD.WORLDS, {name="A Cold Reception", taskdatafunctions={forest=AdventureColdReception, cave=AlwaysTinyCave}, defaultpositions={2,3,4}, positions=GetModConfigData("acoldreception")})
 
 
 local function AdventureKingWinter(tasksetdata)
@@ -376,6 +413,9 @@ local function AdventureKingWinter(tasksetdata)
     tasksetdata.random_set_pieces = {}
     tasksetdata.add_teleportato = true -- add teleportato within teleportato mod. ypu can set up _G.TUNING.TELEPORTATOMOD.teleportato_layouts to change the setpieces of them
     tasksetdata.required_prefabs = _G.ArrayUnion(required_prefabs,{"teleportato_base","teleportato_box","teleportato_crank","teleportato_ring","teleportato_potato"}) -- if ordered_story_setpieces is nil/empty, required_prefabs is set up in teleoprtato mod depending in settings there
+    if GetModConfigData("difficulty")==0 then
+        tasksetdata.substitutes = GetRandomSubstituteList(SUBS_1, 3)
+    end
     tasksetdata.overrides={
         world_size = "medium",
         wormhole_prefab = "wormhole",
@@ -436,6 +476,9 @@ local function AdventureGameAfoot(tasksetdata)
     tasksetdata.random_set_pieces = {}
     tasksetdata.add_teleportato = true -- add teleportato within teleportato mod. ypu can set up _G.TUNING.TELEPORTATOMOD.teleportato_layouts to change the setpieces of them
     tasksetdata.required_prefabs = _G.ArrayUnion(required_prefabs,{"teleportato_base","teleportato_box","teleportato_crank","teleportato_ring","teleportato_potato"}) -- if ordered_story_setpieces is nil/empty, required_prefabs is set up in teleoprtato mod depending in settings there
+    if GetModConfigData("difficulty")==0 then
+        tasksetdata.substitutes = GetRandomSubstituteList(SUBS_1, 3)
+    end
     tasksetdata.overrides={
         day = "longdusk", 
 
@@ -485,6 +528,9 @@ local function AdventureArchipelago(tasksetdata)
     tasksetdata.random_set_pieces = {}
     tasksetdata.add_teleportato = true -- add teleportato within teleportato mod. ypu can set up _G.TUNING.TELEPORTATOMOD.teleportato_layouts to change the setpieces of them
     tasksetdata.required_prefabs = _G.ArrayUnion(required_prefabs,{"teleportato_base","teleportato_box","teleportato_crank","teleportato_ring","teleportato_potato"}) -- if ordered_story_setpieces is nil/empty, required_prefabs is set up in teleoprtato mod depending in settings there
+    if GetModConfigData("difficulty")==0 then
+        tasksetdata.substitutes = GetRandomSubstituteList(SUBS_1, 3)
+    end
     tasksetdata.overrides={
         world_size = "medium",
         roads = "never",
@@ -537,6 +583,9 @@ local function AdventureTwoWorlds(tasksetdata)
     tasksetdata.random_set_pieces = {}
     tasksetdata.add_teleportato = true -- add teleportato within teleportato mod. ypu can set up _G.TUNING.TELEPORTATOMOD.teleportato_layouts to change the setpieces of them
     tasksetdata.required_prefabs = _G.ArrayUnion(required_prefabs,{"teleportato_base","teleportato_box","teleportato_crank","teleportato_ring","teleportato_potato"}) -- if ordered_story_setpieces is nil/empty, required_prefabs is set up in teleoprtato mod depending in settings there -- _G.ArrayUnion(required_prefabs,{"pigking"})
+    if GetModConfigData("difficulty")==0 then
+        tasksetdata.substitutes = GetRandomSubstituteList(SUBS_1, 3)
+    end
     tasksetdata.overrides={
         day  =  (GetModConfigData("difficulty")==0 and "default") or (GetModConfigData("difficulty")==1 and "longday") or (GetModConfigData("difficulty")==2 and "default") or (GetModConfigData("difficulty")==3 and "longdusk") or "default", 
         season_start  =  "autumn",
@@ -575,7 +624,12 @@ local function AdventureDarkness(tasksetdata)
             ["RuinedBase"] = {tasks={"Swamp start", "Battlefield", "Walled Kill the spiders", "Killer bees!"}},
             ["ResurrectionStoneLit"] = { count=4, tasks={"Swamp start", "Battlefield", "Walled Kill the spiders", "Sanity-Blocked Spider Queendom","Killer bees!",
             "Chessworld","Tentacle-Blocked The Deep Forest", "Tentacle-Blocked Spider Swamp","Trapped Forest hunters","Waspy The hunters","Hounded Magic meadow", }},}
-    tasksetdata.substitutes = {["pighouse"] = {perstory=1,weight=1,pertask=1}} -- pighouses replaced by pigs (see ressource_sub... gamefile)
+    if GetModConfigData("difficulty")==0 then
+        tasksetdata.substitutes = _G.MergeMaps( {["pighouse"] = {perstory=1,weight=1,pertask=1}}, -- pighouses replaced by pigs (see resource_sub... gamefile)
+								 GetRandomSubstituteList(SUBS_1, 3) )
+    else
+        tasksetdata.substitutes = {["pighouse"] = {perstory=1,weight=1,pertask=1}}
+    end
     tasksetdata.required_setpieces = {}
     tasksetdata.numrandom_set_pieces = 0
     if not tasksetdata.ordered_story_setpieces then -- only use this for this mod, so for original DS adventure worlds!
@@ -602,9 +656,9 @@ local function AdventureDarkness(tasksetdata)
         fireflies = (GetModConfigData("difficulty")==3 and "often") or "always",
         
         bunnymen = (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "default") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "rare") or "never",
-        flower_cave = (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "always") or (GetModConfigData("difficulty")==2 and "often") or (GetModConfigData("difficulty")==3 and "default") or "never",
+        flower_cave = (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "always") or (GetModConfigData("difficulty")==2 and "often") or (GetModConfigData("difficulty")==3 and "rare") or "never",
         
-        maxwelllight_area = (GetModConfigData("difficulty")==0 and "always") or (GetModConfigData("difficulty")==1 and "always") or (GetModConfigData("difficulty")==2 and "often") or (GetModConfigData("difficulty")==3 and "default") or "always", 
+        maxwelllight_area = (GetModConfigData("difficulty")==0 and "always") or (GetModConfigData("difficulty")==1 and "always") or (GetModConfigData("difficulty")==2 and "often") or (GetModConfigData("difficulty")==3 and "rare") or "always", 
         pigtorch = (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "often") or (GetModConfigData("difficulty")==2 and "default") or (GetModConfigData("difficulty")==3 and "rare") or "never", 
         dragonfly  =  "never",
         bearger  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",

@@ -619,7 +619,7 @@ local function fn(Sim)
     inst:AddComponent("inspectable")
     inst.components.inspectable.nameoverride = "maxwell"
  
-    inst:DoTaskInTime(0, function()
+    inst:DoTaskInTime(1, function()
         if TheSim:FindFirstEntityWithTag("diviningrod") == nil then
             local rod = SpawnPrefab("diviningrodstart")
             if rod then

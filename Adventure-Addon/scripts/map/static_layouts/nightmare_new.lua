@@ -78,7 +78,7 @@ return {
       objects = {
         {
           name = "",
-          type = "campfire",
+          type = "coldfire",
           shape = "rectangle",
           x = 256,
           y = 48,
@@ -89,7 +89,7 @@ return {
         },
         {
           name = "",
-          type = "campfire",
+          type = "coldfire",
           shape = "rectangle",
           x = 240,
           y = 464,
@@ -100,7 +100,7 @@ return {
         },
         {
           name = "",
-          type = "campfire",
+          type = "coldfire",
           shape = "rectangle",
           x = 112,
           y = 128,
@@ -111,7 +111,7 @@ return {
         },
         {
           name = "",
-          type = "campfire",
+          type = "coldfire",
           shape = "rectangle",
           x = 112,
           y = 400,
@@ -122,7 +122,7 @@ return {
         },
         {
           name = "",
-          type = "campfire",
+          type = "coldfire",
           shape = "rectangle",
           x = 400,
           y = 400,
@@ -144,7 +144,7 @@ return {
         },
         {
           name = "",
-          type = "campfire",
+          type = "coldfire",
           shape = "rectangle",
           x = 400,
           y = 128,

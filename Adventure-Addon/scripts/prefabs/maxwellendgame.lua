@@ -239,19 +239,21 @@ local function OnHit(inst, attacker)
 				if tool.prefab == "diviningrod" then
 					doer.components.inventory:DropItem(tool, true, true)
 				else
-					tool:Remove()
+					doer.components.inventory:DropItem(tool, true, true)
+                    tool:Remove()
 				end
 			end
 		end
     end
-    
-    inst.components.maxwelltalker.speech = "HIT"
-    
-    if inst.components.maxwelltalker:IsTalking() then
-        inst.components.maxwelltalker:StopTalking()
+    if inst.components.maxwelltalker~=nil then
+        inst.components.maxwelltalker.speech = "HIT"
+        
+        if inst.components.maxwelltalker:IsTalking() then
+            inst.components.maxwelltalker:StopTalking()
+        end
+        
+        inst.task = inst:StartThread(function() inst.components.maxwelltalker:DoTalk(true) end)
     end
-    
-    inst.task = inst:StartThread(function() inst.components.maxwelltalker:DoTalk(true) end)
     
 end
 

@@ -2,6 +2,37 @@
 -- maxwell light, mod by Leonardo Coxington
 -- and my own work..
 
+
+-- TODO:
+
+-- wormholes noch versuchen rauszufinden
+
+-- rausfinden wie man character mit in nächste welt nimmt (ohne neu aussuchen)
+
+-- gucken ob es eine setskin funktion oderso gibt. iwie müssen doch modder skins spawnen können (für items von worldjump, aber auch für puppe on throne)
+--> zumindest fuer player könnte das hier funzen (vom spieler die skins abfragen und dann der puppet geben): 
+-- local skinner = player.components.skinner
+        -- skinner:SetClothing(clothing_body)
+        -- skinner:SetClothing(clothing_hand)
+        -- skinner:SetClothing(clothing_legs)
+        -- skinner:SetClothing(clothing_feet)
+        -- skinner:SetSkinName(skin_base)
+        -- skinner:SetSkinMode("normal_skin")
+
+-- mit c_spawn("wortox") geht -> noichmal gucken wie genau die puppet gemacht wird..
+
+
+-- TheWorld.components.adventurejump:DoJump()
+
+-- .. nächste verision starting items nicht nil sondern leere liste setzen
+-- maxw.components.maxwelltalker.speeches[speechName]==nil testen und dann wieder auf chapter Rede umstellen, falls ein anderer mod ne welt hinzugefügt hat
+-- weiß garnicht ob maxwell dann access zu einer neuen Rede hätte, sicherlich nicht...
+-- müsste man dann schauen, wie man das macht
+
+
+
+
+
 print("HIER modmain adv")
 
 PrefabFiles = { 
@@ -73,27 +104,22 @@ local _G = GLOBAL
 if not _G.TUNING.TELEPORTATOMOD then
     _G.TUNING.TELEPORTATOMOD = {}
 end
--- if not _G.TUNING.TELEPORTATOMOD.WORLDS then
-    -- _G.TUNING.TELEPORTATOMOD.WORLDS = {}
--- end
--- local WORLDS = _G.TUNING.TELEPORTATOMOD.WORLDS
+
 
 _G.TUNING.ADV_DIFFICULTY = GetModConfigData("difficulty") -- also used within chest scenarios
 local adv_helpers = _G.require("adv_helpers") 
 -- we can use _G.TUNING.TELEPORTATOMOD.LEVEL and _G.TUNING.TELEPORTATOMOD.CHAPTER as soon as the game started
--- so do not use it directly in AddPrefabPostInit, but make DoTaskInTime with at least 0.1 within
+-- _G.TUNING.TELEPORTATOMOD.LEVELINFOLOADED will be true after everythong was loaded.
 
 
 -- AddPrefabPostInit("world",function(world) world:DoTaskInTime(1,function() world.components.adventurejump:DoJump() end) end) -- endless jump for testing
 
--- man könnte maxwell doch bei jedem spieler erstspawn erscheinen lassen, aber eben so, dass er nur für diesen spieler sichtbar ist.
--- dazu darf der code nur für den client aufgerufen werden
+-- maxwell spawn for every single player only on their client side, so other players should not be able to see him
 local function SpawnMaxwell(inst)
     print("SpawnMaxwell")
     if _G.TUNING.TELEPORTATOMOD.CHAPTER then
         inst:DoTaskInTime(4,function(inst) -- wait after the title screen is gone
             print("SpawnMaxwell1")
-            local maxw = _G.SpawnPrefab("maxwellintro")
             local speechName = "SANDBOX_1"
             if _G.TUNING.TELEPORTATOMOD.CHAPTER>0 then
                 speechName = "ADVENTURE_".._G.TUNING.TELEPORTATOMOD.CHAPTER -- strings matching the actual chapter
@@ -102,9 +128,10 @@ local function SpawnMaxwell(inst)
                 inst.dolevelspeech = false
             end
             -- inst.dolevelspeech = true -- test
-            if inst.dolevelspeech then -- 50% chance, different for every single player
+            if inst.dolevelspeech then -- 66% chance, different for every single player
                 speechName = "ADVENTURE_LEVEL"..tostring(_G.TUNING.TELEPORTATOMOD.LEVEL) -- alternative strings matching the chosen level
             end
+            local maxw = _G.SpawnPrefab("maxwellintro")
             if maxw~=nil then
                 if maxw.components.maxwelltalker.speeches[speechName]~=nil then
                     maxw:Hide() -- invisible
@@ -125,10 +152,12 @@ local function SpawnMaxwell(inst)
         print("Adventure: SpawnMaxwell CHAPTER is nil?!")
     end
 end
+
+
 -- some functions you can use which will be called within teleportato mod:
 -- functionatplayerfirstspawn(player) -- will be executed for every players first spawn (during showing the title) and can eg. be used to spawn some starter items or lit some fires around him and so on. wait 4 seconds, to do something if you want the player to see it (eg player:DoTaskInTime(4,function))
 -- functionpostloadworldONCE(world) -- will be executed at world start ONCE (only the first time directly after generating the world).  eg. you could add some stuff around startposition 
--- in addition you can addprefabpostinit into your modmain, but LEVEL and CHAPTER will need 0.1 seconds to be set, so do DoTaskInTime within your Addprefabpostiint!
+-- in addition you can addprefabpostinit into your modmain, but LEVEL and CHAPTER will need ~0.1 seconds to be set, so do DoTaskInTime within your Addprefabpostiint! (only continue after _G.TUNING.TELEPORTATOMOD.LEVELINFOLOADED was set to true by teleportato mod)
 
 local functionatplayerfirstspawn = _G.TUNING.TELEPORTATOMOD.functionatplayerfirstspawn
 local functionpostloadworldONCE = _G.TUNING.TELEPORTATOMOD.functionpostloadworldONCE
@@ -145,10 +174,40 @@ _G.TUNING.TELEPORTATOMOD.functionatplayerfirstspawn = function(player) -- called
         SpawnMaxwell(player)
         if SERVER_SIDE then 
             if _G.TheWorld:HasTag("forest") then
+                
+                if not GetModConfigData("repickcharacter") and _G.TUNING.TELEPORTATOMOD.CHAPTER~=nil and _G.TUNING.TELEPORTATOMOD.CHAPTER<=1 and player.starting_inventory_orig~=nil then -- give the starting items only in those 2 chapters
+                    player.starting_inventory = player.starting_inventory_orig
+                    if player.starting_inventory ~= nil and #player.starting_inventory > 0 and player.components.inventory ~= nil then -- code taken from NewSpawn within player_common.lua
+                        player.components.inventory.ignoresound = true
+                        if player.components.inventory:GetNumSlots() > 0 then
+                            for i, v in ipairs(player.starting_inventory) do
+                                player.components.inventory:GiveItem(_G.SpawnPrefab(v))
+                            end
+                        else
+                            local items = {}
+                            for i, v in ipairs(player.starting_inventory) do
+                                local item = _G.SpawnPrefab(v)
+                                if item.components.equippable ~= nil then
+                                    player.components.inventory:Equip(item)
+                                    table.insert(items, item)
+                                else
+                                    item:Remove()
+                                end
+                            end
+                            for i, v in ipairs(items) do
+                                if v.components.inventoryitem == nil or not v.components.inventoryitem:IsHeld() then
+                                    v:Remove()
+                                end
+                            end
+                        end
+                        player.components.inventory.ignoresound = false
+                    end
+                end
+                
                 print("functionatplayerfirstspawn, level:"..tostring(_G.TUNING.TELEPORTATOMOD.LEVEL).." chapter:"..tostring(_G.TUNING.TELEPORTATOMOD.CHAPTER))
                 if _G.TUNING.ADV_DIFFICULTY~=0 and _G.TUNING.ADV_DIFFICULTY~=3 then -- spawn some helpful stuff for starting players, at least on easy and default difficutly
                     adv_helpers.FuelNearFires(player) -- always fuel nerby fires to help new starting players a bit
-                    if _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Maxwells Door" then
+                    if _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Maxwells Door" and GetModConfigData("sandboxpreconfigured") then
                         local chest = adv_helpers.SpawnPrefabAtLandPlotNearInst("backpack",player,15,0,15,1,3,3)
                         adv_helpers.AddScenario(chest,"chest_random_good")
                         adv_helpers.SpawnPrefabAtLandPlotNearInst("cutgrass",player,15,0,15,6/_G.TUNING.ADV_DIFFICULTY,3,3)
@@ -201,6 +260,7 @@ _G.TUNING.TELEPORTATOMOD.functionatplayerfirstspawn = function(player) -- called
                         adv_helpers.SpawnPrefabAtLandPlotNearInst("grass_umbrella",player,15,0,15,1,3,3)
                         adv_helpers.SpawnPrefabAtLandPlotNearInst("torch",player,15,0,15,4/_G.TUNING.ADV_DIFFICULTY,3,3)
                         adv_helpers.SpawnPrefabAtLandPlotNearInst("skeleton",player,15,0,15,1,3,3)
+                        adv_helpers.SpawnPrefabAtLandPlotNearInst("nitre",player,15,0,15,6/_G.TUNING.ADV_DIFFICULTY,3,3)
                     end
                 end
             end
@@ -222,7 +282,7 @@ _G.TUNING.TELEPORTATOMOD.functionpostloadworldONCE = function(world) -- only cal
                         local x,y,z = world.components.playerspawner.GetAnySpawnPoint() -- we only have one starting position
                         local spawnpointpos = _G.Vector3(x ,y ,z )
                         local fire = adv_helpers.SpawnPrefabAtLandPlotNearInst("firepit",spawnpointpos,7,0,7,1,3,3)
-                        if _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Maxwells Door" then -- in lvl 1 add a pond to get some food
+                        if _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Maxwells Door" and GetModConfigData("sandboxpreconfigured") then -- in lvl 1 add a pond to get some food
                             adv_helpers.SpawnPrefabAtLandPlotNearInst("pond",spawnpointpos,30,0,30,1,15,15)
                             adv_helpers.SpawnPrefabAtLandPlotNearInst("rock_ice",spawnpointpos,50,0,50,4/_G.TUNING.ADV_DIFFICULTY,20,20)
                             adv_helpers.SpawnPrefabAtLandPlotNearInst("rabbithole",spawnpointpos,50,0,50,10/_G.TUNING.ADV_DIFFICULTY,20,20)
@@ -238,12 +298,20 @@ _G.TUNING.TELEPORTATOMOD.functionpostloadworldONCE = function(world) -- only cal
                             adv_helpers.SpawnPrefabAtLandPlotNearInst("rock2",spawnpointpos,150,0,150,12/_G.TUNING.ADV_DIFFICULTY,15,15) -- gold boulder
                         elseif _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Two Worlds" then -- in twoworlds some saplings would be good
                             adv_helpers.SpawnPrefabAtLandPlotNearInst("sapling",spawnpointpos,20,0,40/_G.TUNING.ADV_DIFFICULTY,5,5,5)
-                            adv_helpers.SpawnPrefabAtLandPlotNearInst("ice",player,15,0,15,30/_G.TUNING.ADV_DIFFICULTY,3,3) -- some ice for flingo
-                            adv_helpers.SpawnPrefabAtLandPlotNearInst("knight",player,50,0,50,2/_G.TUNING.ADV_DIFFICULTY,30,30) -- knight for gears
+                            adv_helpers.SpawnPrefabAtLandPlotNearInst("ice",spawnpointpos,15,0,15,30/_G.TUNING.ADV_DIFFICULTY,3,3) -- some ice for flingo
+                            adv_helpers.SpawnPrefabAtLandPlotNearInst("knight",spawnpointpos,50,0,50,2/_G.TUNING.ADV_DIFFICULTY,30,30) -- knight for gears
                         elseif _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Darkness" then
-                            adv_helpers.SpawnPrefabAtLandPlotNearInst("ice",player,15,0,15,36/_G.TUNING.ADV_DIFFICULTY,3,3) -- some ice for flingo
-                            adv_helpers.SpawnPrefabAtLandPlotNearInst("knight",player,50,0,50,2/_G.TUNING.ADV_DIFFICULTY,30,30) -- knight for gears
+                            adv_helpers.SpawnPrefabAtLandPlotNearInst("ice",spawnpointpos,15,0,15,36/_G.TUNING.ADV_DIFFICULTY,3,3) -- some ice for flingo
+                            adv_helpers.SpawnPrefabAtLandPlotNearInst("knight",spawnpointpos,50,0,50,2/_G.TUNING.ADV_DIFFICULTY,30,30) -- knight for gears
+                        elseif _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Archipelago" then
+                            adv_helpers.SpawnPrefabAtLandPlotNearInst("rock1",spawnpointpos,150,0,150,20/_G.TUNING.ADV_DIFFICULTY,15,15) -- some stone boulder
+                            adv_helpers.SpawnPrefabAtLandPlotNearInst("rock2",spawnpointpos,150,0,150,12/_G.TUNING.ADV_DIFFICULTY,15,15) -- gold boulder
                         end
+                    end
+                elseif _G.TUNING.ADV_DIFFICULTY~=3 then
+                    if _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Archipelago" then
+                        adv_helpers.SpawnPrefabAtLandPlotNearInst("rock1",spawnpointpos,150,0,150,5,15,15) -- some stone boulder
+                        adv_helpers.SpawnPrefabAtLandPlotNearInst("rock2",spawnpointpos,150,0,150,5,15,15) -- gold boulder
                     end
                 end
             end
@@ -295,6 +363,10 @@ AddPlayerPostInit(function(player)
             end
         end
     end)
+    if not GetModConfigData("repickcharacter") then
+        player.starting_inventory_orig = player.starting_inventory -- save it and give it within functionatplayerfirstspawn if the chapter is 0 or 1
+        player.starting_inventory = nil -- dont give starting items generally
+    end
 end)
 
 modes = {"survival","wilderness","endless"} -- overwriting every gamemode to the same, so regardless wich mode you choose, it is always the following

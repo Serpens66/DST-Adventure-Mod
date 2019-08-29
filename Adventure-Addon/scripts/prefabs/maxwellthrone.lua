@@ -179,9 +179,17 @@ end
 
 local function SetUpCutscene(inst,doer,CLIENT_SIDE) -- make it work if only server calls this... TODO
     print("SetUpCutscene maxwellthrone")
-    
+    local pt = Vector3(inst.Transform:GetWorldPosition())
     --Put game into "cutscene" mode. 
     if not CLIENT_SIDE then
+        -- remove all hostile mobs
+        local nearenemies = TheSim:FindEntities(pt.x, pt.y, pt.z, 50, nil, nil, {"hostile"})
+        for _,enemy in pairs(nearenemies) do
+            if enemy~=nil and enemy:IsValid() then
+                enemy:Remove()
+            end
+        end
+        
         if inst.puppet~=nil and inst.puppet.components.maxwelltalker then
             if inst.puppet.components.maxwelltalker:IsTalking() then
                 inst.puppet.components.maxwelltalker:StopTalking()
@@ -190,7 +198,6 @@ local function SetUpCutscene(inst,doer,CLIENT_SIDE) -- make it work if only serv
             inst.puppet.AnimState:PlayAnimation("idle_loop")
         end
     end
-    local pt = Vector3(inst.Transform:GetWorldPosition())
     local x,y = 0,0
     for _,player in pairs(AllPlayers) do
         if not CLIENT_SIDE then
@@ -198,21 +205,22 @@ local function SetUpCutscene(inst,doer,CLIENT_SIDE) -- make it work if only serv
             player:ShowHUD(false)
             -- player:SetCameraDistance(15)
             player:ShakeCamera(CAMERASHAKE.FULL, 5, 0.033, 0.1)
-            
         end
-        if _>3 then
-            x = -2.5
+        if _<=6 then -- only up to 6 players go to maxwell, for others there is no space left
+            if _>3 then
+                x = -2.5
+            end
+            if _==1 or _==4 then
+                y = 0
+            elseif _==2 or _==5 then
+                y = -2
+            elseif _==3 or _==6 then
+                y = 2
+            end
+            player.components.locomotor:GoToPoint(pt+Vector3(-2.5-x, 0, y))
+            player:FacePoint(pt)
+            player:DoTaskInTime(3,function() player:FacePoint(pt) end)
         end
-        if _==1 or _==4 then
-            y = 0
-        elseif _==2 or _==5 then
-            y = -2
-        elseif _==3 or _==6 then
-            y = 2
-        end
-        player.components.locomotor:GoToPoint(pt+Vector3(-2.5-x, 0, y))
-        player:FacePoint(pt)
-        player:DoTaskInTime(3,function() player:FacePoint(pt) end)
     end
     if CLIENT_SIDE then
         TheCamera:CutsceneMode(true)
