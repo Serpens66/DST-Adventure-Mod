@@ -56,6 +56,14 @@ LLayouts["BargainStart_new"] = require("map/layouts/BargainStart_new")
 LLayouts["WinterStartMedium_new"] = require("map/layouts/WinterStartMedium_new")
 LLayouts["ImpassableBlock"] = require("map/layouts/ImpassableBlock")
 
+LLayouts["NightmareStart2"] = require("map/layouts/NightmareStart2")
+LLayouts["PreSummerStart2"] = require("map/layouts/PreSummerStart2") 
+LLayouts["WinterStartEasy2"] = require("map/layouts/WinterStartEasy2")
+LLayouts["BargainStart2"] = require("map/layouts/BargainStart2")
+LLayouts["WinterStartMedium2"] = require("map/layouts/WinterStartMedium2")
+LLayouts["ThisMeansWarStart2"] = require("map/layouts/ThisMeansWarStart2")
+
+LLayouts["MaxwellHome2"] = require("map/layouts/maxwellhome2")
 
 
 if GetModConfigData("difficulty")==0 then
@@ -92,17 +100,17 @@ local required_prefabs = {
 local start1 = "WinterStartEasy_new"
 local start2 = "WinterStartMedium_new"
 local start3 = "PreSummerStart_new"
-local start4 = "ThisMeansWarStart"--"DefaultStart" --"ThisMeansWarStart" gibts kein new
+local start4 = "ThisMeansWarStart2"--"DefaultStart" --"ThisMeansWarStart" gibts kein new
 local start5 = "BargainStart_new"
 local start6 = "NightmareStart_new"
 local start7 = "DefaultStartMaxwellHome" -- ist new, gibts kein alt
 if GetModConfigData("difficulty")==0 then -- DS
-    start1 = "WinterStartEasy"
-    start2 = "WinterStartMedium"
-    start3 = "PreSummerStart"
-    start4 = "ThisMeansWarStart"--"DefaultStart" 
-    start5 = "BargainStart"
-    start6 = "NightmareStart"
+    start1 = "WinterStartEasy2"
+    start2 = "WinterStartMedium2"
+    start3 = "PreSummerStart2"
+    start4 = "ThisMeansWarStart2"--"DefaultStart" 
+    start5 = "BargainStart2"
+    start6 = "NightmareStart2"
     start7 = "DefaultStartMaxwellHome"
 end        
         
@@ -148,6 +156,8 @@ AddStartLocation("adv7", {
     start_setpeice  =  start7,	-- for some reason a portal has to exist... but I removed spawnpoint, so the start position is right
     start_node  =  "MaxHome",  
 })
+
+AddRoomPreInit("MaxHome", function(room) room.contents.countstaticlayouts = {["MaxwellHome2"] = 1} end)
 
 local _G = GLOBAL
 if not _G.TUNING.TELEPORTATOMOD then
