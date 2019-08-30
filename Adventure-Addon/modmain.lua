@@ -34,8 +34,15 @@
 -- evlt wormholes auch noch zu two worlds zufügen
 
 
--- wenn nächstes mal teleportato mod updaten, dann ignoresound für invbenory beim einfügen der item von vorher welt einfügen.
--- die prints recognize teleparts rausnehmen
+-- repickplayer und startingitems in teleportaot einbauen, aber von adventuremod steuerbar lassen:
+-- bei repickplayer ists glaub ich relativ einfach, einfach den Code kopieren und aus der worldjump playerdata das prefab lesen, fertig.
+-- die setting kann vom adventuremod überschrieben werden (dies auch in modingo schreiben als hinweis)
+
+-- bei startitmes ists etwas schwieriger. Für adventure wollen wir keine startitems außer für chapter 0 und 1.
+-- doch diese chapter sind erstmal nicht bekannt, weshalb man schon vorher die startitems speichern und leeren muss.
+-- erst in firstspawn können wir dann evlt manuell die startitems wieder zufügen.
+-- -> das leeren immer machen, egal wie einstellung ist und das neue wieder zufügen nur wenn startitems erlabut. -> fertig
+
 
 
 print("HIER modmain adv")
@@ -110,6 +117,8 @@ if not _G.TUNING.TELEPORTATOMOD then
     _G.TUNING.TELEPORTATOMOD = {}
 end
 
+-- _G.TUNING.TELEPORTATOMOD.repickcharacter = GetModConfigData("repickcharacter")
+_G.TUNING.TELEPORTATOMOD.getstartingitems = GetModConfigData("repickcharacter")
 
 _G.TUNING.ADV_DIFFICULTY = GetModConfigData("difficulty") -- also used within chest scenarios
 local adv_helpers = _G.require("adv_helpers") 
@@ -185,7 +194,7 @@ _G.TUNING.TELEPORTATOMOD.functionatplayerfirstspawn = function(player) -- called
         if SERVER_SIDE then 
             if _G.TheWorld:HasTag("forest") then
                 
-                if not GetModConfigData("repickcharacter") and _G.TUNING.TELEPORTATOMOD.CHAPTER~=nil and _G.TUNING.TELEPORTATOMOD.CHAPTER<=1 and player.starting_inventory_orig~=nil then -- give the starting items only in those 2 chapters
+                if not _G.TUNING.TELEPORTATOMOD.getstartingitems and _G.TUNING.TELEPORTATOMOD.CHAPTER~=nil and _G.TUNING.TELEPORTATOMOD.CHAPTER<=1 and player.starting_inventory_orig~=nil then -- give the starting items only in those 2 chapters
                     player.starting_inventory = player.starting_inventory_orig
                     if player.starting_inventory ~= nil and #player.starting_inventory > 0 and player.components.inventory ~= nil then -- code taken from NewSpawn within player_common.lua
                         player.components.inventory.ignoresound = true
@@ -399,10 +408,12 @@ AddPlayerPostInit(function(player)
             end
         end
     end)
-    if not GetModConfigData("repickcharacter") then
+    if not _G.TUNING.TELEPORTATOMOD.getstartingitems then
         player.starting_inventory_orig = player.starting_inventory -- save it and give it within functionatplayerfirstspawn if the chapter is 0 or 1
         player.starting_inventory = {} -- dont give starting items generally
     end
+    -- print("level bei playerpostinit ist "..tostring(_G.TUNING.TELEPORTATOMOD.LEVEL).." levelload:"..tostring(_G.TUNING.TELEPORTATOMOD.LEVELINFOLOADED))
+    
 end)
 
 modes = {"survival","wilderness","endless"} -- overwriting every gamemode to the same, so regardless wich mode you choose, it is always the following

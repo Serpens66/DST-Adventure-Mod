@@ -89,17 +89,6 @@ return {
         },
         {
           name = "",
-          type = "spawnpoint",
-          shape = "rectangle",
-          x = 249,
-          y = 248,
-          width = 16,
-          height = 16,
-          visible = true,
-          properties = {}
-        },
-        {
-          name = "",
           type = "evergreen_normal",
           shape = "rectangle",
           x = 464,

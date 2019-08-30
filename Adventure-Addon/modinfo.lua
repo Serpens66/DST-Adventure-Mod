@@ -3,7 +3,7 @@ description = "[BETA]\nRequires my Teleportato mod!\n\nOvercome challenging worl
 author = "Serpens"
 forumthread = ""
 
-version = "0.934"
+version = "0.94"
 api_version = 10
 
 dst_compatible = true

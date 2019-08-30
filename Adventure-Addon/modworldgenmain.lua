@@ -46,8 +46,8 @@ local StaticLayout = require("map/static_layout")
 
 local function GetStaticLayout(name)
     return StaticLayout.Get("map/static_layouts/"..name, {
-            start_mask = GLOBAL.PLACE_MASK.IGNORE_IMPASSABLE_BARREN,
-            fill_mask = GLOBAL.PLACE_MASK.IGNORE_IMPASSABLE_BARREN_RESERVED,})
+            start_mask = _G.PLACE_MASK.IGNORE_IMPASSABLE_BARREN,
+            fill_mask = _G.PLACE_MASK.IGNORE_IMPASSABLE_BARREN_RESERVED,})
 end
 
 -- load some custom layouts
@@ -72,7 +72,22 @@ LLayouts["WinterStartEasyFixed"] = GetStaticLayout("winter_start_easy_fixed")
 LLayouts["BargainStartFixed"] = GetStaticLayout("bargain_start_fixed")
 LLayouts["WinterStartMediumFixed"] = GetStaticLayout("winter_start_medium_fixed")
 LLayouts["ThisMeansWarStartFixed"] = GetStaticLayout("thismeanswar_start_fixed")
-LLayouts["MaxwellHomeFixed"] = GetStaticLayout("maxwellhome_fixed")
+LLayouts["MaxwellHomeFixed"] = StaticLayout.Get("map/static_layouts/maxwellhome_fixed", {
+							areas = 
+							{								
+								barren_area = function(area) return _G.PickSomeWithDups( 0.5 * area
+									, {"marsh_tree", "marsh_bush", "rock1", "rock2", "evergreen_burnt", "evergreen_stump"}) end,
+								gold_area = function() return _G.PickSomeWithDups(math.random(15,20), {"goldnugget"}) end,
+								livinglog_area = function() return _G.PickSomeWithDups(math.random(5, 10), {"livinglog"}) end,
+								nightmarefuel_area = function() return _G.PickSomeWithDups(math.random(5, 10), {"nightmarefuel"}) end,
+								deadlyfeast_area = function() return _G.PickSomeWithDups(math.random(25,30), {"monstermeat", "green_cap", "red_cap", "spoiled_food", "meat"}) end,
+								marblegarden_area = function(area) return _G.PickSomeWithDups(1.5*area, {"marbletree", "flower_evil"}) end,
+							},
+							start_mask = _G.PLACE_MASK.IGNORE_IMPASSABLE_BARREN_RESERVED,
+							fill_mask = _G.PLACE_MASK.IGNORE_IMPASSABLE_BARREN_RESERVED,
+							layout_position = _G.LAYOUT_POSITION.CENTER,
+							disable_transform = true
+						})
 
 AddRoomPreInit("MaxHome", function(room) room.contents.countstaticlayouts = {["MaxwellHomeFixed"] = 1} end)
 
@@ -183,7 +198,7 @@ local adv_helpers = _G.require("adv_helpers")
 
 
 -- testing
--- _G.TUNING.TELEPORTATOMOD.LEVEL_GEN = 6 -- force loading this level, starts at 1 anjd goes up to unlimited (max 63 due to netvars)
+-- _G.TUNING.TELEPORTATOMOD.LEVEL_GEN = 8 -- force loading this level, starts at 1 anjd goes up to unlimited (max 63 due to netvars)
 -- _G.TUNING.TELEPORTATOMOD.CHAPTER_GEN = 6 -- force loading this chapter, starts at 0 and goes up to 6
 -- Sandbox (adventureportal) = 1
 -- A Cold Reception = 2
