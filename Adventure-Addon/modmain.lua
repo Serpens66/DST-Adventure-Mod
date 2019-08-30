@@ -29,7 +29,9 @@
 
 -- gucken ob man iwie sicherstellen kann dass twoworlds/archipelao wirklich isneln sind und nicht zufällig eine landmasse sind
 
--- vllt noch eine modsetting mit der man die startitems "für jeden spieler" abschalten kann, könnte sonst bei servern wo neue spieler ein und ausgehen zuviel werden?
+-- vllt noch eine modsetting mit der man die startitems (die mein mod gibt) "für jeden spieler" abschalten kann, könnte sonst bei servern wo neue spieler ein und ausgehen zuviel werden?
+
+-- evlt wormholes auch noch zu two worlds zufügen
 
 
 -- wenn nächstes mal teleportato mod updaten, dann ignoresound für invbenory beim einfügen der item von vorher welt einfügen.
@@ -121,9 +123,9 @@ local adv_helpers = _G.require("adv_helpers")
 local function SpawnMaxwell(inst)
     print("SpawnMaxwell")
     if _G.TUNING.TELEPORTATOMOD.CHAPTER then
-        -- if inst.components~=nil and inst.components.health~=nil then
-            -- inst.components.health:SetInvincible(true) -- make player invincible, is removed within maxwelltalker file
-        -- end
+        if SERVER_SIDE and inst.components~=nil and inst.components.health~=nil then
+            inst.components.health:SetInvincible(true) -- make player invincible, is removed within maxwelltalker file
+        end
         inst:DoTaskInTime(4,function(inst) -- wait after the title screen is gone
             print("SpawnMaxwell1")
             
@@ -446,6 +448,7 @@ _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES = {} -- remember the wormholes and co
 AddPrefabPostInit("wormhole",function(inst)
     if inst.components.teleporter then
         inst:DoTaskInTime(0.5,function(inst) -- do it after _G.TUNING.TELEPORTATOMOD.LEVEL is checked (0.001) and before ARCHIPELWORMHOLES are used 0.1
+            local taskandroom = ""
             if _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Archipelago" then
                 taskandroom = GetRoom(inst) -- eg "IslandHop_Start:2:SpiderMarsh"                
                 if string.find(taskandroom,"IslandHop_Start") and not _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole1"] then
@@ -468,6 +471,14 @@ AddPrefabPostInit("wormhole",function(inst)
                     _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole9"] = inst
                 elseif string.find(taskandroom,"IslandHop_Merm") and not _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole10"] then
                     _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole10"] = inst
+                end
+            elseif _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Two Worlds" then -- there we only have 2 wormholes
+                taskandroom = GetRoom(inst)
+                if _G.TheWorld.firsttwoworldswormhole==nil and string.find(taskandroom,"Land of Plenty") then
+                    _G.TheWorld.firsttwoworldswormhole = inst
+                elseif _G.TheWorld.firsttwoworldswormhole~=nil and string.find(taskandroom,"The other side") and _G.TheWorld.firsttwoworldswormhole.components.teleporter.targetTeleporter==nil then
+                    inst.components.teleporter.targetTeleporter = _G.TheWorld.firsttwoworldswormhole
+                    _G.TheWorld.firsttwoworldswormhole.components.teleporter.targetTeleporter = inst
                 end
             end
         end)

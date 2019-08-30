@@ -584,15 +584,17 @@ table.insert(_G.TUNING.TELEPORTATOMOD.WORLDS, {name="Archipelago", taskdatafunct
 local function AdventureTwoWorlds(tasksetdata)
     -- tasksetdata.override_level_string=true -- test out what this does ?
     tasksetdata.tasks = {"Land of Plenty", -- Part 1 - Easy peasy - lots of stuff
-                        "The other side force",}
-                        -- "The other side",}	-- Part 2 - Lets kill them off
+                        "The other side",}	-- Part 2 - Lets kill them off
     tasksetdata.required_setpieces = {}
     tasksetdata.numoptionaltasks = 0
     tasksetdata.optionaltasks = {}
     tasksetdata.set_pieces = {                
             ["MaxPigShrine"] = {tasks={"Land of Plenty"}},
-            ["MaxMermShrine"] = {tasks={"The other side force"}},--{tasks={"The other side"}},
-            ["ResurrectionStone"] = { count=2, tasks={"Land of Plenty", "The other side force" } },}--{ count=2, tasks={"Land of Plenty", "The other side" } },}
+            ["MaxMermShrine"] = {tasks={"The other side"}},
+            ["ResurrectionStone"] = { count=2, tasks={"Land of Plenty", "The other side" } },
+            ["Wormhole_Mod"] = { count= 4, tasks={ "Land of Plenty", "The other side" } }, -- adds the setpiece at max once per task
+            ["Wormhole_Mod2"] = { count= 4, tasks={ "Land of Plenty", "The other side" } }, -- adds the setpiece at max once per task
+            }
     tasksetdata.numrandom_set_pieces = 0
     if not tasksetdata.ordered_story_setpieces then -- only use this for this mod, so for original DS adventure worlds!
         tasksetdata.ordered_story_setpieces = {}
