@@ -42,20 +42,39 @@ print("HIER WORLDGEN adv")
 
 
 local require = _G.require
+local StaticLayout = require("map/static_layout")
+
+local function GetStaticLayout(name)
+    return StaticLayout.Get("map/static_layouts/"..name, {
+            start_mask = GLOBAL.PLACE_MASK.IGNORE_IMPASSABLE_BARREN,
+            fill_mask = GLOBAL.PLACE_MASK.IGNORE_IMPASSABLE_BARREN_RESERVED,})
+end
 
 -- load some custom layouts
 local LLayouts = _G.require("map/layouts").Layouts
-LLayouts["WesUnlock"] = _G.require("map/layouts/WesUnlock")
-LLayouts["TeleportatoRingLayoutSanityRocks"] = require("map/layouts/TeleportatoRingLayoutSanityRocks")
-LLayouts["DefaultStartMaxwellHome"] = require("map/layouts/defaultstartmaxwellhome")
-LLayouts["AdventurePortalLayoutNew"] = require("map/layouts/AdventurePortalLayoutNew")
-LLayouts["NightmareStart_new"] = require("map/layouts/NightmareStart_new") -- added spawnpoint_master and removed items, since items are now contributed for each player in modmain
-LLayouts["PreSummerStart_new"] = require("map/layouts/PreSummerStart_new") -- also the not "new" files got a spawnpoint_master, but kept items, to allow DS like mode.
-LLayouts["WinterStartEasy_new"] = require("map/layouts/WinterStartEasy_new")
-LLayouts["BargainStart_new"] = require("map/layouts/BargainStart_new")
-LLayouts["WinterStartMedium_new"] = require("map/layouts/WinterStartMedium_new")
-LLayouts["ImpassableBlock"] = require("map/layouts/ImpassableBlock")
+LLayouts["WesUnlock"] = GetStaticLayout("wes_unlock")
+LLayouts["TeleportatoRingLayoutSanityRocks"] = _G.require("map/layouts/TeleportatoRingLayoutSanityRocks")
+LLayouts["DefaultStartMaxwellHome"] = GetStaticLayout("default_startmaxwellhome")
+LLayouts["AdventurePortalLayoutNew"] = GetStaticLayout("adventure_portal_layoutnew")
+LLayouts["NightmareStart_new"] = GetStaticLayout("nightmare_new") -- added spawnpoint_master and removed items, since items are now contributed for each player in modmain
+LLayouts["PreSummerStart_new"] = GetStaticLayout("presummer_start_new") -- also the not "new" files got a spawnpoint_master, but kept items, to allow DS like mode.
+LLayouts["WinterStartEasy_new"] = GetStaticLayout("winter_start_easy_new")
+LLayouts["BargainStart_new"] = GetStaticLayout("bargain_start_new")
+LLayouts["WinterStartMedium_new"] = GetStaticLayout("winter_start_medium_new")
+LLayouts["Wormhole_Mod"] = GetStaticLayout("wormhole_mod") -- just a single wormhole
+LLayouts["Wormhole_Mod2"] = GetStaticLayout("wormhole_mod") -- just a single wormhole
+LLayouts["Wormhole_Mod3"] = GetStaticLayout("wormhole_mod") -- just a single wormhole
 
+LLayouts["NightmareStartFixed"] = GetStaticLayout("nightmare_fixed") -- original except necessary adjustments
+
+LLayouts["PreSummerStartFixed"] = GetStaticLayout("presummer_start_fixed") 
+LLayouts["WinterStartEasyFixed"] = GetStaticLayout("winter_start_easy_fixed")
+LLayouts["BargainStartFixed"] = GetStaticLayout("bargain_start_fixed")
+LLayouts["WinterStartMediumFixed"] = GetStaticLayout("winter_start_medium_fixed")
+LLayouts["ThisMeansWarStartFixed"] = GetStaticLayout("thismeanswar_start_fixed")
+LLayouts["MaxwellHomeFixed"] = GetStaticLayout("maxwellhome_fixed")
+
+AddRoomPreInit("MaxHome", function(room) room.contents.countstaticlayouts = {["MaxwellHomeFixed"] = 1} end)
 
 
 if GetModConfigData("difficulty")==0 then
@@ -92,17 +111,17 @@ local required_prefabs = {
 local start1 = "WinterStartEasy_new"
 local start2 = "WinterStartMedium_new"
 local start3 = "PreSummerStart_new"
-local start4 = "ThisMeansWarStart"--"DefaultStart" --"ThisMeansWarStart" gibts kein new
+local start4 = "ThisMeansWarStartFixed"--"DefaultStart" --"ThisMeansWarStart" gibts kein new
 local start5 = "BargainStart_new"
 local start6 = "NightmareStart_new"
 local start7 = "DefaultStartMaxwellHome" -- ist new, gibts kein alt
 if GetModConfigData("difficulty")==0 then -- DS
-    start1 = "WinterStartEasy"
-    start2 = "WinterStartMedium"
-    start3 = "PreSummerStart"
-    start4 = "ThisMeansWarStart"--"DefaultStart" 
-    start5 = "BargainStart"
-    start6 = "NightmareStart"
+    start1 = "WinterStartEasyFixed"
+    start2 = "WinterStartMediumFixed"
+    start3 = "PreSummerStartFixed"
+    start4 = "ThisMeansWarStartFixed"--"DefaultStart" 
+    start5 = "BargainStartFixed"
+    start6 = "NightmareStartFixed"
     start7 = "DefaultStartMaxwellHome"
 end        
         
@@ -164,7 +183,7 @@ local adv_helpers = _G.require("adv_helpers")
 
 
 -- testing
--- _G.TUNING.TELEPORTATOMOD.LEVEL_GEN = 7 -- force loading this level, starts at 1 anjd goes up to unlimited (max 63 due to netvars)
+-- _G.TUNING.TELEPORTATOMOD.LEVEL_GEN = 6 -- force loading this level, starts at 1 anjd goes up to unlimited (max 63 due to netvars)
 -- _G.TUNING.TELEPORTATOMOD.CHAPTER_GEN = 6 -- force loading this chapter, starts at 0 and goes up to 6
 -- Sandbox (adventureportal) = 1
 -- A Cold Reception = 2
@@ -512,10 +531,13 @@ table.insert(_G.TUNING.TELEPORTATOMOD.WORLDS, {name="The Game is Afoot", taskdat
 local function AdventureArchipelago(tasksetdata)
     tasksetdata.numoptionaltasks = 0
     tasksetdata.tasks = {"IslandHop_Start","IslandHop_Hounds","IslandHop_Forest","IslandHop_Savanna","IslandHop_Rocky","IslandHop_Merm",}
+    -- tasksetdata.tasks = {"IslandHop_Start wormhole","IslandHop_Hounds wormhole","IslandHop_Forest wormhole","IslandHop_Savanna wormhole","IslandHop_Rocky wormhole","IslandHop_Merm wormhole",}
     tasksetdata.optionaltasks = {}
-    -- tasksetdata.optionaltasks = {"The hunters","Trapped Forest hunters","Wasps and Frogs and bugs","Tentacle-Blocked The Deep Forest","Hounded Greater Plains","Merms ahoy",}
     tasksetdata.set_pieces = {                
             -- ["WesUnlock"] = { restrict_to="background", tasks={ "IslandHop_Start", "IslandHop_Hounds", "IslandHop_Forest", "IslandHop_Savanna", "IslandHop_Rocky", "IslandHop_Merm" } },
+               ["Wormhole_Mod"] = { count= 12, tasks={ "IslandHop_Start", "IslandHop_Hounds", "IslandHop_Forest", "IslandHop_Savanna", "IslandHop_Rocky", "IslandHop_Merm" } }, -- adds the setpiece at max once per task, set count to 12, to make sure always all 6 are spawned.., but it still may be less
+               ["Wormhole_Mod2"] = { count= 12, tasks={ "IslandHop_Start", "IslandHop_Hounds", "IslandHop_Forest", "IslandHop_Savanna", "IslandHop_Rocky", "IslandHop_Merm" } }, -- adds the setpiece at max once per task
+               ["Wormhole_Mod3"] = { count= 12, tasks={ "IslandHop_Start", "IslandHop_Hounds", "IslandHop_Forest", "IslandHop_Savanna", "IslandHop_Rocky", "IslandHop_Merm" } }, -- adds the setpiece at max once per task
         }
     tasksetdata.required_setpieces = {}
     tasksetdata.numrandom_set_pieces = 0
@@ -562,17 +584,15 @@ table.insert(_G.TUNING.TELEPORTATOMOD.WORLDS, {name="Archipelago", taskdatafunct
 local function AdventureTwoWorlds(tasksetdata)
     -- tasksetdata.override_level_string=true -- test out what this does ?
     tasksetdata.tasks = {"Land of Plenty", -- Part 1 - Easy peasy - lots of stuff
-                        "The other side",}	-- Part 2 - Lets kill them off
-    -- tasksetdata.numoptionaltasks = 4 -- evlt vllt doch 0, mal Beschreibung genauer lesen, was darin vorkommen sollte...
-    -- tasksetdata.optionaltasks = {"Befriend the pigs","For a nice walk","Kill the spiders","Killer bees!","Make a Beehat",
-            -- "The hunters","Magic meadow","Frogs and bugs",} -- in adventure.lua keine optionaltasks definiert. Aber wenn es 0 sein sollte, würde das da stehen, also vermutlich default werte? 
+                        "The other side force",}
+                        -- "The other side",}	-- Part 2 - Lets kill them off
     tasksetdata.required_setpieces = {}
     tasksetdata.numoptionaltasks = 0
     tasksetdata.optionaltasks = {}
     tasksetdata.set_pieces = {                
             ["MaxPigShrine"] = {tasks={"Land of Plenty"}},
-            ["MaxMermShrine"] = {tasks={"The other side"}},
-            ["ResurrectionStone"] = { count=2, tasks={"Land of Plenty", "The other side" } },}
+            ["MaxMermShrine"] = {tasks={"The other side force"}},--{tasks={"The other side"}},
+            ["ResurrectionStone"] = { count=2, tasks={"Land of Plenty", "The other side force" } },}--{ count=2, tasks={"Land of Plenty", "The other side" } },}
     tasksetdata.numrandom_set_pieces = 0
     if not tasksetdata.ordered_story_setpieces then -- only use this for this mod, so for original DS adventure worlds!
         tasksetdata.ordered_story_setpieces = {}
@@ -720,5 +740,5 @@ local function AdventureMaxwellHome(tasksetdata)
     }
     return tasksetdata
 end
-table.insert(_G.TUNING.TELEPORTATOMOD.WORLDS, {name="MaxwellHome", taskdatafunctions={forest=AdventureMaxwellHome, cave=AlwaysTinyCave}, defaultpositions={7}, positions=GetModConfigData("maxwellhome")})
+table.insert(_G.TUNING.TELEPORTATOMOD.WORLDS, {name="Checkmate", taskdatafunctions={forest=AdventureMaxwellHome, cave=AlwaysTinyCave}, defaultpositions={7}, positions=GetModConfigData("checkmate")})
 

@@ -201,6 +201,7 @@ local function SetUpCutscene(inst,doer,CLIENT_SIDE) -- make it work if only serv
     local x,y = 0,0
     for _,player in pairs(AllPlayers) do
         if not CLIENT_SIDE then
+            player.components.health:SetInvincible(true) -- make player invincible
             player.components.playercontroller:Enable(false)
             player:ShowHUD(false)
             -- player:SetCameraDistance(15)

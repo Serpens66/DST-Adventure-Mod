@@ -20,21 +20,24 @@
         -- skinner:SetSkinMode("normal_skin")
 
 -- mit c_spawn("wortox") geht -> noichmal gucken wie genau die puppet gemacht wird..
+-- es gibt einen skin staff item mod, mit diesem staff kann man die skin von items durchschalten -> evlt ist dies eine lösung
+-- offenbar geht es nur über SpawnPrefab mit skinname und skin_id. doch dies sollte eigentlich direkt beim laden der items automatisch gemacht sein...
 
 
 -- TheWorld.components.adventurejump:DoJump()
 
--- .. nächste verision starting items nicht nil sondern leere liste setzen
--- maxw.components.maxwelltalker.speeches[speechName]==nil testen und dann wieder auf chapter Rede umstellen, falls ein anderer mod ne welt hinzugefügt hat
--- weiß garnicht ob maxwell dann access zu einer neuen Rede hätte, sicherlich nicht...
--- müsste man dann schauen, wie man das macht
+
+-- gucken ob man iwie sicherstellen kann dass twoworlds/archipelao wirklich isneln sind und nicht zufällig eine landmasse sind
+
+-- vllt noch eine modsetting mit der man die startitems "für jeden spieler" abschalten kann, könnte sonst bei servern wo neue spieler ein und ausgehen zuviel werden?
 
 
-
+-- wenn nächstes mal teleportato mod updaten, dann ignoresound für invbenory beim einfügen der item von vorher welt einfügen.
+-- die prints recognize teleparts rausnehmen
 
 
 print("HIER modmain adv")
-
+local _G = GLOBAL
 PrefabFiles = { 
 	"maxwellphonograph",
     "maxwelllight_p",
@@ -85,7 +88,7 @@ Assets = {
 RemapSoundEvent( "phonograph/play", "phonograph/sound/gramaphoneplay" )
 RemapSoundEvent( "phonograph/end", "phonograph/sound/gramaphoneend" )
 
-local TheNet = GLOBAL.TheNet
+local TheNet = _G.TheNet
 local SERVER_SIDE, DEDICATED_SIDE, CLIENT_SIDE, ONLY_CLIENT_SIDE
 if TheNet:GetIsServer() then
 	SERVER_SIDE = true
@@ -100,7 +103,7 @@ elseif TheNet:GetIsClient() then
 	ONLY_CLIENT_SIDE = true
 end
 
-local _G = GLOBAL
+
 if not _G.TUNING.TELEPORTATOMOD then
     _G.TUNING.TELEPORTATOMOD = {}
 end
@@ -118,21 +121,25 @@ local adv_helpers = _G.require("adv_helpers")
 local function SpawnMaxwell(inst)
     print("SpawnMaxwell")
     if _G.TUNING.TELEPORTATOMOD.CHAPTER then
+        -- if inst.components~=nil and inst.components.health~=nil then
+            -- inst.components.health:SetInvincible(true) -- make player invincible, is removed within maxwelltalker file
+        -- end
         inst:DoTaskInTime(4,function(inst) -- wait after the title screen is gone
             print("SpawnMaxwell1")
-            local speechName = "SANDBOX_1"
-            if _G.TUNING.TELEPORTATOMOD.CHAPTER>0 then
-                speechName = "ADVENTURE_".._G.TUNING.TELEPORTATOMOD.CHAPTER -- strings matching the actual chapter
-            end
-            if _G.TUNING.ADV_DIFFICULTY==0 then -- DS. so no new dialog
-                inst.dolevelspeech = false
-            end
-            -- inst.dolevelspeech = true -- test
-            if inst.dolevelspeech then -- 66% chance, different for every single player
-                speechName = "ADVENTURE_LEVEL"..tostring(_G.TUNING.TELEPORTATOMOD.LEVEL) -- alternative strings matching the chosen level
-            end
+            
             local maxw = _G.SpawnPrefab("maxwellintro")
             if maxw~=nil then
+                local speechName = "SANDBOX_1"
+                if _G.TUNING.ADV_DIFFICULTY==0 then -- DS. so no new dialog
+                    inst.dolevelspeech = false
+                end
+                -- inst.dolevelspeech = true -- test
+                if inst.dolevelspeech then -- 66% chance, different for every single player
+                    speechName = "ADVENTURE_LEVEL"..tostring(_G.TUNING.TELEPORTATOMOD.LEVEL) -- alternative strings matching the chosen level
+                end
+                if (not inst.dolevelspeech or maxw.components.maxwelltalker.speeches[speechName]==nil) and _G.TUNING.TELEPORTATOMOD.CHAPTER>0 then
+                    speechName = "ADVENTURE_".._G.TUNING.TELEPORTATOMOD.CHAPTER -- strings matching the actual chapter
+                end
                 if maxw.components.maxwelltalker.speeches[speechName]~=nil then
                     maxw:Hide() -- invisible
                     if _G.ThePlayer==inst or SERVER_SIDE then
@@ -144,6 +151,7 @@ local function SpawnMaxwell(inst)
                         maxw:StartThread(function() maxw.components.maxwelltalker:DoTalk(CLIENT_SIDE,inst.dolevelspeech) end)
                     end
                 else
+                    print("no speech found within maxwellintro for "..tostring(speechName))
                     maxw:Remove()
                 end
             end
@@ -269,6 +277,16 @@ _G.TUNING.TELEPORTATOMOD.functionatplayerfirstspawn = function(player) -- called
 end
 
 
+local function ConnectWormholes(x,y)
+    if _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole"..tostring(x)]~=nil and _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole"..tostring(y)]~=nil then
+        _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole"..tostring(x)].components.teleporter.targetTeleporter = _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole"..tostring(y)]
+        _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole"..tostring(y)].components.teleporter.targetTeleporter = _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole"..tostring(x)]
+        return true,true
+    end
+    print("Adventure Mod: ERROR was not able to connect all wormholes, cause at least one (non starting and ending) island has less than 2 wormholes")
+    return _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole"..tostring(x)]~=nil,_G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole"..tostring(y)]~=nil
+end
+
 _G.TUNING.TELEPORTATOMOD.functionpostloadworldONCE = function(world) -- only called for server and after everything is loaded
     if functionpostloadworldONCE~=nil then -- call a previous funtion from another mod, if there is one
         functionpostloadworldONCE(world)
@@ -314,6 +332,22 @@ _G.TUNING.TELEPORTATOMOD.functionpostloadworldONCE = function(world) -- only cal
                         adv_helpers.SpawnPrefabAtLandPlotNearInst("rock2",spawnpointpos,150,0,150,5,15,15) -- gold boulder
                     end
                 end
+                world:DoTaskInTime(1,function() -- do the following after everything is finally done
+                    if _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole1"]~=nil and _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole10"]~=nil then -- for whatever reason we have no wormholes in any map anymore?!
+                        local islandtasks = { "IslandHop_Start", "IslandHop_Hounds", "IslandHop_Forest", "IslandHop_Savanna", "IslandHop_Rocky", "IslandHop_Merm" }
+                        if _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Archipelago" then -- an odd number is leaving the island and an even number is entering the island
+                            print("Adventure archipelago connect wormholes..")
+                            local entrances = {2,4,6,8}
+                            local pick = 0
+                            for i = 1,4 do
+                                oldpick = pick
+                                pick = _G.PickSome(1,entrances)[1]
+                                ConnectWormholes(oldpick+1,pick)
+                            end
+                            ConnectWormholes(pick+1,10)
+                        end
+                    end
+                end)
             end
         end
     end)
@@ -326,7 +360,7 @@ for _,piece in ipairs(shadow_pieces) do
             return
         end
         inst:DoTaskInTime(2,function()
-            if _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="MaxwellHome" and inst~=nil and inst:IsValid() then
+            if _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Checkmate" and inst~=nil and inst:IsValid() then
                 inst.OnEntitySleep = nil -- no despawn for them
                 inst:OnEntityWake()
             end
@@ -358,14 +392,14 @@ AddPlayerPostInit(function(player)
     end
     player:DoTaskInTime(1, function(player)
         if _G.TUNING.TELEPORTATOMOD.LEVEL~=nil then
-            if _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="MaxwellHome" then -- has to be done everytime
-                GLOBAL.TheCamera:SetHeadingTarget(225) -- rotate the camera for every player making south at the top (world was rotated for whatever reason)
+            if _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Checkmate" then -- has to be done everytime
+                _G.TheCamera:SetHeadingTarget(225) -- rotate the camera for every player making south at the top (world was rotated for whatever reason)
             end
         end
     end)
     if not GetModConfigData("repickcharacter") then
         player.starting_inventory_orig = player.starting_inventory -- save it and give it within functionatplayerfirstspawn if the chapter is 0 or 1
-        player.starting_inventory = nil -- dont give starting items generally
+        player.starting_inventory = {} -- dont give starting items generally
     end
 end)
 
@@ -383,21 +417,65 @@ end
 
 
 
--- local function GetRoom(entity) -- written by ptr, thanks.
-    -- local closestdist = math.huge
-    -- local closestid = nil
-    -- x,_,y=entity.Transform:GetWorldPosition()
-    -- for i,v in pairs(_G.TheWorld.topology.nodes) do
-        -- if #v.neighbours > 0 then
-            -- local dx = math.floor((math.abs(v.x - x)+2)/4)
-            -- local dy = math.floor((math.abs(v.y - y)+2)/4)
-            -- local distsq = dx*dx + dy*dy
-            -- if distsq < closestdist then
-                -- closestdist = distsq
-                -- closestid = i
-            -- end
-        -- end
-    -- end
-    -- return _G.TheWorld.topology.ids[closestid]
--- end
+local function GetRoom(entity) -- written by ptr, thanks.
+    local closestdist = math.huge
+    local closestid = nil
+    x,_,y=entity.Transform:GetWorldPosition()
+    for i,v in pairs(_G.TheWorld.topology.nodes) do
+        if #v.neighbours > 0 then
+            local dx = math.floor((math.abs(v.x - x)+2)/4)
+            local dy = math.floor((math.abs(v.y - y)+2)/4)
+            local distsq = dx*dx + dy*dy
+            if distsq < closestdist then
+                closestdist = distsq
+                closestid = i
+            end
+        end
+    end
+    return _G.TheWorld.topology.ids[closestid]
+end
+
+
+-- we need at least 10 wormhole, to be able to connect all 6 islands.
+-- the game will create up to 12 holes (2 for every island) but it may happen that 1 or 2 are not successfully placed.
+-- we will only connect 10 of them, so if 2 are leftover they simply are not usuable, that is okay (or we could remove them)
+
+
+-- for whatever reason we have no wormholes in any map anymore?!
+_G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES = {} -- remember the wormholes and connect them in world post init
+AddPrefabPostInit("wormhole",function(inst)
+    if inst.components.teleporter then
+        inst:DoTaskInTime(0.5,function(inst) -- do it after _G.TUNING.TELEPORTATOMOD.LEVEL is checked (0.001) and before ARCHIPELWORMHOLES are used 0.1
+            if _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Archipelago" then
+                taskandroom = GetRoom(inst) -- eg "IslandHop_Start:2:SpiderMarsh"                
+                if string.find(taskandroom,"IslandHop_Start") and not _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole1"] then
+                    _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole1"] = inst
+                elseif string.find(taskandroom,"IslandHop_Hounds") and not _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole2"] then
+                    _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole2"] = inst
+                elseif string.find(taskandroom,"IslandHop_Hounds") and not _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole3"] then
+                    _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole3"] = inst
+                elseif string.find(taskandroom,"IslandHop_Forest") and not _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole4"] then
+                    _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole4"] = inst
+                elseif string.find(taskandroom,"IslandHop_Forest") and not _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole5"] then
+                    _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole5"] = inst
+                elseif string.find(taskandroom,"IslandHop_Savanna") and not _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole6"] then
+                    _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole6"] = inst
+                elseif string.find(taskandroom,"IslandHop_Savanna") and not _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole7"] then
+                    _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole7"] = inst
+                elseif string.find(taskandroom,"IslandHop_Rocky") and not _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole8"] then
+                    _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole8"] = inst
+                elseif string.find(taskandroom,"IslandHop_Rocky") and not _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole9"] then
+                    _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole9"] = inst
+                elseif string.find(taskandroom,"IslandHop_Merm") and not _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole10"] then
+                    _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole10"] = inst
+                end
+            end
+        end)
+        inst:DoTaskInTime(2,function(inst)
+            if inst.components.teleporter.targetTeleporter==nil then
+                inst:Remove()
+            end
+        end)
+    end
+end)
 

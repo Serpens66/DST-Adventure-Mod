@@ -142,6 +142,7 @@ function MaxwellTalker:DoTalk(CLIENT_SIDE,dolevelspeech)
                 if TheNet:GetIsServer() then
                     if self.inst.wilson.components.grogginess then self.inst.wilson.components.grogginess:ComeTo() end
                     if self.inst.wilson.components.playercontroller then self.inst.wilson.components.playercontroller:Enable(true) end
+                    if self.inst.wilson.components.health then self.inst.wilson.components.health:SetInvincible(false) end -- make player vincible again
                 end
             end)
         end	
@@ -180,9 +181,11 @@ function MaxwellTalker:Initialize(pl,CLIENT_SIDE) -- is exclusively spawned for 
     end
     if TheNet:GetIsServer() then
         if self.inst.wilson~=nil and self.inst.speech and self.inst.speech.disableplayer then    
-            pt = Vector3(self.inst.wilson.Transform:GetWorldPosition()) + Vector3(-4,0,4) --TheCamera:GetRightVec()*4
-            self.inst.Transform:SetPosition(pt.x,pt.y,pt.z) -- also set it for host at least near, so it can spawn his divinigrod if needed
-            self.inst:Hide()
+            if not (CLIENT_SIDE and TheNet:GetIsServer()) then -- do not execute, if we already executed them above
+                pt = Vector3(self.inst.wilson.Transform:GetWorldPosition()) + Vector3(-4,0,4) --TheCamera:GetRightVec()*4
+                self.inst.Transform:SetPosition(pt.x,pt.y,pt.z) -- also set it for host at least near, so it can spawn his divinigrod if needed
+                self.inst:Hide()
+            end
             if self.inst.wilson.components.grogginess then self.inst.wilson.components.grogginess:KnockOut() end
             if self.inst.wilson.components.playercontroller then self.inst.wilson.components.playercontroller:Enable(false) end
         end

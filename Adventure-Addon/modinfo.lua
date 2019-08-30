@@ -3,7 +3,7 @@ description = "[BETA]\nRequires my Teleportato mod!\n\nOvercome challenging worl
 author = "Serpens"
 forumthread = ""
 
-version = "0.93"
+version = "0.932"
 api_version = 10
 
 dst_compatible = true
@@ -200,8 +200,8 @@ configuration_options =
 		default = "6",
     },
     {
-		name = "maxwellhome",
-		label = "MaxwellHome",
+		name = "checkmate",
+		label = "Checkmate",
 		hover = "Enable/Disable the default adventure worlds\nfor some you can also set the position when they will started.",
 		options = 
 		{
