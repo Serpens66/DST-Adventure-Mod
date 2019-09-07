@@ -1,4 +1,5 @@
 local EndGameDialog = require("screens/endgamedialog")
+local PopupDialogScreenRedux= require "screens/redux/popupdialog"
 local assets =
 {
 	Asset("ANIM", "anim/maxwell_throne.zip"),
@@ -13,7 +14,7 @@ local prefabs =
     "maxwellendgame",
 }
 
-local function SpawnPuppet(inst, name,CLIENT_SIDE)
+local function SpawnPuppet(inst, name)
 
     if name ~= "maxwellendgame" then
         name = "puppet_"..name
@@ -33,25 +34,32 @@ end
 local function ZoomAndFade(inst,CLIENT_SIDE)
     if not CLIENT_SIDE then
         for _,player in pairs(AllPlayers) do
-            player:SetCameraDistance(7) -- do as many code as possible on server
+            player:SetCameraDistance(15) -- do as many code as possible on server
         end
     end
     if CLIENT_SIDE then
-        if not inst.isMaxwell then
-            TheCamera:SetOffset(Vector3(0, 1.45, 0))
-        end
+        TheCamera:SetOffset(Vector3(0, 1.45, 0))
     end
     Sleep(2)
     if not CLIENT_SIDE then
         if inst.phonograph then
-            -- inst.phonograph.songToPlay = "dontstarve/maxwell/ragtime_2d" -- sound does not work
             if not inst.phonograph.components.machine:IsOn() then
                 inst.phonograph.components.machine:TurnOn()
             end
         end
         TheNet:Announce("Congratulation! You won the adventure!")
+        for _,player in pairs(AllPlayers) do
+            if player~=inst.shadowlord then
+                player.sg:GoToState("shadowdance")
+            end
+        end
     end
-    Sleep(5)
+    Sleep(6)
+    if CLIENT_SIDE then
+        local screen = PopupDialogScreenRedux( STRINGS.UI.ENDGAME.TITLE, STRINGS.UI.ENDGAME.BODY1..(inst.shadowlord.name or inst.shadowlord.prefab)..string.format(STRINGS.UI.ENDGAME.BODY2,STRINGS.UI.GENDERSTRINGS[GetGenderStrings(inst.shadowlord.prefab)].ONE , STRINGS.UI.GENDERSTRINGS[GetGenderStrings(inst.shadowlord.prefab)].TWO), { { text = STRINGS.UI.ENDGAME.YES, cb = function() TheFrontEnd:ClearScreens() end } }, nil,"bigger")
+		TheFrontEnd:PushScreen( screen )
+    end
+    Sleep(18)
     if not CLIENT_SIDE then
         for _,player in pairs(AllPlayers) do
             player:ScreenFade(false, 5) -- do as many code as possible on server
@@ -79,7 +87,7 @@ local function DecomposePuppet(inst,CLIENT_SIDE)
     end)
 end
 
-local function SpawnNewPuppet(inst,doer,CLIENT_SIDE)
+local function SpawnNewPuppet(inst,CLIENT_SIDE)
     
     if not CLIENT_SIDE then
         inst.SoundEmitter:PlaySound("dontstarve/common/throne/thronemagic", "deathrattle")    
@@ -100,19 +108,23 @@ local function SpawnNewPuppet(inst,doer,CLIENT_SIDE)
         inst.SoundEmitter:KillSound("deathrattle")
         for _,player in pairs(AllPlayers) do
             player:Hide()
+            if inst.shadowlord==nil and player:HasTag("shadowlord") then
+                inst.shadowlord = player -- double check
+            end
         end
-        local puppetToSpawn = doer~=nil and doer.prefab or "wilson"
+        local puppetToSpawn = inst.shadowlord~=nil and inst.shadowlord.prefab or "wilson"
         if puppetToSpawn == "waxwell" then 
             puppetToSpawn = "maxwellendgame" 
         end
-        local puppet = SpawnPuppet(inst, puppetToSpawn,CLIENT_SIDE) -- puppet will be nil for new characters
-        print("puppet "..tostring(puppet))
-        if puppet~=nil and puppet.components.maxwelltalker then puppet:RemoveComponent("maxwelltalker") end    
+          
     
         local pos = Vector3( inst.Transform:GetWorldPosition() )
         TheWorld:PushEvent('ms_sendlightningstrike', pos)
     
-        if puppetToSpawn == "maxwellendgame" then 
+        if puppetToSpawn == "maxwellendgame" then
+            local puppet = SpawnPuppet(inst, puppetToSpawn) -- puppet will be nil for new characters
+            print("puppet "..tostring(puppet))
+            if puppet~=nil and puppet.components.maxwelltalker then puppet:RemoveComponent("maxwelltalker") end  
             inst.AnimState:PlayAnimation("appear")
             inst.AnimState:PushAnimation("idle")
             inst.isMaxwell = true
@@ -124,10 +136,21 @@ local function SpawnNewPuppet(inst,doer,CLIENT_SIDE)
             inst.AnimState:PlayAnimation("player_appear")
             inst.AnimState:PushAnimation("player_idle_loop")
             inst.isMaxwell = false
-            if puppet~=nil then
-                puppet.AnimState:PlayAnimation("appear")
-                puppet.AnimState:PushAnimation("throne_loop", true)
+            inst.shadowlord.Transform:SetPosition(pos.x, pos.y + 0.1, pos.z)
+            inst.shadowlord:Show()
+            inst.shadowlord.sg:GoToState("throne_sit")
+            if inst.shadowlord.HUD ~= nil then
+                inst.shadowlord.HUD:Hide()
             end
+            local phys = inst.shadowlord.Physics
+            inst.shadowlord:AddTag("blocker")
+            phys:SetMass(0) --Bullet wants 0 mass for static objects
+            phys:SetCollisionGroup(COLLISION.OBSTACLES)
+            phys:ClearCollisionMask()
+            phys:CollidesWith(COLLISION.ITEMS)
+            phys:CollidesWith(COLLISION.CHARACTERS)
+            phys:CollidesWith(COLLISION.GIANTS)
+            phys:SetCapsule(2,2)
         end
         if inst.DynamicShadow then
             inst.DynamicShadow:Enable(true)
@@ -138,6 +161,14 @@ local function SpawnNewPuppet(inst,doer,CLIENT_SIDE)
     Sleep(soundframedelay * (1/30))
     if not CLIENT_SIDE then
         inst.SoundEmitter:PlaySound("dontstarve/common/throne/playerappear")
+        for _,player in pairs(AllPlayers) do
+		if player~=inst.shadowlord then
+            SpawnPrefab("collapse_small").Transform:SetPosition(player.Transform:GetWorldPosition())
+            player.sg:GoToState("idle")
+            player.AnimState:SetMultColour(0, 0, 0, 0.7)
+            player:Show()
+		end
+	end
     end
     Sleep(3)
 
@@ -147,7 +178,7 @@ local function SpawnNewPuppet(inst,doer,CLIENT_SIDE)
 end
 
 
-local function MaxwellDie(inst,doer,CLIENT_SIDE)
+local function MaxwellDie(inst,CLIENT_SIDE)
     if not CLIENT_SIDE then
         inst.AnimState:PlayAnimation("death")
         if inst.puppet~=nil then
@@ -159,11 +190,11 @@ local function MaxwellDie(inst,doer,CLIENT_SIDE)
         inst:DoTaskInTime(213 * (1/30), function() inst.SoundEmitter:KillSound("deathrattle") end)
     end
     Sleep(9.5)
-    inst:StartThread(function() SpawnNewPuppet(inst,doer,CLIENT_SIDE) end)
+    inst:StartThread(function() SpawnNewPuppet(inst,CLIENT_SIDE) end)
 end
 
 
-local function PlayerDie(inst,doer,CLIENT_SIDE)
+local function PlayerDie(inst,CLIENT_SIDE)
     if not CLIENT_SIDE then
         inst.AnimState:PlayAnimation("player_death")
         if inst.puppet~=nil then
@@ -174,11 +205,12 @@ local function PlayerDie(inst,doer,CLIENT_SIDE)
         inst:DoTaskInTime(40 * (1/30), function() inst.SoundEmitter:KillSound("deathrattle") end)
     end
     Sleep(4)
-    inst:StartThread(function() SpawnNewPuppet(inst,doer,CLIENT_SIDE) end)
+    inst:StartThread(function() SpawnNewPuppet(inst,CLIENT_SIDE) end)
 end
 
-local function SetUpCutscene(inst,doer,CLIENT_SIDE) -- make it work if only server calls this... TODO
+local function SetUpCutscene(inst,CLIENT_SIDE) -- make it work if only server calls this... TODO
     print("SetUpCutscene maxwellthrone")
+    
     local pt = Vector3(inst.Transform:GetWorldPosition())
     --Put game into "cutscene" mode. 
     if not CLIENT_SIDE then
@@ -200,6 +232,9 @@ local function SetUpCutscene(inst,doer,CLIENT_SIDE) -- make it work if only serv
     end
     local x,y = 0,0
     for _,player in pairs(AllPlayers) do
+        if player:HasTag("shadowlord") then
+            inst.shadowlord = player -- the player who freed maxwell and will be put onto the throne
+        end
         if not CLIENT_SIDE then
             player.components.health:SetInvincible(true) -- make player invincible
             player.components.playercontroller:Enable(false)
@@ -218,7 +253,9 @@ local function SetUpCutscene(inst,doer,CLIENT_SIDE) -- make it work if only serv
             elseif _==3 or _==6 then
                 y = 2
             end
-            player.components.locomotor:GoToPoint(pt+Vector3(-2.5-x, 0, y))
+            if player.components and player.components.locomotor then
+                player.components.locomotor:GoToPoint(pt+Vector3(-2.5-x, 0, y))
+            end
             player:FacePoint(pt)
             player:DoTaskInTime(3,function() player:FacePoint(pt) end)
         end
@@ -253,14 +290,14 @@ local function SetUpCutscene(inst,doer,CLIENT_SIDE) -- make it work if only serv
         inst.SoundEmitter:PlaySound("dontstarve/common/throne/thronedisappear")
     end
     if inst.isMaxwell then
-        inst:StartThread(function() MaxwellDie(inst,doer,CLIENT_SIDE) end)
+        inst:StartThread(function() MaxwellDie(inst,CLIENT_SIDE) end)
     else
-        inst:StartThread(function() PlayerDie(inst,doer,CLIENT_SIDE) end)
+        inst:StartThread(function() PlayerDie(inst,CLIENT_SIDE) end)
     end
 end
 
-local function startthread(inst,doer,CLIENT_SIDE)
-    inst.task =  inst:StartThread(function() SetUpCutscene(inst,doer,CLIENT_SIDE) end)
+local function startthread(inst,CLIENT_SIDE)
+    inst.task =  inst:StartThread(function() SetUpCutscene(inst,CLIENT_SIDE) end)
 end
 
 local function fn(Sim)

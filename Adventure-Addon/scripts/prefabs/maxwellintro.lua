@@ -50,7 +50,7 @@ local SPEECHES =
 		},
 	
 	},
-	SANDBOX_1 =
+	ADVENTURE_1 =
 	{
 		appearsound = "dontstarve/maxwell/disappear",
 	    voice = "dontstarve/maxwell/talk_LP",
@@ -76,7 +76,7 @@ local SPEECHES =
 		},
 	},
 
-	ADVENTURE_1 =
+	ADVENTURE_2 =
 	{
 		delay = 2,
 	    voice = "dontstarve/maxwell/talk_LP_world1",
@@ -108,7 +108,7 @@ local SPEECHES =
 		},
 	},
 
-	ADVENTURE_2 =
+	ADVENTURE_3 =
 	{		
 		delay = 2,
 	    voice = "dontstarve/maxwell/talk_LP_world2",
@@ -134,7 +134,7 @@ local SPEECHES =
 		},
 	},
 
-	ADVENTURE_3 =
+	ADVENTURE_4 =
 	{		
 		delay = 2,
 	    voice = "dontstarve/maxwell/talk_LP_world3",
@@ -160,7 +160,7 @@ local SPEECHES =
 		},
 	},
 
-	ADVENTURE_4 =
+	ADVENTURE_5 =
 	{		
 		delay = 2,
 	    voice = "dontstarve/maxwell/talk_LP_world4",
@@ -192,45 +192,7 @@ local SPEECHES =
 		},
 	},
 
-	ADVENTURE_TWOLANDS =
-	{		
-		delay = 2,
-	    voice = "dontstarve/maxwell/talk_LP_world4",
-		appearanim = "appear4",
-		idleanim= "idle4_loop",
-		dialogpreanim = "dialog4_pre",
-		dialoganim="dialog4_loop",
-		dialogpostanim = "dialog4_pst",
-		disappearanim = "disappear4",
-		disableplayer = true,
-		skippable = true,
-		{
-			string = STRINGS.MAXWELL_ADVENTUREINTROS.TWOLANDS.ONE,
-			wait = 1.5,
-			anim = nil,
-			sound = nil,
-		},
-		{
-			string = STRINGS.MAXWELL_ADVENTUREINTROS.TWOLANDS.TWO, 
-			wait = 3.5, 
-			anim = nil, 
-			sound = nil,
-		},
-		{
-			string = STRINGS.MAXWELL_ADVENTUREINTROS.TWOLANDS.THREE, 
-			wait = 3.5, 
-			anim = nil, 
-			sound = nil, 
-		},
-		{
-			string = STRINGS.MAXWELL_ADVENTUREINTROS.TWOLANDS.FOUR, 
-			wait = 2.5,
-			anim = nil,
-			sound = nil,
-		},
-	},
-
-	ADVENTURE_5 =
+	ADVENTURE_6 =
 	{		
 		delay = 2,
 	    voice = "dontstarve/maxwell/talk_LP_world5",
@@ -262,7 +224,7 @@ local SPEECHES =
 		},
 	},
 
-	ADVENTURE_6 =
+	ADVENTURE_7 =
 	{		
 		delay = 2,
 	    voice = "dontstarve/maxwell/talk_LP_world6",
@@ -288,7 +250,7 @@ local SPEECHES =
 		},
 	},
 
-	ADVENTURE_6_TELEPORTFAIL =
+	ADVENTURE_6_TELEPORTFAIL = -- not used
 	{		
 		delay = 2,
 	    voice = "dontstarve/maxwell/talk_LP_world5",
@@ -313,10 +275,10 @@ local SPEECHES =
 			sound = nil,
 		},
 	},
+}
     
     
-    
-    ADVENTURE_LEVEL1 = -- sandbox
+    SPEECHES["ADVENTURE Maxwells Door"] = -- sandbox
  	{
 		appearsound = "dontstarve/maxwell/disappear",
 	    voice = "dontstarve/maxwell/talk_LP",
@@ -340,9 +302,9 @@ local SPEECHES =
 			anim = nil, 
 			sound = nil,
 		},
-	},
+	}
 
-	ADVENTURE_LEVEL2 = -- A Cold Reception
+	SPEECHES["ADVENTURE A Cold Reception"] = -- A Cold Reception
 	{		
 		delay = 2,
 	    appearsound = "dontstarve/maxwell/disappear",
@@ -367,9 +329,9 @@ local SPEECHES =
 			anim = nil, 
 			sound = nil,
 		},
-	},
+	}
 
-	ADVENTURE_LEVEL3 = -- King of Winter
+	SPEECHES["ADVENTURE King of Winter"] = -- King of Winter
 	{		
 		delay = 2,
 	    voice = "dontstarve/maxwell/talk_LP_world2",
@@ -411,9 +373,9 @@ local SPEECHES =
 			anim = nil, 
 			sound = nil,
 		},
-	},
+	}
 
-	ADVENTURE_LEVEL4 = -- The Game is Afoot
+	SPEECHES["ADVENTURE The Game is Afoot"] = -- The Game is Afoot
 	{		
 		delay = 2,
 	    voice = "dontstarve/maxwell/talk_LP_world2",
@@ -437,10 +399,10 @@ local SPEECHES =
 			anim = nil, 
 			sound = nil,
 		},
-	},
+	}
 
 
-	ADVENTURE_LEVEL5 = -- Archipelago
+	SPEECHES["ADVENTURE Archipelago"] = -- Archipelago
 	{		
 		delay = 2,
 	    voice = "dontstarve/maxwell/talk_LP_world3",
@@ -470,9 +432,9 @@ local SPEECHES =
 			anim = nil, 
 			sound = nil, 
 		},
-	},
+	}
 
-	ADVENTURE_LEVEL6 = -- Two World
+	SPEECHES["ADVENTURE Two Worlds"] = -- Two Worlds
 	{		
 		delay = 2,
 	    voice = "dontstarve/maxwell/talk_LP_world4",
@@ -508,9 +470,9 @@ local SPEECHES =
 			anim = nil,
 			sound = nil,
 		},
-	},
+	}
     
-    ADVENTURE_LEVEL7 = -- Darkness
+    SPEECHES["ADVENTURE Darkness"] = -- Darkness
 	{		
 		delay = 2,
 	    voice = "dontstarve/maxwell/talk_LP_world5",
@@ -546,9 +508,9 @@ local SPEECHES =
 			anim = nil, 
 			sound = nil, 
 		},
-	},
+	}
     
-    ADVENTURE_LEVEL8 = -- MaxwellHome, currently the same like last chapter text
+    SPEECHES["ADVENTURE Checkmate"] = -- MaxwellHome, currently the same like last chapter text
 	{		
 		delay = 2,
 	    voice = "dontstarve/maxwell/talk_LP_world6",
@@ -572,9 +534,9 @@ local SPEECHES =
 			anim = nil, 
 			sound = nil,
 		},
-	},
+	}
     
-}
+
 
 local function fn(Sim)	
 	local inst = CreateEntity()
@@ -584,8 +546,9 @@ local function fn(Sim)
 	local shadow = inst.entity:AddDynamicShadow()
 	shadow:SetSize( 1.75, .75 )
     inst.Transform:SetTwoFaced()
-    inst.entity:AddNetwork()
-    
+    if not TUNING.TELEPORTATOMOD.experimentalcode then
+        inst.entity:AddNetwork()  -- we only want him to be visible and doing stuff for the client and not transfer his action from server to other clients
+    end
     anim:SetBank("maxwell")
     anim:SetBuild("maxwell_build")
 
@@ -619,7 +582,7 @@ local function fn(Sim)
     inst:AddComponent("inspectable")
     inst.components.inspectable.nameoverride = "maxwell"
  
-    inst:DoTaskInTime(1, function()
+    inst:DoTaskInTime(0, function()
         if TheSim:FindFirstEntityWithTag("diviningrod") == nil then
             local rod = SpawnPrefab("diviningrodstart")
             if rod then

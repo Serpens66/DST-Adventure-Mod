@@ -18,7 +18,8 @@ local function OnUnlock(inst, key, doer)
     inst.throne.lock = inst
 	
     inst.SoundEmitter:PlaySound("dontstarve/common/teleportato/teleportato_add_divining")
-    inst.throne.startthread(inst.throne,doer,false)
+    doer:AddTag("shadowlord")
+    inst.throne.startthread(inst.throne,false)
     for _,player in pairs(AllPlayers) do
         player.mynetvarMCutscene:set(true) -- execute it also for clients
     end

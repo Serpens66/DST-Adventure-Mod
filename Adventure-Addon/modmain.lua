@@ -1,57 +1,32 @@
--- maxwell phonograph, mod by DoktorHolmes
--- maxwell light, mod by Leonardo Coxington
--- and my own work..
 
 
 -- TODO:
 
--- wormholes noch versuchen rauszufinden
+-- rausfinden wie overrides ohne nicht die spieler einstellungen überschrieben
 
--- rausfinden wie man character mit in nächste welt nimmt (ohne neu aussuchen)
+-- animation on throne
+-- -> als minor bug eintragen
 
--- gucken ob es eine setskin funktion oderso gibt. iwie müssen doch modder skins spawnen können (für items von worldjump, aber auch für puppe on throne)
---> zumindest fuer player könnte das hier funzen (vom spieler die skins abfragen und dann der puppet geben): 
--- local skinner = player.components.skinner
-        -- skinner:SetClothing(clothing_body)
-        -- skinner:SetClothing(clothing_hand)
-        -- skinner:SetClothing(clothing_legs)
-        -- skinner:SetClothing(clothing_feet)
-        -- skinner:SetSkinName(skin_base)
-        -- skinner:SetSkinMode("normal_skin")
-
--- mit c_spawn("wortox") geht -> noichmal gucken wie genau die puppet gemacht wird..
--- es gibt einen skin staff item mod, mit diesem staff kann man die skin von items durchschalten -> evlt ist dies eine lösung
--- offenbar geht es nur über SpawnPrefab mit skinname und skin_id. doch dies sollte eigentlich direkt beim laden der items automatisch gemacht sein...
-
+--prototype skins... kanns nicht testen, also in prototyper comp nachschauen... ich denke aber es wird automaitsch gepseichert
 
 -- TheWorld.components.adventurejump:DoJump()
 
-
--- gucken ob man iwie sicherstellen kann dass twoworlds/archipelao wirklich isneln sind und nicht zufällig eine landmasse sind
-
 -- vllt noch eine modsetting mit der man die startitems (die mein mod gibt) "für jeden spieler" abschalten kann, könnte sonst bei servern wo neue spieler ein und ausgehen zuviel werden?
-
--- evlt wormholes auch noch zu two worlds zufügen
-
-
--- repickplayer und startingitems in teleportaot einbauen, aber von adventuremod steuerbar lassen:
--- bei repickplayer ists glaub ich relativ einfach, einfach den Code kopieren und aus der worldjump playerdata das prefab lesen, fertig.
--- die setting kann vom adventuremod überschrieben werden (dies auch in modingo schreiben als hinweis)
-
--- bei startitmes ists etwas schwieriger. Für adventure wollen wir keine startitems außer für chapter 0 und 1.
--- doch diese chapter sind erstmal nicht bekannt, weshalb man schon vorher die startitems speichern und leeren muss.
--- erst in firstspawn können wir dann evlt manuell die startitems wieder zufügen.
--- -> das leeren immer machen, egal wie einstellung ist und das neue wieder zufügen nur wenn startitems erlabut. -> fertig
+--> nur machen wenns nachfrage da nach gibt
 
 
 
-print("HIER modmain adv")
-local _G = GLOBAL
+
+
+-- maxwell phonograph, mod by DoktorHolmes
+-- maxwell light, mod by Leonardo Coxington
+-- and my own work..
+
 PrefabFiles = { 
-	"maxwellphonograph",
+    "maxwellphonograph",
     "maxwelllight_p",
-	"maxwelllight_flame",
-    "maxwellthrone",	
+    "maxwelllight_flame",
+    "maxwellthrone",    
     "paired_maxwelllight",
     "maxwell",
     "maxwellendgame",
@@ -63,30 +38,30 @@ PrefabFiles = {
     "diviningrodstart",
     "teleportato_checkmate",
     "teleportlocation",
-    "puppet",
+    -- "puppet",
 }
 Assets = {
-	Asset("ANIM", "anim/phonograph.zip"),
-	Asset("SOUND", "sound/phonograph.fsb"),
-	Asset("SOUNDPACKAGE", "sound/phonograph.fev"),
-	Asset("ATLAS", "images/inventoryimages/Gramophone.xml"),
+    Asset("ANIM", "anim/phonograph.zip"),
+    Asset("SOUND", "sound/phonograph.fsb"),
+    Asset("SOUNDPACKAGE", "sound/phonograph.fev"),
+    Asset("ATLAS", "images/inventoryimages/Gramophone.xml"),
     Asset("IMAGE", "images/inventoryimages/Gramophone.tex"),
     ----------------------------------------------------
     Asset( "IMAGE", "images/map_icons/evilthrone.tex" ),
-	Asset( "ATLAS", "images/map_icons/evilthrone.xml" ),
-	Asset( "IMAGE", "images/map_icons/evillight.tex" ),
-	Asset( "ATLAS", "images/map_icons/evillight.xml" ),
-	----------------------------------------------------
-	Asset( "IMAGE", "images/inventoryimages/evilthrone.tex" ),
-	Asset( "ATLAS", "images/inventoryimages/evilthrone.xml" ),
-	Asset( "IMAGE", "images/inventoryimages/evillight.tex" ),
-	Asset( "ATLAS", "images/inventoryimages/evillight.xml" ),
+    Asset( "ATLAS", "images/map_icons/evilthrone.xml" ),
+    Asset( "IMAGE", "images/map_icons/evillight.tex" ),
+    Asset( "ATLAS", "images/map_icons/evillight.xml" ),
+    ----------------------------------------------------
+    Asset( "IMAGE", "images/inventoryimages/evilthrone.tex" ),
+    Asset( "ATLAS", "images/inventoryimages/evilthrone.xml" ),
+    Asset( "IMAGE", "images/inventoryimages/evillight.tex" ),
+    Asset( "ATLAS", "images/inventoryimages/evillight.xml" ),
     -------------------------------------------------------
     Asset("ANIM", "anim/maxwell_build.zip"),
     Asset("ANIM", "anim/max_fx.zip"),
     Asset("ANIM", "anim/maxwell_basic.zip"),
-	Asset("ANIM", "anim/maxwell_adventure.zip"),
-	-- Asset("SOUND", "sound/maxwell.fsb"),
+    Asset("ANIM", "anim/maxwell_adventure.zip"),
+    -- Asset("SOUND", "sound/maxwell.fsb"),
     Asset("SCRIPT", "scripts/prefabs/player_common.lua"),
     Asset("ANIM", "anim/maxwell_endgame.zip"),
     Asset("ANIM", "anim/maxwell_floatinghead.zip"),
@@ -97,36 +72,132 @@ Assets = {
 RemapSoundEvent( "phonograph/play", "phonograph/sound/gramaphoneplay" )
 RemapSoundEvent( "phonograph/end", "phonograph/sound/gramaphoneend" )
 
+local _G = GLOBAL
 local TheNet = _G.TheNet
 local SERVER_SIDE, DEDICATED_SIDE, CLIENT_SIDE, ONLY_CLIENT_SIDE
 if TheNet:GetIsServer() then
-	SERVER_SIDE = true
-	if TheNet:IsDedicated() then
-		DEDICATED_SIDE = true -- ==ONLY_SERVER_SIDE
-	else
-		CLIENT_SIDE = true
-	end
+    SERVER_SIDE = true
+    if TheNet:IsDedicated() then
+        DEDICATED_SIDE = true -- ==ONLY_SERVER_SIDE
+    else
+        CLIENT_SIDE = true
+    end
 elseif TheNet:GetIsClient() then
-	SERVER_SIDE = false
-	CLIENT_SIDE = true
-	ONLY_CLIENT_SIDE = true
+    SERVER_SIDE = false
+    CLIENT_SIDE = true
+    ONLY_CLIENT_SIDE = true
 end
-
-
 if not _G.TUNING.TELEPORTATOMOD then
     _G.TUNING.TELEPORTATOMOD = {}
 end
 
--- _G.TUNING.TELEPORTATOMOD.repickcharacter = GetModConfigData("repickcharacter")
-_G.TUNING.TELEPORTATOMOD.getstartingitems = GetModConfigData("repickcharacter")
+_G.TUNING.TELEPORTATOMOD.experimentalcode = GetModConfigData("experimentalcode")
+_G.TUNING.TELEPORTATOMOD.repickcharacter = GetModConfigData("repickcharacter") -- this setting is currently only set-able for adventure mod (because its easier and still in testing)
+_G.TUNING.TELEPORTATOMOD.getstartingitems = GetModConfigData("repickcharacter") -- this setting is currently only set-able for adventure mod (because its easier and still in testing)
+_G.TUNING.TELEPORTATOMOD.Thulecite = 0 -- overwrite this teleportato settings, cause these really dont fit the adventure theme and are overpowered when worldjunping that often
+_G.TUNING.TELEPORTATOMOD.Ancient = 0
+_G.TUNING.TELEPORTATOMOD.sandboxpreconfigured = GetModConfigData("sandboxpreconfigured") -- to also let teleportato now and use the variate world setting if enabled
+
+--#################################################################
+-- #################################################
+--## force same character code...
+
+_G.TUNING.TELEPORTATOMOD.adv_forcechar_prefabs = nil
+
+
+local UserCommands = _G.require("usercommands")
+AddUserCommand("adv_forcechar",{
+    permission = _G.COMMAND_PERMISSION.USER,
+    vote = false,
+    params = {},
+    serverfn = function(params, caller)
+        print("adv_playerinlobby")
+        local userid = caller.userid
+        if _G.TUNING.TELEPORTATOMOD.CHAPTER~=1 and _G.TheWorld and _G.TheWorld.components and _G.TheWorld.components.worldjump and _G.TheWorld.components.worldjump.player_data and _G.TheWorld.components.worldjump.player_data[userid] then
+            if not table.contains(_G.TheWorld.components.worldjump.player_ids,userid) then -- only the first time in lobbyscreen (eg dont do it when we change char in new portal)
+                local prefab = _G.TheWorld.components.worldjump.player_data[userid].prefab
+                _G.TUNING.TELEPORTATOMOD.adv_forcechar_prefabs:set(tostring(userid).."###"..tostring(prefab))
+            end
+        end
+    end,
+})
+
+local function IsScreenInStackAndReturnScreen(screenname)
+    for _,screen_in_stack in pairs(TheFrontEnd.screenstack) do
+        if screen_in_stack.name == screenname then
+            return screen_in_stack
+        end
+    end
+    return false
+end
+
+AddPrefabPostInit("forest_network",function(worldnet)
+    print("forest_network")
+    _G.TUNING.TELEPORTATOMOD.adv_forcechar_prefabs = _G.net_string(worldnet.GUID, "adv_forcechar.player", "adv_forcechar_dirty")
+    _G.TUNING.TELEPORTATOMOD.adv_forcechar_prefabs:set("")
+    
+    if CLIENT_SIDE then
+        worldnet:ListenForEvent("adv_forcechar_dirty", function(worldnet) 
+            local adv_forcechar = _G.TUNING.TELEPORTATOMOD.adv_forcechar_prefabs:value()
+            print(adv_forcechar)
+            local adv_forcechar_split = string.split(adv_forcechar, "###") -- we send userid+###+prefab within netvar
+            local userid,prefab = adv_forcechar_split[1],adv_forcechar_split[2]
+            if TheNet:GetUserID()==userid then
+                local lobbyscreen = IsScreenInStackAndReturnScreen("LobbyScreen")
+                if lobbyscreen then
+                    lobbyscreen:Hide()
+                    print(prefab)
+                    lobbyscreen.character_for_game = prefab
+                    lobbyscreen.cb(lobbyscreen.character_for_game) -- currentskin is nil, but we will use the normal worldjump load to add the skin back
+                else
+                    print("no lobbyscreen")
+                end
+            else
+                print("userid unequal")
+                print(TheNet:GetUserID())
+                print(userid)
+            end
+        end)
+    end
+end)
+
+local function LobbyHook(self) -- force same player
+    -- _G.scheduler:ExecuteInTime(0,function()
+        print("LobbyHook")
+        UserCommands.RunUserCommand("adv_forcechar", {}, _G.TheNet:GetClientTableForUser(_G.TheNet:GetUserID()))
+    -- end, "get_data_about_self")
+end
+if _G.TUNING.TELEPORTATOMOD.experimentalcode and _G.TUNING.TELEPORTATOMOD.repickcharacter==false then
+    AddClassPostConstruct("screens/redux/lobbyscreen", LobbyHook)
+end
+--#################################################################
+--#################################################################
+
+-- local function tesst()
+    -- print(client_obj)
+    -- if type(client_obj)=="table" then
+        -- for k,v in pairs(client_obj) do
+            -- print(tostring(k).." ... "..tostring(v))
+        -- end
+    -- end
+-- end
+-- _G.TUNING.TTEESSTT = tesst -- TUNING.TTEESSTT(TheNet:GetSessionIdentifier(),ThePlayer.userid)
+
+
+-- print("HIER modmain adv")
+
+
+
+
 
 _G.TUNING.ADV_DIFFICULTY = GetModConfigData("difficulty") -- also used within chest scenarios
-local adv_helpers = _G.require("adv_helpers") 
+local adv_helpers = _G.require("adv_helpers")  --load it from teleportato mod
 -- we can use _G.TUNING.TELEPORTATOMOD.LEVEL and _G.TUNING.TELEPORTATOMOD.CHAPTER as soon as the game started
 -- _G.TUNING.TELEPORTATOMOD.LEVELINFOLOADED will be true after everythong was loaded.
 
 
--- AddPrefabPostInit("world",function(world) world:DoTaskInTime(1,function() world.components.adventurejump:DoJump() end) end) -- endless jump for testing
+
+--world:DoTaskInTime(1,function() world.components.adventurejump:DoJump() end) end) -- endless jump for testing
 
 -- maxwell spawn for every single player only on their client side, so other players should not be able to see him
 local function SpawnMaxwell(inst)
@@ -135,20 +206,20 @@ local function SpawnMaxwell(inst)
         if SERVER_SIDE and inst.components~=nil and inst.components.health~=nil then
             inst.components.health:SetInvincible(true) -- make player invincible, is removed within maxwelltalker file
         end
-        inst:DoTaskInTime(4,function(inst) -- wait after the title screen is gone
+        inst:DoTaskInTime(0.5,function(inst)
             print("SpawnMaxwell1")
             
             local maxw = _G.SpawnPrefab("maxwellintro")
             if maxw~=nil then
-                local speechName = "SANDBOX_1"
+                local speechName = "ADVENTURE_1"
                 if _G.TUNING.ADV_DIFFICULTY==0 then -- DS. so no new dialog
                     inst.dolevelspeech = false
                 end
                 -- inst.dolevelspeech = true -- test
                 if inst.dolevelspeech then -- 66% chance, different for every single player
-                    speechName = "ADVENTURE_LEVEL"..tostring(_G.TUNING.TELEPORTATOMOD.LEVEL) -- alternative strings matching the chosen level
+                    speechName = "ADVENTURE "..tostring(_G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name) -- alternative strings matching the chosen level
                 end
-                if (not inst.dolevelspeech or maxw.components.maxwelltalker.speeches[speechName]==nil) and _G.TUNING.TELEPORTATOMOD.CHAPTER>0 then
+                if (not inst.dolevelspeech or maxw.components.maxwelltalker.speeches[speechName]==nil) then
                     speechName = "ADVENTURE_".._G.TUNING.TELEPORTATOMOD.CHAPTER -- strings matching the actual chapter
                 end
                 if maxw.components.maxwelltalker.speeches[speechName]~=nil then
@@ -163,6 +234,9 @@ local function SpawnMaxwell(inst)
                     end
                 else
                     print("no speech found within maxwellintro for "..tostring(speechName))
+                    if SERVER_SIDE and inst.components~=nil and inst.components.health~=nil then
+                        inst.components.health:SetInvincible(false)
+                    end
                     maxw:Remove()
                 end
             end
@@ -174,7 +248,7 @@ end
 
 
 -- some functions you can use which will be called within teleportato mod:
--- functionatplayerfirstspawn(player) -- will be executed for every players first spawn (during showing the title) and can eg. be used to spawn some starter items or lit some fires around him and so on. wait 4 seconds, to do something if you want the player to see it (eg player:DoTaskInTime(4,function))
+-- functionatplayerfirstspawn(player) -- will be executed for every players first spawn and can eg. be used to spawn some starter items or lit some fires around him and so on. 
 -- functionpostloadworldONCE(world) -- will be executed at world start ONCE (only the first time directly after generating the world).  eg. you could add some stuff around startposition 
 -- in addition you can addprefabpostinit into your modmain, but LEVEL and CHAPTER will need ~0.1 seconds to be set, so do DoTaskInTime within your Addprefabpostiint! (only continue after _G.TUNING.TELEPORTATOMOD.LEVELINFOLOADED was set to true by teleportato mod)
 
@@ -194,7 +268,7 @@ _G.TUNING.TELEPORTATOMOD.functionatplayerfirstspawn = function(player) -- called
         if SERVER_SIDE then 
             if _G.TheWorld:HasTag("forest") then
                 
-                if not _G.TUNING.TELEPORTATOMOD.getstartingitems and _G.TUNING.TELEPORTATOMOD.CHAPTER~=nil and _G.TUNING.TELEPORTATOMOD.CHAPTER<=1 and player.starting_inventory_orig~=nil then -- give the starting items only in those 2 chapters
+                if _G.TUNING.TELEPORTATOMOD.getstartingitems==false and _G.TUNING.TELEPORTATOMOD.CHAPTER~=nil and _G.TUNING.TELEPORTATOMOD.CHAPTER<=2 and player.starting_inventory_orig~=nil then -- give the starting items only in those 2 chapters
                     player.starting_inventory = player.starting_inventory_orig
                     if player.starting_inventory ~= nil and #player.starting_inventory > 0 and player.components.inventory ~= nil then -- code taken from NewSpawn within player_common.lua
                         player.components.inventory.ignoresound = true
@@ -226,7 +300,7 @@ _G.TUNING.TELEPORTATOMOD.functionatplayerfirstspawn = function(player) -- called
                 print("functionatplayerfirstspawn, level:"..tostring(_G.TUNING.TELEPORTATOMOD.LEVEL).." chapter:"..tostring(_G.TUNING.TELEPORTATOMOD.CHAPTER))
                 if _G.TUNING.ADV_DIFFICULTY~=0 and _G.TUNING.ADV_DIFFICULTY~=3 then -- spawn some helpful stuff for starting players, at least on easy and default difficutly
                     adv_helpers.FuelNearFires(player) -- always fuel nerby fires to help new starting players a bit
-                    if _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Maxwells Door" and GetModConfigData("sandboxpreconfigured") then
+                    if _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Maxwells Door" and _G.TUNING.TELEPORTATOMOD.sandboxpreconfigured then 
                         local chest = adv_helpers.SpawnPrefabAtLandPlotNearInst("backpack",player,15,0,15,1,3,3)
                         adv_helpers.AddScenario(chest,"chest_random_good")
                         adv_helpers.SpawnPrefabAtLandPlotNearInst("cutgrass",player,15,0,15,6/_G.TUNING.ADV_DIFFICULTY,3,3)
@@ -289,13 +363,13 @@ end
 
 
 local function ConnectWormholes(x,y)
-    if _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole"..tostring(x)]~=nil and _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole"..tostring(y)]~=nil then
-        _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole"..tostring(x)].components.teleporter.targetTeleporter = _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole"..tostring(y)]
-        _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole"..tostring(y)].components.teleporter.targetTeleporter = _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole"..tostring(x)]
+    if adv_savewormholes["wormhole"..tostring(x)]~=nil and adv_savewormholes["wormhole"..tostring(y)]~=nil and adv_savewormholes["wormhole"..tostring(x)]:IsValid() and adv_savewormholes["wormhole"..tostring(y)]:IsValid() then
+        adv_savewormholes["wormhole"..tostring(x)].components.teleporter.targetTeleporter = adv_savewormholes["wormhole"..tostring(y)]
+        adv_savewormholes["wormhole"..tostring(y)].components.teleporter.targetTeleporter = adv_savewormholes["wormhole"..tostring(x)]
         return true,true
     end
     print("Adventure Mod: ERROR was not able to connect all wormholes, cause at least one (non starting and ending) island has less than 2 wormholes")
-    return _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole"..tostring(x)]~=nil,_G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole"..tostring(y)]~=nil
+    return adv_savewormholes["wormhole"..tostring(x)]~=nil,adv_savewormholes["wormhole"..tostring(y)]~=nil
 end
 
 _G.TUNING.TELEPORTATOMOD.functionpostloadworldONCE = function(world) -- only called for server and after everything is loaded
@@ -307,11 +381,11 @@ _G.TUNING.TELEPORTATOMOD.functionpostloadworldONCE = function(world) -- only cal
             if world:HasTag("forest") then
                 print("functionpostloadworldONCE, level:"..tostring(_G.TUNING.TELEPORTATOMOD.LEVEL).." chapter:"..tostring(_G.TUNING.TELEPORTATOMOD.CHAPTER))
                 if _G.TUNING.ADV_DIFFICULTY~=0 and _G.TUNING.ADV_DIFFICULTY~=3 then -- spawn some helpful stuff
-                    if _G.TUNING.TELEPORTATOMOD.CHAPTER~=6 then -- everytime except in the last chosen world
+                    if _G.TUNING.TELEPORTATOMOD.CHAPTER~=7 then -- everytime except in the last chosen world
                         local x,y,z = world.components.playerspawner.GetAnySpawnPoint() -- we only have one starting position
                         local spawnpointpos = _G.Vector3(x ,y ,z )
                         local fire = adv_helpers.SpawnPrefabAtLandPlotNearInst("firepit",spawnpointpos,7,0,7,1,3,3)
-                        if _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Maxwells Door" and GetModConfigData("sandboxpreconfigured") then -- in lvl 1 add a pond to get some food
+                        if _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Maxwells Door" and _G.TUNING.TELEPORTATOMOD.sandboxpreconfigured then -- in lvl 1 add a pond to get some food
                             adv_helpers.SpawnPrefabAtLandPlotNearInst("pond",spawnpointpos,30,0,30,1,15,15)
                             adv_helpers.SpawnPrefabAtLandPlotNearInst("rock_ice",spawnpointpos,50,0,50,4/_G.TUNING.ADV_DIFFICULTY,20,20)
                             adv_helpers.SpawnPrefabAtLandPlotNearInst("rabbithole",spawnpointpos,50,0,50,10/_G.TUNING.ADV_DIFFICULTY,20,20)
@@ -337,14 +411,14 @@ _G.TUNING.TELEPORTATOMOD.functionpostloadworldONCE = function(world) -- only cal
                             adv_helpers.SpawnPrefabAtLandPlotNearInst("rock2",spawnpointpos,150,0,150,12/_G.TUNING.ADV_DIFFICULTY,15,15) -- gold boulder
                         end
                     end
-                elseif _G.TUNING.ADV_DIFFICULTY~=3 then
+                elseif GetModConfigData("withocean")=="ocean" then -- every difficulty, otherwise it might be impossible without wormholes
                     if _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Archipelago" then
                         adv_helpers.SpawnPrefabAtLandPlotNearInst("rock1",spawnpointpos,150,0,150,5,15,15) -- some stone boulder
                         adv_helpers.SpawnPrefabAtLandPlotNearInst("rock2",spawnpointpos,150,0,150,5,15,15) -- gold boulder
                     end
                 end
                 world:DoTaskInTime(1,function() -- do the following after everything is finally done
-                    if _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole1"]~=nil and _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole10"]~=nil then -- for whatever reason we have no wormholes in any map anymore?!
+                    if (GetModConfigData("withocean")=="wormholes" or GetModConfigData("withocean")=="oceanwormholes") and adv_savewormholes["wormhole1"]~=nil and adv_savewormholes["wormhole10"]~=nil then
                         local islandtasks = { "IslandHop_Start", "IslandHop_Hounds", "IslandHop_Forest", "IslandHop_Savanna", "IslandHop_Rocky", "IslandHop_Merm" }
                         if _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Archipelago" then -- an odd number is leaving the island and an even number is entering the island
                             print("Adventure archipelago connect wormholes..")
@@ -371,7 +445,7 @@ for _,piece in ipairs(shadow_pieces) do
             return
         end
         inst:DoTaskInTime(2,function()
-            if _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Checkmate" and inst~=nil and inst:IsValid() then
+            if _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Checkmate" and inst:IsValid() then
                 inst.OnEntitySleep = nil -- no despawn for them
                 inst:OnEntityWake()
             end
@@ -385,10 +459,11 @@ local function MCutsceneClient(player)
         local throne = _G.TheSim:FindFirstEntityWithTag("maxwellthrone") -- on client this has only short range, but still better than nothing..
         -- throne = nil -- test the worst case
         if throne~=nil then -- if nil there still will be the server code, although it might look a bit odd
-            throne.startthread(throne,nil,CLIENT_SIDE)
+            throne.startthread(throne,CLIENT_SIDE)
         end
     end
 end
+
 
 AddPlayerPostInit(function(player)
     player.mynetvardolevelspeech = _G.net_bool(player.GUID, "dolevelspeechNetStuff", "DirtyEventdolevelspeech") -- true or false
@@ -401,14 +476,14 @@ AddPlayerPostInit(function(player)
         player:ListenForEvent("DirtyEventdolevelspeech", function(player) print("set dolevelspeech for client to "..tostring(player.mynetvardolevelspeech:value()));player.dolevelspeech = player.mynetvardolevelspeech:value() end) -- also set up for client
         player:ListenForEvent("DirtyEventMCutscene", MCutsceneClient)
     end
-    player:DoTaskInTime(1, function(player)
+    player:DoTaskInTime(0, function(player)
         if _G.TUNING.TELEPORTATOMOD.LEVEL~=nil then
             if _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Checkmate" then -- has to be done everytime
-                _G.TheCamera:SetHeadingTarget(225) -- rotate the camera for every player making south at the top (world was rotated for whatever reason)
+                _G.TheCamera:SetHeadingTarget(225) -- rotate the camera for every player making south at the top (we removed maxwellcamera, thats why we have to do it)
             end
         end
     end)
-    if not _G.TUNING.TELEPORTATOMOD.getstartingitems then
+    if _G.TUNING.TELEPORTATOMOD.getstartingitems==false then
         player.starting_inventory_orig = player.starting_inventory -- save it and give it within functionatplayerfirstspawn if the chapter is 0 or 1
         player.starting_inventory = {} -- dont give starting items generally
     end
@@ -447,57 +522,111 @@ local function GetRoom(entity) -- written by ptr, thanks.
     end
     return _G.TheWorld.topology.ids[closestid]
 end
-
-
--- we need at least 10 wormhole, to be able to connect all 6 islands.
--- the game will create up to 12 holes (2 for every island) but it may happen that 1 or 2 are not successfully placed.
--- we will only connect 10 of them, so if 2 are leftover they simply are not usuable, that is okay (or we could remove them)
-
-
--- for whatever reason we have no wormholes in any map anymore?!
-_G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES = {} -- remember the wormholes and connect them in world post init
+-- TheWorld.components.adventurejump:DoJump()
+-- _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES = {} -- remember the wormholes and connect them in world post init
+adv_savewormholes = {}  -- remember the wormholes and connect them in world post init
 AddPrefabPostInit("wormhole",function(inst)
-    if inst.components.teleporter then
-        inst:DoTaskInTime(0.5,function(inst) -- do it after _G.TUNING.TELEPORTATOMOD.LEVEL is checked (0.001) and before ARCHIPELWORMHOLES are used 0.1
-            local taskandroom = ""
-            if _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Archipelago" then
-                taskandroom = GetRoom(inst) -- eg "IslandHop_Start:2:SpiderMarsh"                
-                if string.find(taskandroom,"IslandHop_Start") and not _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole1"] then
-                    _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole1"] = inst
-                elseif string.find(taskandroom,"IslandHop_Hounds") and not _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole2"] then
-                    _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole2"] = inst
-                elseif string.find(taskandroom,"IslandHop_Hounds") and not _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole3"] then
-                    _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole3"] = inst
-                elseif string.find(taskandroom,"IslandHop_Forest") and not _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole4"] then
-                    _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole4"] = inst
-                elseif string.find(taskandroom,"IslandHop_Forest") and not _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole5"] then
-                    _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole5"] = inst
-                elseif string.find(taskandroom,"IslandHop_Savanna") and not _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole6"] then
-                    _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole6"] = inst
-                elseif string.find(taskandroom,"IslandHop_Savanna") and not _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole7"] then
-                    _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole7"] = inst
-                elseif string.find(taskandroom,"IslandHop_Rocky") and not _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole8"] then
-                    _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole8"] = inst
-                elseif string.find(taskandroom,"IslandHop_Rocky") and not _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole9"] then
-                    _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole9"] = inst
-                elseif string.find(taskandroom,"IslandHop_Merm") and not _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole10"] then
-                    _G.TUNING.TELEPORTATOMOD.ARCHIPELWORMHOLES["wormhole10"] = inst
-                end
-            elseif _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Two Worlds" then -- there we only have 2 wormholes
-                taskandroom = GetRoom(inst)
-                if _G.TheWorld.firsttwoworldswormhole==nil and string.find(taskandroom,"Land of Plenty") then
-                    _G.TheWorld.firsttwoworldswormhole = inst
-                elseif _G.TheWorld.firsttwoworldswormhole~=nil and string.find(taskandroom,"The other side") and _G.TheWorld.firsttwoworldswormhole.components.teleporter.targetTeleporter==nil then
-                    inst.components.teleporter.targetTeleporter = _G.TheWorld.firsttwoworldswormhole
-                    _G.TheWorld.firsttwoworldswormhole.components.teleporter.targetTeleporter = inst
+    if SERVER_SIDE and inst.components.teleporter then
+        inst:DoTaskInTime(0.5,function(inst) -- do it after _G.TUNING.TELEPORTATOMOD.LEVEL is checked (0.001) and before adv_savewormholes are used 0.1
+            if (GetModConfigData("withocean")=="wormholes" or GetModConfigData("withocean")=="oceanwormholes") then
+                print("execute wormhole saving if world with wormholes...level "..tostring(_G.TUNING.TELEPORTATOMOD.LEVEL))
+                local taskandroom = ""
+                if _G.TUNING.TELEPORTATOMOD.LEVEL~=nil and _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL]~=nil then
+                    if _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Archipelago" then
+                        print("save wormholes")
+                        taskandroom = GetRoom(inst) -- eg "IslandHop_Start:2:SpiderMarsh"                
+                        if string.find(taskandroom,"IslandHop_Start") and (adv_savewormholes["wormhole1"]==nil or not adv_savewormholes["wormhole1"]:IsValid()) then
+                            adv_savewormholes["wormhole1"] = inst
+                        elseif string.find(taskandroom,"IslandHop_Hounds") and (adv_savewormholes["wormhole2"]==nil or not adv_savewormholes["wormhole2"]:IsValid()) then
+                            adv_savewormholes["wormhole2"] = inst
+                        elseif string.find(taskandroom,"IslandHop_Hounds") and (adv_savewormholes["wormhole3"]==nil or not adv_savewormholes["wormhole3"]:IsValid()) then
+                            adv_savewormholes["wormhole3"] = inst
+                        elseif string.find(taskandroom,"IslandHop_Forest") and (adv_savewormholes["wormhole4"]==nil or not adv_savewormholes["wormhole4"]:IsValid()) then
+                            adv_savewormholes["wormhole4"] = inst
+                        elseif string.find(taskandroom,"IslandHop_Forest") and (adv_savewormholes["wormhole5"]==nil or not adv_savewormholes["wormhole5"]:IsValid()) then
+                            adv_savewormholes["wormhole5"] = inst
+                        elseif string.find(taskandroom,"IslandHop_Savanna") and (adv_savewormholes["wormhole6"]==nil or not adv_savewormholes["wormhole6"]:IsValid()) then
+                            adv_savewormholes["wormhole6"] = inst
+                        elseif string.find(taskandroom,"IslandHop_Savanna") and (adv_savewormholes["wormhole7"]==nil or not adv_savewormholes["wormhole7"]:IsValid()) then
+                            adv_savewormholes["wormhole7"] = inst
+                        elseif string.find(taskandroom,"IslandHop_Rocky") and (adv_savewormholes["wormhole8"]==nil or not adv_savewormholes["wormhole8"]:IsValid()) then
+                            adv_savewormholes["wormhole8"] = inst
+                        elseif string.find(taskandroom,"IslandHop_Rocky") and (adv_savewormholes["wormhole9"]==nil or not adv_savewormholes["wormhole9"]:IsValid()) then
+                            adv_savewormholes["wormhole9"] = inst
+                        elseif string.find(taskandroom,"IslandHop_Merm") and (adv_savewormholes["wormhole10"]==nil or not adv_savewormholes["wormhole10"]:IsValid()) then
+                            adv_savewormholes["wormhole10"] = inst
+                        end
+                    elseif _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Two Worlds" then -- there we only have 2 wormholes
+                        taskandroom = GetRoom(inst)
+                        print("connect wormholes")
+                        if _G.TheWorld.firsttwoworldswormhole==nil and string.find(taskandroom,"Land of Plenty") then
+                            _G.TheWorld.firsttwoworldswormhole = inst
+                        elseif _G.TheWorld.firsttwoworldswormhole~=nil and string.find(taskandroom,"The other side") and _G.TheWorld.firsttwoworldswormhole.components.teleporter.targetTeleporter==nil then
+                            inst.components.teleporter.targetTeleporter = _G.TheWorld.firsttwoworldswormhole
+                            _G.TheWorld.firsttwoworldswormhole.components.teleporter.targetTeleporter = inst
+                        end
+                    end
                 end
             end
         end)
         inst:DoTaskInTime(2,function(inst)
             if inst.components.teleporter.targetTeleporter==nil then
                 inst:Remove()
+            else
+                local pt = inst:GetPosition()
+                if adv_helpers.IsNearOcean(pt.x,pt.y,pt.z, 2) then
+                    local success = false
+                    success = adv_helpers.MoveInstAtLandPlotNearInst(inst,inst,8,0,8,4,4,2) -- move it a bit so it is not that near the ocean (otherwise player might fall into ocean)
+                    if not success then
+                        success = adv_helpers.MoveInstAtLandPlotNearInst(inst,inst,15,0,15,6,6,2) -- try again with bigger moves
+                    end
+                end
             end
+            
         end)
     end
 end)
 
+
+-- following code from Baku/Loki99, thanks
+local sitonthrone =
+    _G.State{ 
+        name = "throne_sit",
+        tags = { "busy", "nopredict", "nomorph" },
+        onenter = function(inst)
+            inst.components.locomotor:StopMoving()
+            inst.AnimState:Hide("ARM_carry") 
+            inst.AnimState:Show("ARM_normal")
+            inst.AnimState:PlayAnimation("appear")
+            inst.AnimState:PushAnimation("throne_loop", true)
+        end,
+    }
+AddStategraphState("wilson", sitonthrone) -- instead of spawning a puppet, we simply put the real player char on the throne
+AddStategraphState("wilson_client", sitonthrone)
+local danceplayers =
+    _G.State{ 
+        name = "shadowdance",
+        tags = { "busy", "nopredict", "nomorph" },
+        onenter = function(inst)
+            inst:ClearBufferedAction()
+                        inst.components.locomotor:StopMoving()
+        if inst.components.playercontroller ~= nil then
+                inst.components.playercontroller:Enable(false)
+        end
+            if inst.AnimState:IsCurrentAnimation("run_pst") then
+                inst.AnimState:PushAnimation("emoteXL_pre_dance0")
+            else
+                inst.AnimState:PlayAnimation("emoteXL_pre_dance0")
+            end
+            inst.AnimState:PushAnimation("emoteXL_loop_dance0", true)
+        end,
+    }
+AddStategraphState("wilson", danceplayers) -- other players who will not sit on throne will shadowdance
+AddStategraphState("wilson_client", danceplayers)
+
+
+
+
+
+
+-----------------------------------------------------------------------------------------------------------------

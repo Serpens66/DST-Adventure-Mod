@@ -3,7 +3,7 @@ description = "[BETA]\nRequires my Teleportato mod!\n\nOvercome challenging worl
 author = "Serpens"
 forumthread = ""
 
-version = "0.94"
+version = "0.95"
 api_version = 10
 
 dst_compatible = true
@@ -16,11 +16,24 @@ icon = "modicon.tex"
 
 priority = 9000 -- load before the teleportato mod
 
+--These tags allow the server running this mod to be found with filters from the server listing screen
+server_filter_tags = {"adventure","adventure mode","adventurejump","teleportato","worldgen","worldjump","worldhopping"}
 
 
 configuration_options = 
 {
 	{
+		name = "experimentalcode",
+		label = "Testcode",
+		hover = "Enable if you want to test new features that could include bugs. See modpage for details.",
+		options = 
+		{
+            {description = "disabled", data = false, hover=""},
+            {description = "enabled", data = true, hover=""},
+        },                   
+		default = false,
+    },
+    {
 		name = "difficulty",
 		label = "Difficulty",
 		hover = "You also can set this to DS! Dont change this for a running game.",
@@ -47,13 +60,25 @@ configuration_options =
     {
 		name = "repickcharacter",
 		label = "Repick character?",
-		hover = "Currently not working, only effect is that at chapter 2 and onwards you wont get characters starting items",
+		hover = "[TEST] Repick character after worldjump? If disabled, you also wont receive character-startitems for chapter 2 and onwards.",
 		options = 
 		{
-            {description = "repick", data = true, hover="will get starting items of chosen character everytime"},
-            {description = "no repick", data = false, hover="wont get starting items of chosen character for chapter 2 and onwards"},
+            {description = "no repick", data = false, hover="Always same character and no startitems for chapter 2 and onwards"},
+            {description = "repick", data = true, hover="Able to repick character and get startitems every time."},
         },                   
 		default = false,
+    },
+    {
+		name = "withocean",
+		label = "Ocean?",
+		hover = "Worlds with or without ocean? (wormholes will only spawn on island worlds)",
+		options = 
+		{
+            {description = "only wormholes", data = "wormholes", hover="no ocean, so no boats, just like in DS with wormholes"},
+            {description = "only ocean", data = "ocean", hover="with ocean, without wormholes, so you have to use boats."},
+            {description = "ocean and wormholes", data = "oceanwormholes", hover="with ocean and wormholes, so you can also use boats."},
+        },                   
+		default = "oceanwormholes",
     },
     {
 		name = "null_option",

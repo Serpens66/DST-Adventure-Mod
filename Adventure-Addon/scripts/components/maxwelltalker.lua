@@ -1,4 +1,4 @@
-local helpers = _G.require("tele_helpers") 
+local helpers = require("adv_helpers") 
 
 local MaxwellTalker = Class(function(self, inst)
 	self.inst = inst
@@ -147,10 +147,6 @@ function MaxwellTalker:DoTalk(CLIENT_SIDE,dolevelspeech)
             end)
         end	
         
-    end
-    if self.speech == "SANDBOX_1" and CLIENT_SIDE then
-        self.inst.wilson.components.talker:ShutUp()
-        self.inst.wilson.components.talker:Say(_G.GetRandomItem({"We have to find maxwells door!","Somewhere in this area we will find maxwells door","Lets find maxwells door"}))
     end
     if self.inst:IsValid() and self.inst.speech.disappearanim then
         self.inst:DoTaskInTime(1.0,function() if self.inst:IsValid() then self.inst:Remove() end end)

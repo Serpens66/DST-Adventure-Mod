@@ -59,6 +59,65 @@ local function exists_in_table(var,G)
 end
 helpers["exists_in_table"] = exists_in_table
 
+ -- Made to work with (And return) array-style tables
+-- This function does not preserve the original table
+local function MyPickSome(num, choices) -- better function than in util.lua
+	local l_choices = choices
+	local ret = {}
+	if l_choices then -- nil check
+        for i=1,num do
+            if #l_choices > 0 then -- bigger 0 check
+                local choice = math.random(#l_choices)
+                table.insert(ret, l_choices[choice])
+                table.remove(l_choices, choice)
+            end
+        end
+    end
+	return ret
+end
+helpers["MyPickSome"] = MyPickSome
+
+
+local function FindWaterBetweenPoints(p0x, p0y, p1x, p1y)
+	local map = TheWorld.Map
+
+	local dx = math.abs(p1x - p0x)
+	local dy = math.abs(p1y - p0y)
+
+    local ix = p0x < p1x and TILE_SCALE or -TILE_SCALE
+    local iy = p0y < p1y and TILE_SCALE or -TILE_SCALE
+
+    local e = 0;
+    for i = 0, dx+dy - 1 do
+	    if map:IsOceanTileAtPoint(p0x, 0, p0y) then
+			return p0x, 0, p0y -- we only need the coordinates
+		end
+
+        local e1 = e + dy
+        local e2 = e - dx
+        if math.abs(e1) < math.abs(e2) then
+            p0x = p0x + ix
+            e = e1
+		else 
+            p0y = p0y + iy
+            e = e2
+        end
+	end
+
+	return nil
+end
+helpers["FindWaterBetweenPoints"] = FindWaterBetweenPoints
+
+local function IsNearOcean(x,y,z,radius)
+    if FindWaterBetweenPoints(x,z,x+radius,z+radius) or FindWaterBetweenPoints(x,z,x-radius,z-radius) or FindWaterBetweenPoints(x,z,x-radius,z+radius) or 
+    FindWaterBetweenPoints(x,z,x+radius,z-radius) or FindWaterBetweenPoints(x,z,x+radius,z) or FindWaterBetweenPoints(x,z,x-radius,z) or 
+    FindWaterBetweenPoints(x,z,x,z+radius) or FindWaterBetweenPoints(x,z,x,z-radius) then
+        return true
+    end
+    return false
+end
+helpers["IsNearOcean"] = IsNearOcean
+
 
 -- #################################################
 ------------------ Game Helpers Get Info --------------------
@@ -66,7 +125,7 @@ helpers["exists_in_table"] = exists_in_table
 
 local _T = TUNING
 
-local function SpawnPrefabAtLandPlotNearInst(prefab,loc,x,y,z,times,xmin,zmin) -- xmin and zmin are the mind distance it should have to the given position
+local function SpawnPrefabAtLandPlotNearInst(prefab,loc,x,y,z,times,xmin,zmin,landradius) -- xmin and zmin are the mind distance it should have to the given position
     -- print("Spawn "..tostring(prefab).." near "..tostring(loc).." times: "..tostring(times))
     if prefab==nil or loc==nil or type(prefab)~="string" then
         print("Teleportato: Spawnprefab is "..tostring(prefab).." instead of a prefab string? or loc is nil: "..tostring(loc).."... error")
@@ -79,7 +138,7 @@ local function SpawnPrefabAtLandPlotNearInst(prefab,loc,x,y,z,times,xmin,zmin) -
         pos = loc
     end
     x = x or 5
-    y = y or 0
+    y = y or 0 -- should be 0 most of the time, it is the height
     z = z or 5
     xmin = xmin or 3
     zmin = zmin or 3
@@ -100,7 +159,7 @@ local function SpawnPrefabAtLandPlotNearInst(prefab,loc,x,y,z,times,xmin,zmin) -
             xn = (xn>=0 and xn<=xmin and xn+xmin) or (xn<0 and xn>=-xmin and xn-xmin) or xn -- dont be between -1 and 1, because this is too near
             zn = (zn>=0 and zn<=zmin and zn+zmin) or (zn<0 and zn>=-zmin and zn-zmin) or zn
             tp_pos = pos + Vector3(xn ,GetRandomWithVariance(0,y) ,zn  )
-            if TheWorld.Map:IsAboveGroundAtPoint(tp_pos:Get()) then
+            if (landradius==nil and TheWorld.Map:IsAboveGroundAtPoint(tp_pos:Get())) or (landradius~=nil and not IsNearOcean(tp_pos.x,tp_pos.y,tp_pos.z,landradius)) then
                 found = true
                 break
             end
@@ -121,6 +180,52 @@ local function SpawnPrefabAtLandPlotNearInst(prefab,loc,x,y,z,times,xmin,zmin) -
     return spawn -- does only return the last spawn, if times is higher than 1
 end
 helpers["SpawnPrefabAtLandPlotNearInst"] = SpawnPrefabAtLandPlotNearInst
+
+
+local function MoveInstAtLandPlotNearInst(inst,loc,x,y,z,xmin,zmin,landradius) -- xmin and zmin are the mind distance it should have to the given position
+    -- print("Spawn "..tostring(inst).." near "..tostring(loc).." times: "..tostring(times))
+    if inst==nil or loc==nil or not inst:IsValid() then
+        print("Teleportato: inst is "..tostring(inst).." ? or loc is nil: "..tostring(loc).."... error")
+        return nil 
+    end
+    local pos = nil
+    if loc.prefab then    
+        pos = loc:GetPosition()
+    else -- loc can also be a position already
+        pos = loc
+    end
+    x = x or 5
+    y = y or 0 -- should be 0 most of the time, it is the height
+    z = z or 5
+    xmin = xmin or 3
+    zmin = zmin or 3
+    local xn = 0
+    local zn = 0
+    local found = false
+    local tp_pos
+    local attempts = 100
+    local spawn = nil
+    while attempts > 0 do
+        xn = GetRandomWithVariance(0,x)
+        zn = GetRandomWithVariance(0,z)
+        xn = (xn>=0 and xn<=xmin and xn+xmin) or (xn<0 and xn>=-xmin and xn-xmin) or xn -- dont be between -1 and 1, because this is too near
+        zn = (zn>=0 and zn<=zmin and zn+zmin) or (zn<0 and zn>=-zmin and zn-zmin) or zn
+        tp_pos = pos + Vector3(xn ,GetRandomWithVariance(0,y) ,zn  )
+        if (landradius==nil and TheWorld.Map:IsAboveGroundAtPoint(tp_pos:Get())) or (landradius~=nil and not IsNearOcean(tp_pos.x,tp_pos.y,tp_pos.z,landradius)) then
+            found = true
+            break
+        end
+        attempts = attempts - 1
+    end
+    if found then
+        inst.Transform:SetPosition(tp_pos:Get())
+    else
+        print("MoveInstAtLandPlotNearInst: failed to move "..tostring(inst).." to valid location..")
+    end
+    return found
+end
+helpers["MoveInstAtLandPlotNearInst"] = MoveInstAtLandPlotNearInst
+
 
 local function CheckHowManyPlayers(inst) -- inst is teleportato and this checks how many are near to it
     local x, y, z = inst.Transform:GetWorldPosition() 

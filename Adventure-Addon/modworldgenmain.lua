@@ -2,7 +2,10 @@
 local _G = GLOBAL
 print("HIER WORLDGEN adv")
 
- 
+GLOBAL.package.loaded["librarymanager"] = nil -- use this libary to force enabling the teleportato mod.
+local AutoSubscribeAndEnableWorkshopMods = GLOBAL.require("librarymanager")
+AutoSubscribeAndEnableWorkshopMods({"workshop-756229217"}) -- workshop-756229217
+
 -- GLOBAL values are seperated for forest and cave, so make sure that they are always set up equally or keep in mind that they might be different.
 -- LEVEL and CHAPTER should be the same in cave like in overworld, but not tested yet.
 
@@ -12,7 +15,7 @@ print("HIER WORLDGEN adv")
 -- Explanations:
 
 -- Level is the number of chosen map. There can be unlimited maps. starts at 1
--- Chapter: starts at 0. max number is 6. ->Only 7 maps are chosen from the level list.
+-- Chapter: starts at 1. max number is 7. ->Only 7 maps are chosen from the level list.
 -- for testing you can do TheWorld.components.adventurejump:DoJump() within console
 -- to see what overrides you can choose for your world, see scripts\map\customise.lua
 
@@ -28,162 +31,32 @@ print("HIER WORLDGEN adv")
 -- you can define the tasks where to palce the teleportato parts tasksetdata.set_pieces[layout] = { count = 1, tasks=allTasks} within your taskdatafunction.
 -- only forest will have the worldjump component, so only forest should have a teleportato_base.
 -- if it is nil for a layout from teleportato_layouts, a random task will be chosen. You can find all existing tasks in scripts\map\tasks folder or create your own.
+-- do not use tasksetdata.ordered_story_setpieces, since this is only made to work with original DS adventure worlds. Only use it if you know what you are doing.
+-- use taskdata.set_pieces instead for normal set_pieces and add_teleportato for the teleportato stuff (to place them randomly)
 
 -- currently it only supports two worlds: forest and cave, but you can change them to your liking. If you want to add more worlds with different names, 
 -- the teleportato mod code has to be adjusted, although I already made sure to use "forest" and "cave" as less as possible.
 
--- do not use tasksetdata.ordered_story_setpieces, since this is only made to work with original DS adventure worlds. Only use it if you know what you are doing.
--- use taskdata.set_pieces instead for normal set_pieces and add_teleportato for the tele stuff.
+
 
 -- do not use "_G.TUNING.TELEPORTATOMOD.LEVEL == x" within your code, use instead _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="mylevel"
 
 ------------------------------------------------------------------
 
 
-
 local require = _G.require
-local StaticLayout = require("map/static_layout")
 
-local function GetStaticLayout(name)
-    return StaticLayout.Get("map/static_layouts/"..name, {
-            start_mask = _G.PLACE_MASK.IGNORE_IMPASSABLE_BARREN,
-            fill_mask = _G.PLACE_MASK.IGNORE_IMPASSABLE_BARREN_RESERVED,})
-end
-
--- load some custom layouts
-local LLayouts = _G.require("map/layouts").Layouts
-LLayouts["WesUnlock"] = GetStaticLayout("wes_unlock")
-LLayouts["TeleportatoRingLayoutSanityRocks"] = _G.require("map/layouts/TeleportatoRingLayoutSanityRocks")
-LLayouts["DefaultStartMaxwellHome"] = GetStaticLayout("default_startmaxwellhome")
-LLayouts["AdventurePortalLayoutNew"] = GetStaticLayout("adventure_portal_layoutnew")
-LLayouts["NightmareStart_new"] = GetStaticLayout("nightmare_new") -- added spawnpoint_master and removed items, since items are now contributed for each player in modmain
-LLayouts["PreSummerStart_new"] = GetStaticLayout("presummer_start_new") -- also the not "new" files got a spawnpoint_master, but kept items, to allow DS like mode.
-LLayouts["WinterStartEasy_new"] = GetStaticLayout("winter_start_easy_new")
-LLayouts["BargainStart_new"] = GetStaticLayout("bargain_start_new")
-LLayouts["WinterStartMedium_new"] = GetStaticLayout("winter_start_medium_new")
-LLayouts["Wormhole_Mod"] = GetStaticLayout("wormhole_mod") -- just a single wormhole
-LLayouts["Wormhole_Mod2"] = GetStaticLayout("wormhole_mod") -- just a single wormhole
-LLayouts["Wormhole_Mod3"] = GetStaticLayout("wormhole_mod") -- just a single wormhole
-
-LLayouts["NightmareStartFixed"] = GetStaticLayout("nightmare_fixed") -- original except necessary adjustments
-
-LLayouts["PreSummerStartFixed"] = GetStaticLayout("presummer_start_fixed") 
-LLayouts["WinterStartEasyFixed"] = GetStaticLayout("winter_start_easy_fixed")
-LLayouts["BargainStartFixed"] = GetStaticLayout("bargain_start_fixed")
-LLayouts["WinterStartMediumFixed"] = GetStaticLayout("winter_start_medium_fixed")
-LLayouts["ThisMeansWarStartFixed"] = GetStaticLayout("thismeanswar_start_fixed")
-LLayouts["MaxwellHomeFixed"] = StaticLayout.Get("map/static_layouts/maxwellhome_fixed", {
-							areas = 
-							{								
-								barren_area = function(area) return _G.PickSomeWithDups( 0.5 * area
-									, {"marsh_tree", "marsh_bush", "rock1", "rock2", "evergreen_burnt", "evergreen_stump"}) end,
-								gold_area = function() return _G.PickSomeWithDups(math.random(15,20), {"goldnugget"}) end,
-								livinglog_area = function() return _G.PickSomeWithDups(math.random(5, 10), {"livinglog"}) end,
-								nightmarefuel_area = function() return _G.PickSomeWithDups(math.random(5, 10), {"nightmarefuel"}) end,
-								deadlyfeast_area = function() return _G.PickSomeWithDups(math.random(25,30), {"monstermeat", "green_cap", "red_cap", "spoiled_food", "meat"}) end,
-								marblegarden_area = function(area) return _G.PickSomeWithDups(1.5*area, {"marbletree", "flower_evil"}) end,
-							},
-							start_mask = _G.PLACE_MASK.IGNORE_IMPASSABLE_BARREN_RESERVED,
-							fill_mask = _G.PLACE_MASK.IGNORE_IMPASSABLE_BARREN_RESERVED,
-							layout_position = _G.LAYOUT_POSITION.CENTER,
-							disable_transform = true
-						})
-
-AddRoomPreInit("MaxHome", function(room) room.contents.countstaticlayouts = {["MaxwellHomeFixed"] = 1} end)
-
+modimport("scripts/tasksroomslayouts") -- load some custom map stuff
 
 if GetModConfigData("difficulty")==0 then
     adventureportal = "AdventurePortalLayout"
 else
     adventureportal = "AdventurePortalLayoutNew" --  has some clockworks, skeletons and a maxwelllight
 end
+local adventure1_setpieces_tasks = {"Easy Blocked Dig that rock","Great Plains","Guarded Speak to the king","Waspy Beeeees!","Guarded Squeltch","Guarded Forest hunters","Befriend the pigs","Guarded For a nice walk","Walled Kill the spiders","Killer bees!","Make a Beehat","Waspy The hunters","Hounded Magic meadow","Wasps and Frogs and bugs","Guarded Walrus Desolate"}
+local required_prefabs = {"chester_eyebone", "spawnpoint_master",}
 
 
-local adventure1_setpieces_tasks = {
-            "Easy Blocked Dig that rock",
-            "Great Plains",
-            "Guarded Speak to the king",
-            "Waspy Beeeees!",
-            "Guarded Squeltch",
-            "Guarded Forest hunters",
-            "Befriend the pigs",
-            "Guarded For a nice walk",
-            "Walled Kill the spiders",
-            "Killer bees!",
-            "Make a Beehat",
-            "Waspy The hunters",
-            "Hounded Magic meadow",
-            "Wasps and Frogs and bugs",
-            "Guarded Walrus Desolate"
-        }
-
-
-local required_prefabs = {
-            "chester_eyebone", "spawnpoint_master",
-        }
-
-
-local start1 = "WinterStartEasy_new"
-local start2 = "WinterStartMedium_new"
-local start3 = "PreSummerStart_new"
-local start4 = "ThisMeansWarStartFixed"--"DefaultStart" --"ThisMeansWarStart" gibts kein new
-local start5 = "BargainStart_new"
-local start6 = "NightmareStart_new"
-local start7 = "DefaultStartMaxwellHome" -- ist new, gibts kein alt
-if GetModConfigData("difficulty")==0 then -- DS
-    start1 = "WinterStartEasyFixed"
-    start2 = "WinterStartMediumFixed"
-    start3 = "PreSummerStartFixed"
-    start4 = "ThisMeansWarStartFixed"--"DefaultStart" 
-    start5 = "BargainStartFixed"
-    start6 = "NightmareStartFixed"
-    start7 = "DefaultStartMaxwellHome"
-end        
-        
-AddStartLocation("adv1", {
-    name = "adv1",
-    location = "forest",
-    start_setpeice  =  start1,	
-    start_node  =  "Forest",
-})        
-AddStartLocation("adv2", {
-    name = "adv2",
-    location = "forest",
-    start_setpeice  =  start2,		
-    start_node  =  "Clearing",
-})
-AddStartLocation("adv3", {
-    name = "adv3",
-    location = "forest",
-    start_setpeice = start3,
-    start_node = "Clearing",
-})
-AddStartLocation("adv4", {
-    name = "adv4",
-    location = "forest",
-    start_setpeice  =  start4,	
-    start_node  =  "BGGrass",
-})
-AddStartLocation("adv5", {
-    name = "adv5",
-    location = "forest",
-    start_setpeice  =  start5,	
-    start_node  =  "Clearing",
-})
-AddStartLocation("adv6", {
-    name = "adv6",
-    location = "forest",
-    start_setpeice  =  start6,	
-    start_node  =  "BGGrass",
-})
-AddStartLocation("adv7", {
-    name = "adv7",
-    location = "forest",
-    start_setpeice  =  start7,	-- for some reason a portal has to exist... but I removed spawnpoint, so the start position is right
-    start_node  =  "MaxHome",  
-})
-
-local _G = GLOBAL
 if not _G.TUNING.TELEPORTATOMOD then
     _G.TUNING.TELEPORTATOMOD = {}
 end
@@ -192,14 +65,13 @@ if not _G.TUNING.TELEPORTATOMOD.WORLDS then
 end
 local WORLDS = _G.TUNING.TELEPORTATOMOD.WORLDS
 
-local adv_helpers = _G.require("adv_helpers") 
 -- we can use GLOBAL.LEVEL and _G.TUNING.TELEPORTATOMOD.CHAPTER as soon as the game started
 -- so do not use it directly in AddPrefabPostInit, but make DoTaskInTime with at least 0.1 within
 
 
 -- testing
--- _G.TUNING.TELEPORTATOMOD.LEVEL_GEN = 8 -- force loading this level, starts at 1 anjd goes up to unlimited (max 63 due to netvars)
--- _G.TUNING.TELEPORTATOMOD.CHAPTER_GEN = 6 -- force loading this chapter, starts at 0 and goes up to 6
+-- _G.TUNING.TELEPORTATOMOD.LEVEL_GEN = 7 -- force loading this level, starts at 1 anjd goes up to unlimited (max 63 due to netvars)
+-- _G.TUNING.TELEPORTATOMOD.CHAPTER_GEN = 6 -- force loading this chapter, starts at 1 and goes up to 7
 -- Sandbox (adventureportal) = 1
 -- A Cold Reception = 2
 -- King of Winter = 3
@@ -255,50 +127,50 @@ if _G.TUNING.TELEPORTATOMOD.teleportato_layouts["cave"]==nil then -- may also be
     end
 end
 
-local function GetRandomSubstituteList( substitutes, num_choices )	
-	local subs = {}
-	local list = {}
+local function GetRandomSubstituteList( substitutes, num_choices )  
+    local subs = {}
+    local list = {}
 
-	for k,v in pairs(substitutes) do 
-		list[k] = v.weight
-	end
+    for k,v in pairs(substitutes) do 
+        list[k] = v.weight
+    end
 
-	for i=1,num_choices do
-		local choice = GLOBAL.weighted_random_choice(list)
-		list[choice] = nil
-		subs[choice] = substitutes[choice]
-	end
+    for i=1,num_choices do
+        local choice = GLOBAL.weighted_random_choice(list)
+        list[choice] = nil
+        subs[choice] = substitutes[choice]
+    end
 
-	return subs
+    return subs
 end
 local SUBS_1= { -- this is replacing stuff, (see resource_sub... gamefile) I don't like it and it seems not working 100%, but at least for DS setting we should use it
-			["evergreen"] = 		{perstory=0.5, 	pertask=1, 		weight=1}, -- weight is for GetRandomSubstituteList to choose x from that list
-			["evergreen_short"] = 	{perstory=1, 	pertask=1, 		weight=1}, -- per story is the chance per area to actually do the substitution
-			["evergreen_normal"] = 	{perstory=1, 	pertask=1, 		weight=1}, -- pertask is the percentage of how many of this prefab is replaced in this area
-			["evergreen_tall"] = 	{perstory=1, 	pertask=1, 		weight=1}, -- BUT Im not able to see this working as it should. even on 1 1 1 there are or are no subistiutions. I dont trust this, so this will only be active for DS difficulty
-			["sapling"] = 			{perstory=0.6, 	pertask=0.95,	weight=1},
-			["beefalo"] = 			{perstory=1, 	pertask=1, 		weight=1},
-			["rabbithole"] = 		{perstory=1, 	pertask=1, 		weight=1},
-			["rock1"] = 			{perstory=0.3, 	pertask=1, 		weight=1},
-			["rock2"] = 			{perstory=0.5, 	pertask=0.8, 	weight=1},
-			["grass"] = 			{perstory=0.5, 	pertask=0.9, 	weight=1},
-			["flint"] = 			{perstory=0.5, 	pertask=1,		weight=1},
-			["spiderden"] =			{perstory=1, 	pertask=1, 		weight=1},
-		}
+            ["evergreen"] =         {perstory=0.5,  pertask=1,      weight=1}, -- weight is for GetRandomSubstituteList to choose x from that list
+            ["evergreen_short"] =   {perstory=1,    pertask=1,      weight=1}, -- per story is the chance per area to actually do the substitution
+            ["evergreen_normal"] =  {perstory=1,    pertask=1,      weight=1}, -- pertask is the percentage of how many of this prefab is replaced in this area
+            ["evergreen_tall"] =    {perstory=1,    pertask=1,      weight=1}, -- BUT Im not able to see this working as it should. even on 1 1 1 there are or are no subistiutions. I dont trust this, so this will only be active for DS difficulty
+            ["sapling"] =           {perstory=0.6,  pertask=0.95,   weight=1},
+            ["beefalo"] =           {perstory=1,    pertask=1,      weight=1},
+            ["rabbithole"] =        {perstory=1,    pertask=1,      weight=1},
+            ["rock1"] =             {perstory=0.3,  pertask=1,      weight=1},
+            ["rock2"] =             {perstory=0.5,  pertask=0.8,    weight=1},
+            ["grass"] =             {perstory=0.5,  pertask=0.9,    weight=1},
+            ["flint"] =             {perstory=0.5,  pertask=1,      weight=1},
+            ["spiderden"] =         {perstory=1,    pertask=1,      weight=1},
+        }
 -- for refernce, this is by what it is replaced: (see resource_sub... gamefile)
-    -- ["rock1"] = 		{"basalt","rock_flintless"},--, "plainrock"},
-	-- ["rock2"] = 		{"basalt","rock_flintless"},--, "plainrock"},
-	-- ["evergreen"] = 	{ "evergreen_stump", "evergreen_sparse", "marsh_tree"}, --, "leif"
-	-- ["evergreen_normal"] = 	{"evergreen_burnt", "evergreen_stump", "evergreen_sparse", "marsh_tree"},-- "leif"}, 
-	-- ["evergreen_short"] = 	{"evergreen_burnt", "evergreen_stump", "evergreen_sparse", "marsh_tree"},-- "leif"}, 
-	-- ["evergreen_tall"] = 	{"evergreen_burnt", "evergreen_stump", "evergreen_sparse", "marsh_tree"},-- "leif"}, 
-	-- ["grass"] 	= 		{"depleted_grass", "flower"},
-	-- ["flint"] 	= 		{"flower"},
-	-- ["sapling"] = 		{"marsh_bush"}, --  "depleted_sapling"},
-	-- ["beefalo"] = 		{"rabbithole"},
-	-- ["rabbithole"] = 	{"beefalo"},
-	-- ["spiderden"] =		{"spiderden_2", "spiderden_3"},
-	-- ["pighouse"] =		{"pigman"},
+    -- ["rock1"] =      {"basalt","rock_flintless"},--, "plainrock"},
+    -- ["rock2"] =      {"basalt","rock_flintless"},--, "plainrock"},
+    -- ["evergreen"] =  { "evergreen_stump", "evergreen_sparse", "marsh_tree"}, --, "leif"
+    -- ["evergreen_normal"] =   {"evergreen_burnt", "evergreen_stump", "evergreen_sparse", "marsh_tree"},-- "leif"}, 
+    -- ["evergreen_short"] =    {"evergreen_burnt", "evergreen_stump", "evergreen_sparse", "marsh_tree"},-- "leif"}, 
+    -- ["evergreen_tall"] =     {"evergreen_burnt", "evergreen_stump", "evergreen_sparse", "marsh_tree"},-- "leif"}, 
+    -- ["grass"]    =       {"depleted_grass", "flower"},
+    -- ["flint"]    =       {"flower"},
+    -- ["sapling"] =        {"marsh_bush"}, --  "depleted_sapling"},
+    -- ["beefalo"] =        {"rabbithole"},
+    -- ["rabbithole"] =     {"beefalo"},
+    -- ["spiderden"] =      {"spiderden_2", "spiderden_3"},
+    -- ["pighouse"] =       {"pigman"},
 
 
 local function AlwaysTinyCave(tasksetdata) -- even if cave was enabled, make it always very tiny, cause we dont need it
@@ -351,8 +223,10 @@ local function AdventurePortalWorld(tasksetdata)
             summer = "veryshortseason",
             keep_disconnected_tiles = true,
             no_joining_islands = true,
-            has_ocean = true,
         }
+        if (GetModConfigData("withocean")=="ocean" or GetModConfigData("withocean")=="oceanwormholes") then
+            tasksetdata.overrides["has_ocean"] = true
+        end
     else -- load normal worldsettings, but with portal
         if tasksetdata.required_setpieces==nil then
             tasksetdata.required_setpieces = {}
@@ -418,9 +292,11 @@ local function AdventureColdReception(tasksetdata) -- A Cold Reception
         spring = "shortseason",
         summer = "noseason",
         keep_disconnected_tiles = true,
-		no_joining_islands = true,
-		has_ocean = true,
+        no_joining_islands = true,
     }
+    if (GetModConfigData("withocean")=="ocean" or GetModConfigData("withocean")=="oceanwormholes") then
+        tasksetdata.overrides["has_ocean"] = true
+    end
     return tasksetdata
 end
 table.insert(_G.TUNING.TELEPORTATOMOD.WORLDS, {name="A Cold Reception", taskdatafunctions={forest=AdventureColdReception, cave=AlwaysTinyCave}, defaultpositions={2,3,4}, positions=GetModConfigData("acoldreception")})
@@ -462,7 +338,7 @@ local function AdventureKingWinter(tasksetdata)
         branching  =  "least",
         
         season_start  =  "winter",
-        weather  =  (GetModConfigData("difficulty")==0 and "often") or (GetModConfigData("difficulty")==1 and "often") or (GetModConfigData("difficulty")==2 and "always") or (GetModConfigData("difficulty")==3 and "always") or "often",		
+        weather  =  (GetModConfigData("difficulty")==0 and "often") or (GetModConfigData("difficulty")==1 and "often") or (GetModConfigData("difficulty")==2 and "always") or (GetModConfigData("difficulty")==3 and "always") or "often",      
         
         deerclops  =  (GetModConfigData("difficulty")==0 and "often") or (GetModConfigData("difficulty")==1 and "default") or (GetModConfigData("difficulty")==2 and "often") or (GetModConfigData("difficulty")==3 and "always") or "often",
         dragonfly  =  "never",
@@ -480,9 +356,11 @@ local function AdventureKingWinter(tasksetdata)
         spring = "noseason",
         summer = "noseason",
         keep_disconnected_tiles = true,
-		no_joining_islands = true,
-		has_ocean = true,
+        no_joining_islands = true,
     }
+    if (GetModConfigData("withocean")=="ocean" or GetModConfigData("withocean")=="oceanwormholes") then
+        tasksetdata.overrides["has_ocean"] = true
+    end
     return tasksetdata
 end
 table.insert(_G.TUNING.TELEPORTATOMOD.WORLDS, {name="King of Winter", taskdatafunctions={forest=AdventureKingWinter, cave=AlwaysTinyCave}, defaultpositions={2,3,4,5}, positions=GetModConfigData("kingofwinter")})
@@ -535,9 +413,11 @@ local function AdventureGameAfoot(tasksetdata)
         spring = "verylongseason",
         summer = "noseason",
         keep_disconnected_tiles = true,
-		no_joining_islands = true,
-		has_ocean = true,
+        no_joining_islands = true,
     }
+    if (GetModConfigData("withocean")=="ocean" or GetModConfigData("withocean")=="oceanwormholes") then
+        tasksetdata.overrides["has_ocean"] = true
+    end
     return tasksetdata
 end
 table.insert(_G.TUNING.TELEPORTATOMOD.WORLDS, {name="The Game is Afoot", taskdatafunctions={forest=AdventureGameAfoot, cave=AlwaysTinyCave}, defaultpositions={2,3,4,5}, positions=GetModConfigData("thegameisafoot")})
@@ -587,10 +467,12 @@ local function AdventureArchipelago(tasksetdata)
         spring = "shortseason",
         summer = "shortseason",
         keep_disconnected_tiles = true,
-		no_wormholes_to_disconnected_tiles = false,
-		no_joining_islands = true,
-		has_ocean = true,
+        no_wormholes_to_disconnected_tiles = false,
+        no_joining_islands = true,
     }
+    if (GetModConfigData("withocean")=="ocean" or GetModConfigData("withocean")=="oceanwormholes") then
+        tasksetdata.overrides["has_ocean"] = true
+    end
     return tasksetdata
 end
 table.insert(_G.TUNING.TELEPORTATOMOD.WORLDS, {name="Archipelago", taskdatafunctions={forest=AdventureArchipelago, cave=AlwaysTinyCave}, defaultpositions={2,3,4,5}, positions=GetModConfigData("archipelago")})
@@ -599,7 +481,7 @@ table.insert(_G.TUNING.TELEPORTATOMOD.WORLDS, {name="Archipelago", taskdatafunct
 local function AdventureTwoWorlds(tasksetdata)
     -- tasksetdata.override_level_string=true -- test out what this does ?
     tasksetdata.tasks = {"Land of Plenty", -- Part 1 - Easy peasy - lots of stuff
-                        "The other side",}	-- Part 2 - Lets kill them off
+                        "The other side",}  -- Part 2 - Lets kill them off
     tasksetdata.required_setpieces = {}
     tasksetdata.numoptionaltasks = 0
     tasksetdata.optionaltasks = {}
@@ -643,27 +525,29 @@ local function AdventureTwoWorlds(tasksetdata)
         spring = "noseason",
         summer = "verylongseason",
         keep_disconnected_tiles = true,
-		no_wormholes_to_disconnected_tiles = false,
-		no_joining_islands = true,
-		has_ocean = true,
+        no_wormholes_to_disconnected_tiles = false,
+        no_joining_islands = true,
     }
+    if (GetModConfigData("withocean")=="ocean" or GetModConfigData("withocean")=="oceanwormholes") then
+        tasksetdata.overrides["has_ocean"] = true
+    end
     return tasksetdata
 end
 table.insert(_G.TUNING.TELEPORTATOMOD.WORLDS, {name="Two Worlds", taskdatafunctions={forest=AdventureTwoWorlds, cave=AlwaysTinyCave}, defaultpositions={4,5}, positions=GetModConfigData("twoworlds")})
 
 
 local function AdventureDarkness(tasksetdata)
-    tasksetdata.tasks = {"Swamp start","Battlefield","Walled Kill the spiders","Sanity-Blocked Spider Queendom",}
+    tasksetdata.tasks = {"Swamp start","Battlefield","Walled Kill the spiders","advSanity-Blocked Spider Queendom",}
     tasksetdata.numoptionaltasks = 2
-    tasksetdata.optionaltasks = {"Killer bees!","Chessworld","Tentacle-Blocked The Deep Forest","Tentacle-Blocked Spider Swamp",
+    tasksetdata.optionaltasks = {"Killer bees!","Chessworld","Tentacle-Blocked The Deep Forest","advTentacle-Blocked Spider Swamp",
         "Trapped Forest hunters","Waspy The hunters","Hounded Magic meadow",}
     tasksetdata.set_pieces = {
             ["RuinedBase"] = {tasks={"Swamp start", "Battlefield", "Walled Kill the spiders", "Killer bees!"}},
-            ["ResurrectionStoneLit"] = { count=4, tasks={"Swamp start", "Battlefield", "Walled Kill the spiders", "Sanity-Blocked Spider Queendom","Killer bees!",
-            "Chessworld","Tentacle-Blocked The Deep Forest", "Tentacle-Blocked Spider Swamp","Trapped Forest hunters","Waspy The hunters","Hounded Magic meadow", }},}
+            ["ResurrectionStoneLit"] = { count=4, tasks={"Swamp start", "Battlefield", "Walled Kill the spiders", "advSanity-Blocked Spider Queendom","Killer bees!",
+            "Chessworld","Tentacle-Blocked The Deep Forest", "advTentacle-Blocked Spider Swamp","Trapped Forest hunters","Waspy The hunters","Hounded Magic meadow", }},}
     if GetModConfigData("difficulty")==0 then
         tasksetdata.substitutes = _G.MergeMaps( {["pighouse"] = {perstory=1,weight=1,pertask=1}}, -- pighouses replaced by pigs (see resource_sub... gamefile)
-								 GetRandomSubstituteList(SUBS_1, 3) )
+                                 GetRandomSubstituteList(SUBS_1, 3) )
     else
         tasksetdata.substitutes = {["pighouse"] = {perstory=1,weight=1,pertask=1}}
     end
@@ -710,10 +594,12 @@ local function AdventureDarkness(tasksetdata)
         spring = "noseason",
         summer = (GetModConfigData("difficulty")==0 and "verylongseason") or (GetModConfigData("difficulty")==1 and "shortseason") or (GetModConfigData("difficulty")==2 and "default") or (GetModConfigData("difficulty")==3 and "verylongseason"),
         keep_disconnected_tiles = true,
-		no_wormholes_to_disconnected_tiles = true,
-		no_joining_islands = true,
-		has_ocean = true,
+        no_wormholes_to_disconnected_tiles = true,
+        no_joining_islands = true,
     }
+    if (GetModConfigData("withocean")=="ocean" or GetModConfigData("withocean")=="oceanwormholes") then
+        tasksetdata.overrides["has_ocean"] = true
+    end
     return tasksetdata
 end
 table.insert(_G.TUNING.TELEPORTATOMOD.WORLDS, {name="Darkness", taskdatafunctions={forest=AdventureDarkness, cave=AlwaysTinyCave}, defaultpositions={6}, positions=GetModConfigData("darkness")})
@@ -751,9 +637,9 @@ local function AdventureMaxwellHome(tasksetdata)
         spring = "noseason",
         summer = "noseason",
         keep_disconnected_tiles = true,
-		no_wormholes_to_disconnected_tiles = true,
-		no_joining_islands = true,
-		has_ocean = true,
+        no_wormholes_to_disconnected_tiles = true,
+        no_joining_islands = true,
+        has_ocean = false, -- always no ocean
     }
     return tasksetdata
 end

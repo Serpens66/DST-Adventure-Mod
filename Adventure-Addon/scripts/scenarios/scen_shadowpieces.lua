@@ -12,10 +12,6 @@ local function OnCreate(inst, scenariorunner)
         end
         for _,prefab in ipairs(prefabs) do
             spawn = helpers.SpawnPrefabAtLandPlotNearInst(prefab,inst,10,0,10,nil,1,1)
-            if spawn~=nil then
-                spawn.OnEntitySleep = nil -- no despawn for them
-                spawn:OnEntityWake()
-            end
         end
     end
 end
