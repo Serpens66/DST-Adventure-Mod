@@ -13,37 +13,39 @@ local function reset(inst)
 end
 
 local function DoTeleport(inst, wilson)	
-	wilson.sg:GoToState("teleportato_teleport")	
+	if inst.teleportposition then
+        wilson.sg:GoToState("teleportato_teleport")	
 
+        local function dowakeup(inst, wilson)
+            wilson.sg:GoToState("wakeup")
+            reset(inst)
+        end
 
-	local function dowakeup(inst, wilson)
-		wilson.sg:GoToState("wakeup")
-		-- TheFrontEnd:Fade(true, 3)
-		reset(inst)
-	end
-
-	local function onsave()
-		scheduler:ExecuteInTime(110*FRAMES, function() 
-			inst.AnimState:PlayAnimation("laugh", false)
-			inst.AnimState:PushAnimation("active_idle", true)
-			inst.SoundEmitter:PlaySound("dontstarve/common/teleportato/teleportato_maxwelllaugh", "teleportato_laugh")
-			-- TheFrontEnd:Fade(false, 3)
-		end)
-		
-		scheduler:ExecuteInTime(110*FRAMES+3, function() 			
-			if inst.teleportposition then
-				inst:DoTaskInTime(3, function() dowakeup(inst, wilson) end)
-				wilson.Transform:SetPosition(inst.teleportposition.Transform:GetWorldPosition())
-				local puppet = TheSim:FindFirstEntityWithTag("maxwellthrone")
-				if puppet and puppet.puppet then 
-					puppet = puppet.puppet
-					if puppet.telefail then	puppet.telefail(puppet) end
-				end
-			end
-		end)
-	end
-	-- wilson.profile:Save(onsave)	
-    onsave()
+        local function onsave(wilson)
+            scheduler:ExecuteInTime(110*FRAMES, function() 
+                inst.AnimState:PlayAnimation("laugh", false)
+                inst.AnimState:PushAnimation("active_idle", true)
+                inst.SoundEmitter:PlaySound("dontstarve/common/teleportato/teleportato_maxwelllaugh", "teleportato_laugh")
+            end)
+            
+            scheduler:ExecuteInTime(110*FRAMES+0, function() 			
+                if inst.teleportposition then
+                    inst:DoTaskInTime(1.8, function() SpawnPrefab("collapse_small").Transform:SetPosition(wilson.Transform:GetWorldPosition()) end)
+                    inst:DoTaskInTime(2, function() dowakeup(inst, wilson) end)
+                    wilson.Transform:SetPosition(inst.teleportposition.Transform:GetWorldPosition())
+                    local puppet = TheSim:FindFirstEntityWithTag("maxwellthrone")
+                    if puppet and puppet.puppet then 
+                        puppet = puppet.puppet
+                        if puppet.telefail then	puppet.telefail(puppet) end
+                    end
+                end
+            end)
+        end
+        onsave(wilson)
+    else
+        print("did not find teleportlocation")
+    end
+    
 end
 
 local function GetStatus(inst)
@@ -65,12 +67,12 @@ local function OnActivate(inst,doer)
 		end)
 
 		inst:DoTaskInTime(2.0, function()
-			-- DoTeleport(inst, doer)
+			DoTeleport(inst, doer)
             
-            inst.AnimState:PlayAnimation("laugh", false)
-			inst.AnimState:PushAnimation("active_idle", true)
-			inst.SoundEmitter:PlaySound("dontstarve/common/teleportato/teleportato_maxwelllaugh", "teleportato_laugh")
-            inst:DoTaskInTime(3,function() TheWorld.components.adventurejump:DoJump(true,true,true)end)
+            -- inst.AnimState:PlayAnimation("laugh", false)
+			-- inst.AnimState:PushAnimation("active_idle", true)
+			-- inst.SoundEmitter:PlaySound("dontstarve/common/teleportato/teleportato_maxwelllaugh", "teleportato_laugh")
+            -- inst:DoTaskInTime(3,function() TheWorld.components.adventurejump:DoJump(true,true,true)end)
 		end)
 	end
 
@@ -120,7 +122,7 @@ local function fn()
 	inst.components.activatable.inactive = true
 	inst.components.activatable.quickaction = true
 
-	inst.teleportposition = TheSim:FindFirstEntityWithTag("teleportlocation")
+	inst:DoTaskInTime(0,function(inst) inst.teleportposition = TheSim:FindFirstEntityWithTag("teleportlocation") end)
 
 	return inst
 end

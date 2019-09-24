@@ -203,7 +203,9 @@ local function activateintrospeech(inst)
             if inst.components.maxwelltalker:IsTalking() then inst.components.maxwelltalker:StopTalking() end
             inst.components.maxwelltalker.speech = "INTRO"
             inst.task = inst:StartThread(function()   inst.components.maxwelltalker:DoTalk(true) end)
-            inst:RemoveComponent("playerprox")
+            if inst.components.playerprox then
+                inst:RemoveComponent("playerprox")
+            end
         end
     end)
 

@@ -4,7 +4,11 @@ print("HIER WORLDGEN adv")
 
 GLOBAL.package.loaded["librarymanager"] = nil -- use this libary to force enabling the teleportato mod.
 local AutoSubscribeAndEnableWorkshopMods = GLOBAL.require("librarymanager")
-AutoSubscribeAndEnableWorkshopMods({"workshop-756229217"}) -- workshop-756229217
+if modname == "Adventure Mode TEST" then
+    AutoSubscribeAndEnableWorkshopMods({"Teleportato TEST"}) -- workshop-756229217
+else
+    AutoSubscribeAndEnableWorkshopMods({"workshop-756229217"})
+end
 
 -- GLOBAL values are seperated for forest and cave, so make sure that they are always set up equally or keep in mind that they might be different.
 -- LEVEL and CHAPTER should be the same in cave like in overworld, but not tested yet.
@@ -70,7 +74,7 @@ local WORLDS = _G.TUNING.TELEPORTATOMOD.WORLDS
 
 
 -- testing
--- _G.TUNING.TELEPORTATOMOD.LEVEL_GEN = 7 -- force loading this level, starts at 1 anjd goes up to unlimited (max 63 due to netvars)
+-- _G.TUNING.TELEPORTATOMOD.LEVEL_GEN = 8 -- force loading this level, starts at 1 anjd goes up to unlimited (max 63 due to netvars)
 -- _G.TUNING.TELEPORTATOMOD.CHAPTER_GEN = 6 -- force loading this chapter, starts at 1 and goes up to 7
 -- Sandbox (adventureportal) = 1
 -- A Cold Reception = 2
@@ -264,12 +268,12 @@ local function AdventureColdReception(tasksetdata) -- A Cold Reception
         tasksetdata.substitutes = GetRandomSubstituteList(SUBS_1, 3)
     end
     tasksetdata.overrides={
-        world_size  =  "medium",
-        day  =  "longdusk", 
+        world_size  =  GetModConfigData("worldsizeacoldreception") or "medium",
+        day  =  GetModConfigData("dayacoldreception") or "longdusk", 
         weather  =  "often",
         frograin   =  "often",
         
-        season_start  =  "spring",
+        season_start  =  GetModConfigData("startseasonacoldreception") or "spring",
         
         deerclops  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
         dragonfly  =  "never",
@@ -287,10 +291,10 @@ local function AdventureColdReception(tasksetdata) -- A Cold Reception
         wormhole_prefab = "wormhole",
         layout_mode = "LinkNodesByKeys",
         start_location = "adv1",
-        autumn = "noseason",
-        winter = "veryshortseason",
-        spring = "shortseason",
-        summer = "noseason",
+        autumn = GetModConfigData("autumnacoldreception") or "noseason",
+        winter = GetModConfigData("winteracoldreception") or "veryshortseason",
+        spring = GetModConfigData("springacoldreception") or "shortseason",
+        summer = GetModConfigData("summeracoldreception") or "noseason",
         keep_disconnected_tiles = true,
         no_joining_islands = true,
     }
@@ -327,17 +331,17 @@ local function AdventureKingWinter(tasksetdata)
         tasksetdata.substitutes = GetRandomSubstituteList(SUBS_1, 3)
     end
     tasksetdata.overrides={
-        world_size = "medium",
+        world_size = GetModConfigData("worldsizekingofwinter") or "medium",
         wormhole_prefab = "wormhole",
         layout_mode = "LinkNodesByKeys",
-        day  =  "longdusk", 
+        day  =  GetModConfigData("daykingofwinter") or "longdusk", 
 
         start_location = "adv2",
 
         loop  =  "never",
         branching  =  "least",
         
-        season_start  =  "winter",
+        season_start  =  GetModConfigData("startseasonkingofwinter") or "winter",
         weather  =  (GetModConfigData("difficulty")==0 and "often") or (GetModConfigData("difficulty")==1 and "often") or (GetModConfigData("difficulty")==2 and "always") or (GetModConfigData("difficulty")==3 and "always") or "often",      
         
         deerclops  =  (GetModConfigData("difficulty")==0 and "often") or (GetModConfigData("difficulty")==1 and "default") or (GetModConfigData("difficulty")==2 and "often") or (GetModConfigData("difficulty")==3 and "always") or "often",
@@ -351,10 +355,10 @@ local function AdventureKingWinter(tasksetdata)
         carrot = (GetModConfigData("difficulty")==0 and "rare") or (GetModConfigData("difficulty")==1 and "default") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "never") or "rare",          
         berrybush  =  (GetModConfigData("difficulty")==0 and "rare") or (GetModConfigData("difficulty")==1 and "default") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "never") or "rare",
         
-        autumn = "noseason",
-        winter = "verylongseason",
-        spring = "noseason",
-        summer = "noseason",
+        autumn = GetModConfigData("autumnkingofwinter") or "noseason",
+        winter = GetModConfigData("winterkingofwinter") or "verylongseason",
+        spring = GetModConfigData("springkingofwinter") or "noseason",
+        summer = GetModConfigData("summerkingofwinter") or "noseason",
         keep_disconnected_tiles = true,
         no_joining_islands = true,
     }
@@ -392,11 +396,11 @@ local function AdventureGameAfoot(tasksetdata)
         tasksetdata.substitutes = GetRandomSubstituteList(SUBS_1, 3)
     end
     tasksetdata.overrides={
-        day = "longdusk", 
+        day = GetModConfigData("daythegameisafoot") or "longdusk", 
 
-        season_start = "winter",
+        season_start = GetModConfigData("startseasonthegameisafoot") or "winter",
         spiders = "often",
-        world_size = "medium",
+        world_size = GetModConfigData("worldsizethegameisafoot") or "medium",
         branching = "default",
         loop = "never",
         
@@ -408,10 +412,10 @@ local function AdventureGameAfoot(tasksetdata)
         wormhole_prefab = "wormhole",
         layout_mode = "LinkNodesByKeys",
         start_location = "adv3",
-        autumn = (GetModConfigData("difficulty")==1 and "veryshortseason") or "noseason",
-        winter = "noseason",
-        spring = "verylongseason",
-        summer = "noseason",
+        autumn = GetModConfigData("autumnthegameisafoot") or ((GetModConfigData("difficulty")==1 and "veryshortseason") or "noseason"),
+        winter = GetModConfigData("winterthegameisafoot") or "noseason",
+        spring = GetModConfigData("springthegameisafoot") or "verylongseason",
+        summer = GetModConfigData("summerthegameisafoot") or "noseason",
         keep_disconnected_tiles = true,
         no_joining_islands = true,
     }
@@ -449,7 +453,8 @@ local function AdventureArchipelago(tasksetdata)
         tasksetdata.substitutes = GetRandomSubstituteList(SUBS_1, 3)
     end
     tasksetdata.overrides={
-        world_size = "medium",
+        world_size = GetModConfigData("worldsizearchipelago") or "medium",
+        day  =  GetModConfigData("dayarchipelago") or "default",
         roads = "never",
         weather = (GetModConfigData("difficulty")==0 and "default") or (GetModConfigData("difficulty")==1 and "rare") or (GetModConfigData("difficulty")==2 and "default") or (GetModConfigData("difficulty")==3 and "often") or "default",
         deerclops = (GetModConfigData("difficulty")==0 and "default") or (GetModConfigData("difficulty")==1 and "rare") or (GetModConfigData("difficulty")==2 and "default") or (GetModConfigData("difficulty")==3 and "often") or "default",
@@ -458,14 +463,14 @@ local function AdventureArchipelago(tasksetdata)
         goosemoose  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
         antlion = "never",
         hounds = (GetModConfigData("difficulty")==0 and "default") or (GetModConfigData("difficulty")==1 and "default") or (GetModConfigData("difficulty")==2 and "often") or (GetModConfigData("difficulty")==3 and "always") or "default",
-        season_start = "default",
+        season_start = GetModConfigData("startseasonarchipelago") or "default",
         wormhole_prefab = "wormhole",
         layout_mode = "LinkNodesByKeys",
         start_location = "adv4",
-        autumn = "shortseason",
-        winter = "shortseason",
-        spring = "shortseason",
-        summer = "shortseason",
+        autumn = GetModConfigData("autumnarchipelago") or "shortseason",
+        winter = GetModConfigData("winterarchipelago") or "shortseason",
+        spring = GetModConfigData("springarchipelago") or "shortseason",
+        summer = GetModConfigData("summerarchipelago") or "shortseason",
         keep_disconnected_tiles = true,
         no_wormholes_to_disconnected_tiles = false,
         no_joining_islands = true,
@@ -506,8 +511,8 @@ local function AdventureTwoWorlds(tasksetdata)
         tasksetdata.substitutes = GetRandomSubstituteList(SUBS_1, 3)
     end
     tasksetdata.overrides={
-        day  =  (GetModConfigData("difficulty")==0 and "default") or (GetModConfigData("difficulty")==1 and "longday") or (GetModConfigData("difficulty")==2 and "default") or (GetModConfigData("difficulty")==3 and "longdusk") or "default", 
-        season_start  =  "autumn",
+        day  =  GetModConfigData("daytwoworlds") or ((GetModConfigData("difficulty")==0 and "default") or (GetModConfigData("difficulty")==1 and "longday") or (GetModConfigData("difficulty")==2 and "default") or (GetModConfigData("difficulty")==3 and "longdusk") or "default"), 
+        season_start  =  GetModConfigData("startseasontwoworlds") or "default",
         
         weather = (GetModConfigData("difficulty")==0 and "rare") or (GetModConfigData("difficulty")==1 and "rare") or (GetModConfigData("difficulty")==2 and "default") or (GetModConfigData("difficulty")==3 and "often") or "rare", 
         
@@ -516,14 +521,14 @@ local function AdventureTwoWorlds(tasksetdata)
         bearger  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
         goosemoose  =  "never",
         antlion = "never",
-        world_size = "medium",
+        world_size = GetModConfigData("worldsizetwoworlds") or "medium",
         wormhole_prefab = "wormhole",
         layout_mode = "LinkNodesByKeys",
         start_location = "adv5",
-        autumn = (GetModConfigData("difficulty")==1 and "veryshortseason") or "noseason",
-        winter = "noseason",
-        spring = "noseason",
-        summer = "verylongseason",
+        autumn = GetModConfigData("autumntwoworlds") or ((GetModConfigData("difficulty")==1 and "veryshortseason") or "noseason"),
+        winter = GetModConfigData("wintertwoworlds") or "noseason",
+        spring = GetModConfigData("springtwoworlds") or "noseason",
+        summer = GetModConfigData("summertwoworlds") or "verylongseason",
         keep_disconnected_tiles = true,
         no_wormholes_to_disconnected_tiles = false,
         no_joining_islands = true,
@@ -564,8 +569,8 @@ local function AdventureDarkness(tasksetdata)
     tasksetdata.required_prefabs = _G.ArrayUnion(required_prefabs,{"teleportato_base","teleportato_box","teleportato_crank","teleportato_ring","teleportato_potato"}) -- if ordered_story_setpieces is nil/empty, required_prefabs is set up in teleoprtato mod depending in settings there
     tasksetdata.overrides={
         branching = "never",
-        day = "onlynight", 
-        season_start = "autumn",
+        day = GetModConfigData("daydarkness") or "onlynight", 
+        season_start = GetModConfigData("startseasondarkness") or "autumn",
         weather = "often",
 
         boons = "always",
@@ -585,14 +590,14 @@ local function AdventureDarkness(tasksetdata)
         bearger  =  (GetModConfigData("difficulty")==0 and "never") or (GetModConfigData("difficulty")==1 and "never") or (GetModConfigData("difficulty")==2 and "rare") or (GetModConfigData("difficulty")==3 and "default") or "never",
         goosemoose  =  "never",
         antlion = "never",
-        world_size = "medium",
+        world_size = GetModConfigData("worldsizedarkness") or "medium",
         wormhole_prefab = "wormhole",
         layout_mode = "LinkNodesByKeys",
         start_location = "adv6",
-        autumn = (GetModConfigData("difficulty")==0 and "noseason") or (GetModConfigData("difficulty")==1 and "shortseason") or (GetModConfigData("difficulty")==2 and "veryshortseason") or (GetModConfigData("difficulty")==3 and "noseason") or "noseason",
-        winter = "noseason",
-        spring = "noseason",
-        summer = (GetModConfigData("difficulty")==0 and "verylongseason") or (GetModConfigData("difficulty")==1 and "shortseason") or (GetModConfigData("difficulty")==2 and "default") or (GetModConfigData("difficulty")==3 and "verylongseason"),
+        autumn = GetModConfigData("autumndarkness") or ((GetModConfigData("difficulty")==0 and "noseason") or (GetModConfigData("difficulty")==1 and "shortseason") or (GetModConfigData("difficulty")==2 and "veryshortseason") or (GetModConfigData("difficulty")==3 and "noseason") or "noseason"),
+        winter = GetModConfigData("winterdarkness") or "noseason",
+        spring = GetModConfigData("springdarkness") or "noseason",
+        summer = GetModConfigData("summerdarkness") or ((GetModConfigData("difficulty")==0 and "verylongseason") or (GetModConfigData("difficulty")==1 and "shortseason") or (GetModConfigData("difficulty")==2 and "default") or (GetModConfigData("difficulty")==3 and "verylongseason") or "verylongseason"),
         keep_disconnected_tiles = true,
         no_wormholes_to_disconnected_tiles = true,
         no_joining_islands = true,
@@ -631,8 +636,9 @@ local function AdventureMaxwellHome(tasksetdata)
         bearger  =  "never",
         goosemoose  =  "never",
         antlion = "never",
+        hounds  =  "never",
         world_size = "medium",
-        autumn = "verylongseason", -- only summer would be rubbish
+        autumn = "verylongseason",
         winter = "noseason",
         spring = "noseason",
         summer = "noseason",

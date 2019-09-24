@@ -29,19 +29,19 @@ end
 function MaxwellTalker:DoTalk(CLIENT_SIDE,dolevelspeech)
     print("msxwelltaler do speak")
     self.inst.speech = self.speeches[self.speech or "NULL_SPEECH"] --This would be specified through whatever spawns this at the start of a level
-    if CLIENT_SIDE then
+    if CLIENT_SIDE and ThePlayer==self.inst.wilson then
         self.inst:Show()
     end
     if self.inst.speech then
         if self.inst.speech.delay then
             Sleep(self.inst.speech.delay)
         end
-        if CLIENT_SIDE then
+        if CLIENT_SIDE and ThePlayer==self.inst.wilson then
             if self.inst.speech.appearanim then self.inst.AnimState:PlayAnimation(self.inst.speech.appearanim) end
             if self.inst.speech.idleanim then self.inst.AnimState:PushAnimation(self.inst.speech.idleanim, true) end
         end
         if self.inst.speech.appearanim then			
-            if CLIENT_SIDE then
+            if CLIENT_SIDE and ThePlayer==self.inst.wilson then
                 self.inst.SoundEmitter:PlaySound("dontstarve/maxwell/appear_adventure")
             end
             Sleep(1.4)
@@ -52,7 +52,7 @@ function MaxwellTalker:DoTalk(CLIENT_SIDE,dolevelspeech)
         for k, section in ipairs(self.inst.speech) do --the loop that goes on while the speech is happening
             wait = section.wait or 1
 
-            if CLIENT_SIDE then
+            if CLIENT_SIDE and ThePlayer==self.inst.wilson then
                 if section.anim then --If there's a custom animation it plays it here.
                     self.inst.AnimState:PlayAnimation(section.anim)
                     if self.inst.speech.idleanim then self.inst.AnimState:PushAnimation(self.inst.speech.idleanim, true) end
@@ -75,7 +75,7 @@ function MaxwellTalker:DoTalk(CLIENT_SIDE,dolevelspeech)
                 end
             end
             Sleep(wait)	--waits for the allocated time.
-            if CLIENT_SIDE then
+            if CLIENT_SIDE and ThePlayer==self.inst.wilson then
                 if section.string then	--If maxwell was talking it winds down here and stops the anim.
                     self.inst.SoundEmitter:KillSound("talk")
                     if self.inst.speech.dialogpostanim then self.inst.AnimState:PlayAnimation(self.inst.speech.dialogpostanim) end
@@ -85,11 +85,11 @@ function MaxwellTalker:DoTalk(CLIENT_SIDE,dolevelspeech)
             end
             Sleep(section.waitbetweenlines or 0.5)	--pauses between lines
         end
-        if CLIENT_SIDE then
+        if CLIENT_SIDE and ThePlayer==self.inst.wilson then
             self.inst.SoundEmitter:KillSound("talk")	--ensures any talking sounds have stopped
         end
         if self.inst.speech.disappearanim then
-            if CLIENT_SIDE then
+            if CLIENT_SIDE and ThePlayer==self.inst.wilson then
                 self.inst.SoundEmitter:PlaySound("dontstarve/maxwell/disappear_adventure")
                 local fx = SpawnPrefab("maxwell_smoke")
                 fx.Transform:SetPosition(self.inst.Transform:GetWorldPosition())
@@ -135,7 +135,7 @@ function MaxwellTalker:DoTalk(CLIENT_SIDE,dolevelspeech)
         
         if self.inst.speech.disableplayer then
             self.inst.wilson:DoTaskInTime(0.9, function() 
-                if CLIENT_SIDE then
+                if CLIENT_SIDE and ThePlayer==self.inst.wilson then
                     if self.inst.wilson.HUD then self.inst.wilson.HUD:Show() end
                     TheCamera:SetDefault()
                 end
@@ -159,7 +159,7 @@ function MaxwellTalker:Initialize(pl,CLIENT_SIDE) -- is exclusively spawned for 
 	self.inst.wilson = pl
     self.inst.speech = self.speeches[self.speech or "NULL_SPEECH"] --This would be specified through whatever spawns this at the start of a level
     local pt = nil
-    if CLIENT_SIDE then
+    if CLIENT_SIDE and ThePlayer==self.inst.wilson then
         if self.inst.wilson~=nil and self.inst.speech and self.inst.speech.disableplayer then
             if self.inst.wilson:IsValid() and self.inst.wilson.HUD then self.inst.wilson.HUD:Hide() end
 
@@ -168,7 +168,7 @@ function MaxwellTalker:Initialize(pl,CLIENT_SIDE) -- is exclusively spawned for 
             self.inst:FacePoint(self.inst.wilson.Transform:GetWorldPosition())
             self.inst:Hide()
             
-            if self.inst.wilson~=nil then --zoom in. we can use glboal camera, cause we want all players to zoom in at the same location at the same time
+            if self.inst.wilson~=nil then
                 TheCamera:SetOffset( (Vector3(self.inst.Transform:GetWorldPosition()) - Vector3(self.inst.wilson.Transform:GetWorldPosition()))*.5  + Vector3(0,2,0) )
             end
             TheCamera:SetDistance(15)
@@ -177,7 +177,7 @@ function MaxwellTalker:Initialize(pl,CLIENT_SIDE) -- is exclusively spawned for 
     end
     if TheNet:GetIsServer() then
         if self.inst.wilson~=nil and self.inst.speech and self.inst.speech.disableplayer then    
-            if not (CLIENT_SIDE and TheNet:GetIsServer()) then -- do not execute, if we already executed them above
+            if not (CLIENT_SIDE and ThePlayer==self.inst.wilson and TheNet:GetIsServer()) then -- do not execute, if we already executed them above
                 pt = Vector3(self.inst.wilson.Transform:GetWorldPosition()) + Vector3(-4,0,4) --TheCamera:GetRightVec()*4
                 self.inst.Transform:SetPosition(pt.x,pt.y,pt.z) -- also set it for host at least near, so it can spawn his divinigrod if needed
                 self.inst:Hide()

@@ -1,9 +1,9 @@
 name = "Adventure Mode"
-description = "[BETA]\nRequires my Teleportato mod!\n\nOvercome challenging worlds, loaded one after the other in the stlye of the Dont Starve adventure!\n\nModsettings from this and teleportato mod work together, so don't forget to adjust both to your liking." 
+description = "Requires my Teleportato mod!\n\nOvercome challenging worlds, loaded one after the other in the stlye of the Dont Starve adventure!\n\nModsettings from this and teleportato mod work together, so don't forget to adjust both to your liking.\nThis mod overwrites the Ancient Station, Thulecite, StatsSave, NewWorld and regenerate-stats setting from teleportato mod, so these settings wont do anything over there." 
 author = "Serpens"
 forumthread = ""
 
-version = "0.95"
+version = "0.961"
 api_version = 10
 
 dst_compatible = true
@@ -17,7 +17,7 @@ icon = "modicon.tex"
 priority = 9000 -- load before the teleportato mod
 
 --These tags allow the server running this mod to be found with filters from the server listing screen
-server_filter_tags = {"adventure","adventure mode","adventurejump","teleportato","worldgen","worldjump","worldhopping"}
+server_filter_tags = {"adventure","adventure mode","adventurejump","worldgen"}
 
 
 configuration_options = 
@@ -25,7 +25,7 @@ configuration_options =
 	{
 		name = "experimentalcode",
 		label = "Testcode",
-		hover = "Enable if you want to test new features that could include bugs. See modpage for details.",
+		hover = "Enable if you want to test new features that could include bugs. (currently none)",
 		options = 
 		{
             {description = "disabled", data = false, hover=""},
@@ -82,6 +82,735 @@ configuration_options =
     },
     {
 		name = "null_option",
+		label = "Customize",
+		hover = "Customize some worldsettings",
+		options =	{
+						{description = "\n", data = 0, hover = "\n"},
+					},
+		default = 0,
+	},
+    {
+		name = "worldsizeacoldreception",
+		label = "Worldsize ACR",
+		hover = "Worldsize for A Cold Reception.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "small", data = "small", hover="wont work on PS4"},
+            {description = "medium", data = "medium", hover=""},
+            {description = "large", data = "default", hover=""},
+            {description = "huge", data = "huge", hover="wont work on PS4"},
+        },                   
+		default = false,
+    },
+    {
+		name = "startseasonacoldreception",
+		label = "Startseason ACR",
+		hover = "Startseason in A Cold Reception. 10 days long if season is set to noseason.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "autumn", data = "default", hover=""},
+            {description = "winter", data = "winter", hover=""},
+            {description = "spring", data = "spring", hover=""},
+            {description = "summer", data = "summer", hover=""},
+            {description = "autumnorspring", data = "autumnorspring", hover=""},
+            {description = "winterorsummer", data = "winterorsummer", hover=""},
+            {description = "random", data = "random", hover=""},
+        },                   
+		default = false,
+    },
+    {
+		name = "autumnacoldreception",
+		label = "Autumn ACR",
+		hover = "Autumn in A Cold Reception.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "none", data = "noseason", hover=""},
+            {description = "veryshortseason", data = "veryshortseason", hover=""},
+            {description = "shortseason", data = "shortseason", hover=""},
+            {description = "medium", data = "default", hover=""},
+            {description = "longseason", data = "longseason", hover=""},
+            {description = "verylongseason", data = "verylongseason", hover=""},
+            {description = "random", data = "random", hover=""},
+        },                   
+		default = false,
+    },
+    {
+		name = "winteracoldreception",
+		label = "Winter ACR",
+		hover = "Winter in A Cold Reception.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "none", data = "noseason", hover=""},
+            {description = "veryshortseason", data = "veryshortseason", hover=""},
+            {description = "shortseason", data = "shortseason", hover=""},
+            {description = "medium", data = "default", hover=""},
+            {description = "longseason", data = "longseason", hover=""},
+            {description = "verylongseason", data = "verylongseason", hover=""},
+            {description = "random", data = "random", hover=""},
+        },                   
+		default = false,
+    },
+    {
+		name = "springacoldreception",
+		label = "Spring ACR",
+		hover = "Spring in A Cold Reception.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "none", data = "noseason", hover=""},
+            {description = "veryshortseason", data = "veryshortseason", hover=""},
+            {description = "shortseason", data = "shortseason", hover=""},
+            {description = "medium", data = "default", hover=""},
+            {description = "longseason", data = "longseason", hover=""},
+            {description = "verylongseason", data = "verylongseason", hover=""},
+            {description = "random", data = "random", hover=""},
+        },                   
+		default = false,
+    },
+    {
+		name = "summeracoldreception",
+		label = "Summer ACR",
+		hover = "Summer in A Cold Reception.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "none", data = "noseason", hover=""},
+            {description = "veryshortseason", data = "veryshortseason", hover=""},
+            {description = "shortseason", data = "shortseason", hover=""},
+            {description = "medium", data = "default", hover=""},
+            {description = "longseason", data = "longseason", hover=""},
+            {description = "verylongseason", data = "verylongseason", hover=""},
+            {description = "random", data = "random", hover=""},
+        },                   
+		default = false,
+    },
+    {
+		name = "dayacoldreception",
+		label = "Day ACR",
+		hover = "Daylength in A Cold Reception.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "normal", data = "default", hover=""},
+            {description = "longday", data = "longday", hover=""},
+            {description = "longdusk", data = "longdusk", hover=""},
+            {description = "longnight", data = "longnight", hover=""},
+            {description = "noday", data = "noday", hover=""},
+            {description = "nodusk", data = "nodusk", hover=""},
+            {description = "nonight", data = "nonight", hover=""},
+            {description = "onlyday", data = "onlyday", hover=""},
+            {description = "onlydusk", data = "onlydusk", hover=""},
+            {description = "onlynight", data = "onlynight", hover=""},
+            
+        },                   
+		default = false,
+    },
+    {
+		name = "worldsizekingofwinter",
+		label = "Worldsize KoW",
+		hover = "Worldsize for King of Winter.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "small", data = "small", hover="wont work on PS4"},
+            {description = "medium", data = "medium", hover=""},
+            {description = "large", data = "default", hover=""},
+            {description = "huge", data = "huge", hover="wont work on PS4"},
+        },                   
+		default = false,
+    },
+    {
+		name = "startseasonkingofwinter",
+		label = "Startseason KoW",
+		hover = "Startseason in King of Winter. 10 days long if season is set to noseason.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "autumn", data = "default", hover=""},
+            {description = "winter", data = "winter", hover=""},
+            {description = "spring", data = "spring", hover=""},
+            {description = "summer", data = "summer", hover=""},
+            {description = "autumnorspring", data = "autumnorspring", hover=""},
+            {description = "winterorsummer", data = "winterorsummer", hover=""},
+            {description = "random", data = "random", hover=""},
+        },                   
+		default = false,
+    },
+    {
+		name = "autumnkingofwinter",
+		label = "Autumn KoW",
+		hover = "Autumn in King of Winter.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "none", data = "noseason", hover=""},
+            {description = "veryshortseason", data = "veryshortseason", hover=""},
+            {description = "shortseason", data = "shortseason", hover=""},
+            {description = "medium", data = "default", hover=""},
+            {description = "longseason", data = "longseason", hover=""},
+            {description = "verylongseason", data = "verylongseason", hover=""},
+            {description = "random", data = "random", hover=""},
+        },                   
+		default = false,
+    },
+    {
+		name = "winterkingofwinter",
+		label = "Winter KoW",
+		hover = "Winter in King of Winter.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "none", data = "noseason", hover=""},
+            {description = "veryshortseason", data = "veryshortseason", hover=""},
+            {description = "shortseason", data = "shortseason", hover=""},
+            {description = "medium", data = "default", hover=""},
+            {description = "longseason", data = "longseason", hover=""},
+            {description = "verylongseason", data = "verylongseason", hover=""},
+            {description = "random", data = "random", hover=""},
+        },                   
+		default = false,
+    },
+    {
+		name = "springkingofwinter",
+		label = "Spring KoW",
+		hover = "Spring in King of Winter.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "none", data = "noseason", hover=""},
+            {description = "veryshortseason", data = "veryshortseason", hover=""},
+            {description = "shortseason", data = "shortseason", hover=""},
+            {description = "medium", data = "default", hover=""},
+            {description = "longseason", data = "longseason", hover=""},
+            {description = "verylongseason", data = "verylongseason", hover=""},
+            {description = "random", data = "random", hover=""},
+        },                   
+		default = false,
+    },
+    {
+		name = "summerkingofwinter",
+		label = "Summer KoW",
+		hover = "Summer in King of Winter.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "none", data = "noseason", hover=""},
+            {description = "veryshortseason", data = "veryshortseason", hover=""},
+            {description = "shortseason", data = "shortseason", hover=""},
+            {description = "medium", data = "default", hover=""},
+            {description = "longseason", data = "longseason", hover=""},
+            {description = "verylongseason", data = "verylongseason", hover=""},
+            {description = "random", data = "random", hover=""},
+        },                   
+		default = false,
+    },
+    {
+		name = "daykingofwinter",
+		label = "Day KoW",
+		hover = "Daylength in King of Winter.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "normal", data = "default", hover=""},
+            {description = "longday", data = "longday", hover=""},
+            {description = "longdusk", data = "longdusk", hover=""},
+            {description = "longnight", data = "longnight", hover=""},
+            {description = "noday", data = "noday", hover=""},
+            {description = "nodusk", data = "nodusk", hover=""},
+            {description = "nonight", data = "nonight", hover=""},
+            {description = "onlyday", data = "onlyday", hover=""},
+            {description = "onlydusk", data = "onlydusk", hover=""},
+            {description = "onlynight", data = "onlynight", hover=""},
+            
+        },                   
+		default = false,
+    },
+    {
+		name = "worldsizethegameisafoot",
+		label = "Worldsize TGiA",
+		hover = "Worldsize for The Game is Afoot.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "small", data = "small", hover="wont work on PS4"},
+            {description = "medium", data = "medium", hover=""},
+            {description = "large", data = "default", hover=""},
+            {description = "huge", data = "huge", hover="wont work on PS4"},
+        },                   
+		default = false,
+    },
+    {
+		name = "startseasonthegameisafoot",
+		label = "Startseason TGiA",
+		hover = "Startseason in The Game is Afoot. 10 days long if season is set to noseason.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "autumn", data = "default", hover=""},
+            {description = "winter", data = "winter", hover=""},
+            {description = "spring", data = "spring", hover=""},
+            {description = "summer", data = "summer", hover=""},
+            {description = "autumnorspring", data = "autumnorspring", hover=""},
+            {description = "winterorsummer", data = "winterorsummer", hover=""},
+            {description = "random", data = "random", hover=""},
+        },                   
+		default = false,
+    },
+    {
+		name = "autumnthegameisafoot",
+		label = "Autumn TGiA",
+		hover = "Autumn in The Game is Afoot.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "none", data = "noseason", hover=""},
+            {description = "veryshortseason", data = "veryshortseason", hover=""},
+            {description = "shortseason", data = "shortseason", hover=""},
+            {description = "medium", data = "default", hover=""},
+            {description = "longseason", data = "longseason", hover=""},
+            {description = "verylongseason", data = "verylongseason", hover=""},
+            {description = "random", data = "random", hover=""},
+        },                   
+		default = false,
+    },
+    {
+		name = "winterthegameisafoot",
+		label = "Winter TGiA",
+		hover = "Winter in The Game is Afoot.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "none", data = "noseason", hover=""},
+            {description = "veryshortseason", data = "veryshortseason", hover=""},
+            {description = "shortseason", data = "shortseason", hover=""},
+            {description = "medium", data = "default", hover=""},
+            {description = "longseason", data = "longseason", hover=""},
+            {description = "verylongseason", data = "verylongseason", hover=""},
+            {description = "random", data = "random", hover=""},
+        },                   
+		default = false,
+    },
+    {
+		name = "springthegameisafoot",
+		label = "Spring TGiA",
+		hover = "Spring in The Game is Afoot.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "none", data = "noseason", hover=""},
+            {description = "veryshortseason", data = "veryshortseason", hover=""},
+            {description = "shortseason", data = "shortseason", hover=""},
+            {description = "medium", data = "default", hover=""},
+            {description = "longseason", data = "longseason", hover=""},
+            {description = "verylongseason", data = "verylongseason", hover=""},
+            {description = "random", data = "random", hover=""},
+        },                   
+		default = false,
+    },
+    {
+		name = "summerthegameisafoot",
+		label = "Summer TGiA",
+		hover = "Summer in The Game is Afoot.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "none", data = "noseason", hover=""},
+            {description = "veryshortseason", data = "veryshortseason", hover=""},
+            {description = "shortseason", data = "shortseason", hover=""},
+            {description = "medium", data = "default", hover=""},
+            {description = "longseason", data = "longseason", hover=""},
+            {description = "verylongseason", data = "verylongseason", hover=""},
+            {description = "random", data = "random", hover=""},
+        },                   
+		default = false,
+    },
+    {
+		name = "daythegameisafoot",
+		label = "Day TGiA",
+		hover = "Daylength in The Game is Afoot.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "normal", data = "default", hover=""},
+            {description = "longday", data = "longday", hover=""},
+            {description = "longdusk", data = "longdusk", hover=""},
+            {description = "longnight", data = "longnight", hover=""},
+            {description = "noday", data = "noday", hover=""},
+            {description = "nodusk", data = "nodusk", hover=""},
+            {description = "nonight", data = "nonight", hover=""},
+            {description = "onlyday", data = "onlyday", hover=""},
+            {description = "onlydusk", data = "onlydusk", hover=""},
+            {description = "onlynight", data = "onlynight", hover=""},
+            
+        },                   
+		default = false,
+    },
+    {
+		name = "worldsizearchipelago",
+		label = "Worldsize Arch.",
+		hover = "Worldsize for Archipelago.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "small", data = "small", hover="wont work on PS4"},
+            {description = "medium", data = "medium", hover=""},
+            {description = "large", data = "default", hover=""},
+            {description = "huge", data = "huge", hover="wont work on PS4"},
+        },                   
+		default = false,
+    },
+    {
+		name = "startseasonarchipelago",
+		label = "Startseason Arch.",
+		hover = "Startseason in Archipelago. 10 days long if season is set to noseason.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "autumn", data = "default", hover=""},
+            {description = "winter", data = "winter", hover=""},
+            {description = "spring", data = "spring", hover=""},
+            {description = "summer", data = "summer", hover=""},
+            {description = "autumnorspring", data = "autumnorspring", hover=""},
+            {description = "winterorsummer", data = "winterorsummer", hover=""},
+            {description = "random", data = "random", hover=""},
+        },                   
+		default = false,
+    },
+    {
+		name = "autumnarchipelago",
+		label = "Autumn Arch.",
+		hover = "Autumn in Archipelago.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "none", data = "noseason", hover=""},
+            {description = "veryshortseason", data = "veryshortseason", hover=""},
+            {description = "shortseason", data = "shortseason", hover=""},
+            {description = "medium", data = "default", hover=""},
+            {description = "longseason", data = "longseason", hover=""},
+            {description = "verylongseason", data = "verylongseason", hover=""},
+            {description = "random", data = "random", hover=""},
+        },                   
+		default = false,
+    },
+    {
+		name = "winterarchipelago",
+		label = "Winter Arch.",
+		hover = "Winter in Archipelago.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "none", data = "noseason", hover=""},
+            {description = "veryshortseason", data = "veryshortseason", hover=""},
+            {description = "shortseason", data = "shortseason", hover=""},
+            {description = "medium", data = "default", hover=""},
+            {description = "longseason", data = "longseason", hover=""},
+            {description = "verylongseason", data = "verylongseason", hover=""},
+            {description = "random", data = "random", hover=""},
+        },                   
+		default = false,
+    },
+    {
+		name = "springarchipelago",
+		label = "Spring Arch.",
+		hover = "Spring in Archipelago.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "none", data = "noseason", hover=""},
+            {description = "veryshortseason", data = "veryshortseason", hover=""},
+            {description = "shortseason", data = "shortseason", hover=""},
+            {description = "medium", data = "default", hover=""},
+            {description = "longseason", data = "longseason", hover=""},
+            {description = "verylongseason", data = "verylongseason", hover=""},
+            {description = "random", data = "random", hover=""},
+        },                   
+		default = false,
+    },
+    {
+		name = "summerarchipelago",
+		label = "Summer Arch.",
+		hover = "Summer in Archipelago.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "none", data = "noseason", hover=""},
+            {description = "veryshortseason", data = "veryshortseason", hover=""},
+            {description = "shortseason", data = "shortseason", hover=""},
+            {description = "medium", data = "default", hover=""},
+            {description = "longseason", data = "longseason", hover=""},
+            {description = "verylongseason", data = "verylongseason", hover=""},
+            {description = "random", data = "random", hover=""},
+        },                   
+		default = false,
+    },
+    {
+		name = "dayarchipelago",
+		label = "Day Arch.",
+		hover = "Daylength in Archipelago.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "normal", data = "default", hover=""},
+            {description = "longday", data = "longday", hover=""},
+            {description = "longdusk", data = "longdusk", hover=""},
+            {description = "longnight", data = "longnight", hover=""},
+            {description = "noday", data = "noday", hover=""},
+            {description = "nodusk", data = "nodusk", hover=""},
+            {description = "nonight", data = "nonight", hover=""},
+            {description = "onlyday", data = "onlyday", hover=""},
+            {description = "onlydusk", data = "onlydusk", hover=""},
+            {description = "onlynight", data = "onlynight", hover=""},
+            
+        },                   
+		default = false,
+    },
+    {
+		name = "worldsizetwoworlds",
+		label = "Worldsize Two W.",
+		hover = "Worldsize for Two Worlds.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "small", data = "small", hover="wont work on PS4"},
+            {description = "medium", data = "medium", hover=""},
+            {description = "large", data = "default", hover=""},
+            {description = "huge", data = "huge", hover="wont work on PS4"},
+        },                   
+		default = false,
+    },
+    {
+		name = "startseasontwoworlds",
+		label = "Startseason Two W.",
+		hover = "Startseason in Two Worlds. 10 days long if season is set to noseason.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "autumn", data = "default", hover=""},
+            {description = "winter", data = "winter", hover=""},
+            {description = "spring", data = "spring", hover=""},
+            {description = "summer", data = "summer", hover=""},
+            {description = "autumnorspring", data = "autumnorspring", hover=""},
+            {description = "winterorsummer", data = "winterorsummer", hover=""},
+            {description = "random", data = "random", hover=""},
+        },                   
+		default = false,
+    },
+    {
+		name = "autumntwoworlds",
+		label = "Autumn Two W.",
+		hover = "Autumn in Two Worlds.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "none", data = "noseason", hover=""},
+            {description = "veryshortseason", data = "veryshortseason", hover=""},
+            {description = "shortseason", data = "shortseason", hover=""},
+            {description = "medium", data = "default", hover=""},
+            {description = "longseason", data = "longseason", hover=""},
+            {description = "verylongseason", data = "verylongseason", hover=""},
+            {description = "random", data = "random", hover=""},
+        },                   
+		default = false,
+    },
+    {
+		name = "wintertwoworlds",
+		label = "Winter Two W.",
+		hover = "Winter in Two Worlds.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "none", data = "noseason", hover=""},
+            {description = "veryshortseason", data = "veryshortseason", hover=""},
+            {description = "shortseason", data = "shortseason", hover=""},
+            {description = "medium", data = "default", hover=""},
+            {description = "longseason", data = "longseason", hover=""},
+            {description = "verylongseason", data = "verylongseason", hover=""},
+            {description = "random", data = "random", hover=""},
+        },                   
+		default = false,
+    },
+    {
+		name = "springtwoworlds",
+		label = "Spring Two W.",
+		hover = "Spring in Two Worlds.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "none", data = "noseason", hover=""},
+            {description = "veryshortseason", data = "veryshortseason", hover=""},
+            {description = "shortseason", data = "shortseason", hover=""},
+            {description = "medium", data = "default", hover=""},
+            {description = "longseason", data = "longseason", hover=""},
+            {description = "verylongseason", data = "verylongseason", hover=""},
+            {description = "random", data = "random", hover=""},
+        },                   
+		default = false,
+    },
+    {
+		name = "summertwoworlds",
+		label = "Summer Two W.",
+		hover = "Summer in Two Worlds.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "none", data = "noseason", hover=""},
+            {description = "veryshortseason", data = "veryshortseason", hover=""},
+            {description = "shortseason", data = "shortseason", hover=""},
+            {description = "medium", data = "default", hover=""},
+            {description = "longseason", data = "longseason", hover=""},
+            {description = "verylongseason", data = "verylongseason", hover=""},
+            {description = "random", data = "random", hover=""},
+        },                   
+		default = false,
+    },
+    {
+		name = "daytwoworlds",
+		label = "Day Two W.",
+		hover = "Daylength in Two Worlds.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "normal", data = "default", hover=""},
+            {description = "longday", data = "longday", hover=""},
+            {description = "longdusk", data = "longdusk", hover=""},
+            {description = "longnight", data = "longnight", hover=""},
+            {description = "noday", data = "noday", hover=""},
+            {description = "nodusk", data = "nodusk", hover=""},
+            {description = "nonight", data = "nonight", hover=""},
+            {description = "onlyday", data = "onlyday", hover=""},
+            {description = "onlydusk", data = "onlydusk", hover=""},
+            {description = "onlynight", data = "onlynight", hover=""},
+            
+        },                   
+		default = false,
+    },
+    {
+		name = "worldsizedarkness",
+		label = "Worldsize Dark.",
+		hover = "Worldsize for Darkness.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "small", data = "small", hover="wont work on PS4"},
+            {description = "medium", data = "medium", hover=""},
+            {description = "large", data = "default", hover=""},
+            {description = "huge", data = "huge", hover="wont work on PS4"},
+        },                   
+		default = false,
+    },
+    {
+		name = "startseasondarkness",
+		label = "Startseason Dark.",
+		hover = "Startseason in Darkness. 10 days long if season is set to noseason.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "autumn", data = "default", hover=""},
+            {description = "winter", data = "winter", hover=""},
+            {description = "spring", data = "spring", hover=""},
+            {description = "summer", data = "summer", hover=""},
+            {description = "autumnorspring", data = "autumnorspring", hover=""},
+            {description = "winterorsummer", data = "winterorsummer", hover=""},
+            {description = "random", data = "random", hover=""},
+        },                   
+		default = false,
+    },
+    {
+		name = "autumndarkness",
+		label = "Autumn Dark.",
+		hover = "Autumn in Darkness.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "none", data = "noseason", hover=""},
+            {description = "veryshortseason", data = "veryshortseason", hover=""},
+            {description = "shortseason", data = "shortseason", hover=""},
+            {description = "medium", data = "default", hover=""},
+            {description = "longseason", data = "longseason", hover=""},
+            {description = "verylongseason", data = "verylongseason", hover=""},
+            {description = "random", data = "random", hover=""},
+        },                   
+		default = false,
+    },
+    {
+		name = "winterdarkness",
+		label = "Winter Dark.",
+		hover = "Winter in Darkness.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "none", data = "noseason", hover=""},
+            {description = "veryshortseason", data = "veryshortseason", hover=""},
+            {description = "shortseason", data = "shortseason", hover=""},
+            {description = "medium", data = "default", hover=""},
+            {description = "longseason", data = "longseason", hover=""},
+            {description = "verylongseason", data = "verylongseason", hover=""},
+            {description = "random", data = "random", hover=""},
+        },                   
+		default = false,
+    },
+    {
+		name = "springdarkness",
+		label = "Spring Dark.",
+		hover = "Spring in Darkness.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "none", data = "noseason", hover=""},
+            {description = "veryshortseason", data = "veryshortseason", hover=""},
+            {description = "shortseason", data = "shortseason", hover=""},
+            {description = "medium", data = "default", hover=""},
+            {description = "longseason", data = "longseason", hover=""},
+            {description = "verylongseason", data = "verylongseason", hover=""},
+            {description = "random", data = "random", hover=""},
+        },                   
+		default = false,
+    },
+    {
+		name = "summerdarkness",
+		label = "Summer Dark.",
+		hover = "Summer in Darkness.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "none", data = "noseason", hover=""},
+            {description = "veryshortseason", data = "veryshortseason", hover=""},
+            {description = "shortseason", data = "shortseason", hover=""},
+            {description = "medium", data = "default", hover=""},
+            {description = "longseason", data = "longseason", hover=""},
+            {description = "verylongseason", data = "verylongseason", hover=""},
+            {description = "random", data = "random", hover=""},
+        },                   
+		default = false,
+    },
+    {
+		name = "daydarkness",
+		label = "Day Dark.",
+		hover = "Daylength in Darkness.",
+		options = 
+		{
+            {description = "Default", data = false, hover="the default of this mod"},
+            {description = "normal", data = "default", hover=""},
+            {description = "longday", data = "longday", hover=""},
+            {description = "longdusk", data = "longdusk", hover=""},
+            {description = "longnight", data = "longnight", hover=""},
+            {description = "noday", data = "noday", hover=""},
+            {description = "nodusk", data = "nodusk", hover=""},
+            {description = "nonight", data = "nonight", hover=""},
+            {description = "onlyday", data = "onlyday", hover=""},
+            {description = "onlydusk", data = "onlydusk", hover=""},
+            {description = "onlynight", data = "onlynight", hover=""},
+            
+        },                   
+		default = false,
+    },
+    {
+		name = "null_option",
 		label = "WORLDS",
 		hover = "Select which worlds should be acitve, a minimum of 7 are needed in total:",
 		options =	{
@@ -102,7 +831,7 @@ configuration_options =
     },
     {
 		name = "acoldreception",
-		label = "A Cold Reception",
+		label = "Darkness",
 		hover = "Enable/Disable the default adventure worlds\nfor some you can also set the position when they will started.",
 		options = 
 		{

@@ -546,9 +546,9 @@ local function fn(Sim)
 	local shadow = inst.entity:AddDynamicShadow()
 	shadow:SetSize( 1.75, .75 )
     inst.Transform:SetTwoFaced()
-    if not TUNING.TELEPORTATOMOD.experimentalcode then
-        inst.entity:AddNetwork()  -- we only want him to be visible and doing stuff for the client and not transfer his action from server to other clients
-    end
+    
+    -- inst.entity:AddNetwork()  -- we only want him to be visible and doing stuff for the client and not transfer his action from server to other clients, so no network
+    
     anim:SetBank("maxwell")
     anim:SetBuild("maxwell_build")
 

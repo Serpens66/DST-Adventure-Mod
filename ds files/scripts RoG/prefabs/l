@@ -1,0 +1,115 @@
+Comparing files F:\KLEI\DLC_PORKLAND\DATA\DLC0001\SCRIPTS\PREFABS\tumbleweed.lua and F:\KLEI\DLC_PORKLAND\DATA\DLC0003\SCRIPTS\PREFABS\TUMBLEWEED.LUA
+***** F:\KLEI\DLC_PORKLAND\DATA\DLC0001\SCRIPTS\PREFABS\tumbleweed.lua
+
+local function CheckGround(inst)
+***** F:\KLEI\DLC_PORKLAND\DATA\DLC0003\SCRIPTS\PREFABS\TUMBLEWEED.LUA
+
+local function CancelRunningTasks(inst)
+    if inst.bouncepretask then
+       inst.bouncepretask:Cancel()
+        inst.bouncepretask = nil
+    end
+    if inst.bouncetask then
+        inst.bouncetask:Cancel()
+        inst.bouncetask = nil
+    end
+    if inst.restartmovementtask then
+        inst.restartmovementtask:Cancel()
+        inst.restartmovementtask = nil
+    end
+    if inst.bouncepst1 then
+       inst.bouncepst1:Cancel()
+        inst.bouncepst1 = nil
+    end
+    if inst.bouncepst2 then
+        inst.bouncepst2:Cancel()
+        inst.bouncepst2 = nil
+    end
+end
+
+local function CheckGround(inst)
+*****
+
+***** F:\KLEI\DLC_PORKLAND\DATA\DLC0001\SCRIPTS\PREFABS\tumbleweed.lua
+        -- Shut down all the possible tasks
+        if inst.bouncepretask then
+            inst.bouncepretask:Cancel()
+            inst.bouncepretask = nil
+        end
+        if inst.bouncetask then
+            inst.bouncetask:Cancel()
+            inst.bouncetask = nil
+        end
+        if inst.restartmovementtask then
+            inst.restartmovementtask:Cancel()
+            inst.restartmovementtask = nil
+        end
+        if inst.bouncepst1 then
+            inst.bouncepst1:Cancel()
+            inst.bouncepst1 = nil
+        end
+        if inst.bouncepst2 then
+            inst.bouncepst2:Cancel()
+            inst.bouncepst2 = nil
+        end
+        -- And remove the tumbleweed
+***** F:\KLEI\DLC_PORKLAND\DATA\DLC0003\SCRIPTS\PREFABS\TUMBLEWEED.LUA
+        -- Shut down all the possible tasks
+        CancelRunningTasks(inst)
+        -- And remove the tumbleweed
+*****
+
+***** F:\KLEI\DLC_PORKLAND\DATA\DLC0001\SCRIPTS\PREFABS\tumbleweed.lua
+
+local function CancelRunningTasks(inst)
+    if inst.bouncepretask then
+       inst.bouncepretask:Cancel()
+        inst.bouncepretask = nil
+    end
+    if inst.bouncetask then
+        inst.bouncetask:Cancel()
+        inst.bouncetask = nil
+    end
+    if inst.restartmovementtask then
+        inst.restartmovementtask:Cancel()
+        inst.restartmovementtask = nil
+    end
+    if inst.bouncepst1 then
+       inst.bouncepst1:Cancel()
+        inst.bouncepst1 = nil
+    end
+    if inst.bouncepst2 then
+        inst.bouncepst2:Cancel()
+        inst.bouncepst2 = nil
+    end
+end
+***** F:\KLEI\DLC_PORKLAND\DATA\DLC0003\SCRIPTS\PREFABS\TUMBLEWEED.LUA
+
+
+local function OnEntitySleep(inst)
+        CancelRunningTasks(inst)
+end
+*****
+
+***** F:\KLEI\DLC_PORKLAND\DATA\DLC0001\SCRIPTS\PREFABS\tumbleweed.lua
+
+
+local function OnEntitySleep(inst)
+        CancelRunningTasks(inst)
+end
+
+local function OnEntityWake(inst)
+***** F:\KLEI\DLC_PORKLAND\DATA\DLC0003\SCRIPTS\PREFABS\TUMBLEWEED.LUA
+
+local function OnEntityWake(inst)
+*****
+
+***** F:\KLEI\DLC_PORKLAND\DATA\DLC0001\SCRIPTS\PREFABS\tumbleweed.lua
+    inst.components.blowinwind.soundParameter = "speed"
+    inst.angle = (GetWorld() and GetWorld().components.worldwind) and GetWorld().components.worldwind:GetWindAngle() or nil
+***** F:\KLEI\DLC_PORKLAND\DATA\DLC0003\SCRIPTS\PREFABS\TUMBLEWEED.LUA
+    inst.components.blowinwind.soundParameter = "speed"
+
+    inst.angle = (GetWorld() and GetWorld().components.worldwind) and GetWorld().components.worldwind:GetWindAngle() or nil
+*****
+

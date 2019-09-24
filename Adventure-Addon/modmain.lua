@@ -16,6 +16,16 @@
 
 
 
+-- Reign of Giants settings nehmen (dazu bruach ich die files)
+
+-- announcements wenn ein spieler ein teil gepicked hat?
+-- wenn dann by default abgeschaltet
+
+-- advenced worldgeneration von dejavu hat aera-aware. evtl könnte man damit two worlds
+-- untersch. wetter us machen?
+
+
+
 
 
 -- maxwell phonograph, mod by DoktorHolmes
@@ -91,11 +101,16 @@ if not _G.TUNING.TELEPORTATOMOD then
     _G.TUNING.TELEPORTATOMOD = {}
 end
 
-_G.TUNING.TELEPORTATOMOD.experimentalcode = GetModConfigData("experimentalcode")
+-- _G.TUNING.TELEPORTATOMOD.experimentalcode = GetModConfigData("experimentalcode") -- currently no purpose, since there is no experimental code
 _G.TUNING.TELEPORTATOMOD.repickcharacter = GetModConfigData("repickcharacter") -- this setting is currently only set-able for adventure mod (because its easier and still in testing)
 _G.TUNING.TELEPORTATOMOD.getstartingitems = GetModConfigData("repickcharacter") -- this setting is currently only set-able for adventure mod (because its easier and still in testing)
 _G.TUNING.TELEPORTATOMOD.Thulecite = 0 -- overwrite this teleportato settings, cause these really dont fit the adventure theme and are overpowered when worldjunping that often
-_G.TUNING.TELEPORTATOMOD.Ancient = 0
+_G.TUNING.TELEPORTATOMOD.Ancient = 0 -- overwrite this teleportato settings
+_G.TUNING.TELEPORTATOMOD.statssave = true -- overwrite this teleportato settings
+_G.TUNING.TELEPORTATOMOD.TELENEWWORLD = true -- overwrite this teleportato settings
+_G.TUNING.TELEPORTATOMOD.RegenerateHealth = 0 -- overwrite this teleportato settings
+_G.TUNING.TELEPORTATOMOD.RegenerateSanity = 0 -- overwrite this teleportato settings
+_G.TUNING.TELEPORTATOMOD.RegenerateHunger = 0 -- overwrite this teleportato settings
 _G.TUNING.TELEPORTATOMOD.sandboxpreconfigured = GetModConfigData("sandboxpreconfigured") -- to also let teleportato now and use the variate world setting if enabled
 
 --#################################################################
@@ -123,7 +138,7 @@ AddUserCommand("adv_forcechar",{
 })
 
 local function IsScreenInStackAndReturnScreen(screenname)
-    for _,screen_in_stack in pairs(TheFrontEnd.screenstack) do
+    for _,screen_in_stack in pairs(_G.TheFrontEnd.screenstack) do
         if screen_in_stack.name == screenname then
             return screen_in_stack
         end
@@ -167,7 +182,7 @@ local function LobbyHook(self) -- force same player
         UserCommands.RunUserCommand("adv_forcechar", {}, _G.TheNet:GetClientTableForUser(_G.TheNet:GetUserID()))
     -- end, "get_data_about_self")
 end
-if _G.TUNING.TELEPORTATOMOD.experimentalcode and _G.TUNING.TELEPORTATOMOD.repickcharacter==false then
+if _G.TUNING.TELEPORTATOMOD.repickcharacter==false then
     AddClassPostConstruct("screens/redux/lobbyscreen", LobbyHook)
 end
 --#################################################################
@@ -488,7 +503,6 @@ AddPlayerPostInit(function(player)
         player.starting_inventory = {} -- dont give starting items generally
     end
     -- print("level bei playerpostinit ist "..tostring(_G.TUNING.TELEPORTATOMOD.LEVEL).." levelload:"..tostring(_G.TUNING.TELEPORTATOMOD.LEVELINFOLOADED))
-    
 end)
 
 modes = {"survival","wilderness","endless"} -- overwriting every gamemode to the same, so regardless wich mode you choose, it is always the following
