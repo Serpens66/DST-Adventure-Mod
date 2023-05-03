@@ -202,7 +202,7 @@ local function activateintrospeech(inst)
         if inst.components.maxwelltalker then
             if inst.components.maxwelltalker:IsTalking() then inst.components.maxwelltalker:StopTalking() end
             inst.components.maxwelltalker.speech = "INTRO"
-            inst.task = inst:StartThread(function()   inst.components.maxwelltalker:DoTalk(true) end)
+            inst.task = inst:StartThread(function() if inst.components.maxwelltalker~=nil then inst.components.maxwelltalker:EndgameDoTalk() end end)
             if inst.components.playerprox then
                 inst:RemoveComponent("playerprox")
             end
@@ -218,7 +218,7 @@ local function activateintrospeech(inst)
 
     inst:ListenForEvent("talkedto", function()
         if inst.components.maxwelltalker then
-            conv_index = math.min( table.getn(SPEECH), conv_index + 1 )
+            conv_index = math.min( table.getn(SPEECH)-1, conv_index + 1 )
             inst.components.maxwelltalker.speech = conv_index
         end
     end)    
@@ -254,7 +254,7 @@ local function OnHit(inst, attacker)
             inst.components.maxwelltalker:StopTalking()
         end
         
-        inst.task = inst:StartThread(function() inst.components.maxwelltalker:DoTalk(true) end)
+        inst.task = inst:StartThread(function() if inst.components.maxwelltalker~=nil then inst.components.maxwelltalker:EndgameDoTalk() end end)
     end
     
 end
@@ -263,7 +263,7 @@ local function phonographon(inst)
     if inst.components.maxwelltalker then
         if inst.components.maxwelltalker:IsTalking() then inst.components.maxwelltalker:StopTalking() end
         inst.components.maxwelltalker.speech = "PHONOGRAPHON"
-        inst.task = inst:StartThread(function() inst.components.maxwelltalker:DoTalk(true) end)
+        inst.task = inst:StartThread(function() if inst.components.maxwelltalker~=nil then inst.components.maxwelltalker:EndgameDoTalk() end end)
     end
 end
 
@@ -271,7 +271,7 @@ local function phonographoff(inst)
     if inst.components.maxwelltalker then
         if inst.components.maxwelltalker:IsTalking() then inst.components.maxwelltalker:StopTalking() end
         inst.components.maxwelltalker.speech = "PHONOGRAPHOFF"  
-        inst.task = inst:StartThread(function() inst.components.maxwelltalker:DoTalk(true) end)
+        inst.task = inst:StartThread(function() if inst.components.maxwelltalker~=nil then inst.components.maxwelltalker:EndgameDoTalk() end end)
     end
 end
 
@@ -283,7 +283,7 @@ local function teleportfail(inst)
     if inst.components.maxwelltalker then
         if inst.components.maxwelltalker:IsTalking() then inst.components.maxwelltalker:StopTalking() end
         inst.components.maxwelltalker.speech = "TELEPORTFAIL"
-        inst.task = inst:StartThread(function() inst.components.maxwelltalker:DoTalk(true) end)
+        inst.task = inst:StartThread(function() if inst.components.maxwelltalker~=nil then inst.components.maxwelltalker:EndgameDoTalk() end end)
     end
     if not inst.components.talkable then
         local conv_index = 1
@@ -338,7 +338,7 @@ local function fn()
             self.inst:DoTaskInTime(1,function()
                 if not self.inst.components.maxwelltalker:IsTalking() then
                     self.inst:PushEvent("talkedto")
-                    self.inst.task = self.inst:StartThread(function() self.inst.components.maxwelltalker:DoTalk(true) end)
+                    self.inst.task = self.inst:StartThread(function() if inst.components.maxwelltalker~=nil then inst.components.maxwelltalker:EndgameDoTalk() end end)
                 end
             end)
         end

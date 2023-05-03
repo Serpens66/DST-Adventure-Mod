@@ -112,7 +112,7 @@ AddStartLocation("adv7", {
 local blockersets = require("map/blockersets")
 AddRoom("advSpiderForest", {
 					colour={r=.80,g=0.34,b=.80,a=.50},
-					value = GROUND.FOREST,
+					value = WORLD_TILES.FOREST,
 					tags = {"ExitPiece", "Chester_Eyebone"},
 					contents =  {
 					                distributepercent = .2,
@@ -137,7 +137,7 @@ AddRoom("advSpiderForest", {
 					})
 AddRoom("advSpiderCity", { -- custom with less spiders to reduce lags
 					colour={r=.30,g=.20,b=.50,a=.50},
-					value = _G.GROUND.FOREST,
+					value = _G.WORLD_TILES.FOREST,
 					contents =  {
 					                countprefabs= {
                                         goldnugget = function() return 3 + math.random(3) end,
@@ -166,14 +166,14 @@ AddTask("advSanity-Blocked Spider Queendom", {
 			["Graveyard"] = 1,
 			["CrappyDeepForest"] = 2,
 		}, 
-		room_bg=_G.GROUND.FOREST,
+		room_bg=_G.WORLD_TILES.FOREST,
 		background_room="advSpiderForest",
 		colour={r=1,g=1,b=0,a=1}
 	})
     
 AddRoom("advSpiderMarsh", {
 					colour={r=.45,g=.75,b=.45,a=.50},
-					value = _G.GROUND.MARSH,
+					value = _G.WORLD_TILES.MARSH,
 					tags = {"ExitPiece", "Chester_Eyebone"},
 					contents =  {
 					                distributepercent = .1,
@@ -205,7 +205,81 @@ AddTask("advTentacle-Blocked Spider Swamp", {
 			["advSpiderMarsh"] = function() return 2+math.random(_G.SIZE_VARIATION) end, 
 			["Forest"] = 2,
 		},
-		room_bg=_G.GROUND.MARSH,
+		room_bg=_G.WORLD_TILES.MARSH,
 		background_room="BGMarsh",
 		colour={r=.5,g=.05,b=.05,a=1}
-	}) 
+	})
+-- #########
+-- add wormholes to the island tasks
+-- this works very well, the exact number spawns (much better then adding setpieces to the tasks!) (if we find out hot wo control the room size...)
+-- alterantive we could add wormhole to existing rooms in islandhopping. best way is to make a new room with exact same buiuld, but with a wormhole and add it to the task and remove 
+-- one from the original room 
+--[[
+AddRoom("Wormhole_Room_Mod", {
+    colour={r=1,g=0,b=0,a=0.3},
+    value = _G.WORLD_TILES.FOREST, -- is placed that way, but with a big empty forest room, no clue how to control the size..
+    contents =  {
+        countprefabs = {
+            wormhole = 1,
+        },
+    }
+})
+-- AddRoom("Wormhole_Room_Mod", {
+    -- colour={r=1,g=0,b=0,a=0.3},
+    -- type = "blank",
+    -- value = _G.WORLD_TILES.IMPASSABLE, -- is not placed this way....
+    -- contents =  {
+        -- countprefabs = {
+            -- wormhole = 1,
+        -- },
+    -- }
+-- })
+AddTaskPreInit("IslandHop_Start",function(task)
+    if task.room_choices==nil then
+        task.room_choices = {}
+    end
+    task.room_choices["Wormhole_Room_Mod"] = 1
+end)
+AddTaskPreInit("IslandHop_Hounds",function(task)
+    if task.room_choices==nil then
+        task.room_choices = {}
+    end
+    task.room_choices["Wormhole_Room_Mod"] = 2
+end)
+AddTaskPreInit("IslandHop_Forest",function(task)
+    if task.room_choices==nil then
+        task.room_choices = {}
+    end
+    task.room_choices["Wormhole_Room_Mod"] = 2
+end)
+AddTaskPreInit("IslandHop_Savanna",function(task)
+    if task.room_choices==nil then
+        task.room_choices = {}
+    end
+    task.room_choices["Wormhole_Room_Mod"] = 2
+end)
+AddTaskPreInit("IslandHop_Rocky",function(task)
+    if task.room_choices==nil then
+        task.room_choices = {}
+    end
+    task.room_choices["Wormhole_Room_Mod"] = 2
+end)
+AddTaskPreInit("IslandHop_Merm",function(task)
+    if task.room_choices==nil then
+        task.room_choices = {}
+    end
+    task.room_choices["Wormhole_Room_Mod"] = 1
+end)
+AddTaskPreInit("Land of Plenty",function(task)
+    if task.room_choices==nil then
+        task.room_choices = {}
+    end
+    task.room_choices["Wormhole_Room_Mod"] = 1
+end)
+AddTaskPreInit("The other side",function(task)
+    if task.room_choices==nil then
+        task.room_choices = {}
+    end
+    task.room_choices["Wormhole_Room_Mod"] = 1
+end)
+]]--

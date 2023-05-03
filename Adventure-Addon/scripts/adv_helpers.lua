@@ -281,12 +281,14 @@ local function AddScenario(inst,scen)
 end
 helpers["AddScenario"] = AddScenario
 
-local function MakeFireProof(inst,howlong) -- this is not real fire proofness, just a "hack" another dev made. we set burning to true, so game things it burns, but it does not. So this is only for short protection of items!
-    if inst and inst.components and inst.components.burnable and howlong then
-        inst.components.burnable.burning = true
-        inst:DoTaskInTime(howlong,function(inst)
-            inst.components.burnable.burning = false -- use it e.g for the backpack in king of winter, so it won't burn while maxwell is talking to us
-        end)
+local function MakeFireProof(inst,howlong)
+    if inst and inst.components and inst.components.burnable then
+        inst:AddTag("fireimmune")
+        if howlong then
+            inst:DoTaskInTime(howlong,function(inst)
+                inst:RemoveTag("fireimmune")
+            end)
+        end
     end
 end
 helpers["MakeFireProof"] = MakeFireProof
@@ -296,7 +298,7 @@ local function FuelNearFires(player) -- fuel fires near players if they spawn th
     local x, y, z = player.Transform:GetWorldPosition() 
     local nearfires = TheSim:FindEntities(x, y, z, 10, nil, nil, {"campfire"})
     for _,fire in pairs(nearfires) do
-        if fire~=nil and fire.components~=nil and fire.components.fueled~=nil then
+        if fire~=nil and fire:IsValid() and fire.components~=nil and fire.components.fueled~=nil and fire.components.fueled.accepting then
             fire.components.fueled:DoDelta( TUNING.LARGE_FUEL )
         end
     end

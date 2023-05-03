@@ -2,12 +2,10 @@
 
 -- TODO:
 
--- rausfinden wie overrides ohne nicht die spieler einstellungen überschrieben
 
 -- animation on throne
 -- -> als minor bug eintragen
 
---prototype skins... kanns nicht testen, also in prototyper comp nachschauen... ich denke aber es wird automaitsch gepseichert
 
 -- TheWorld.components.adventurejump:DoJump()
 
@@ -16,13 +14,8 @@
 
 
 
--- Reign of Giants settings nehmen (dazu bruach ich die files)
-
--- announcements wenn ein spieler ein teil gepicked hat?
--- wenn dann by default abgeschaltet
-
 -- advenced worldgeneration von dejavu hat aera-aware. evtl könnte man damit two worlds
--- untersch. wetter us machen?
+-- untersch. wetter usw machen?
 
 
 
@@ -119,14 +112,14 @@ _G.TUNING.TELEPORTATOMOD.sandboxpreconfigured = GetModConfigData("sandboxpreconf
 
 _G.TUNING.TELEPORTATOMOD.adv_forcechar_prefabs = nil
 
-
+local ex_fns = require "prefabs/player_common_extensions"
 local UserCommands = _G.require("usercommands")
 AddUserCommand("adv_forcechar",{
     permission = _G.COMMAND_PERMISSION.USER,
     vote = false,
     params = {},
     serverfn = function(params, caller)
-        print("adv_playerinlobby")
+        -- print("adv_playerinlobby")
         local userid = caller.userid
         if _G.TUNING.TELEPORTATOMOD.CHAPTER~=1 and _G.TheWorld and _G.TheWorld.components and _G.TheWorld.components.worldjump and _G.TheWorld.components.worldjump.player_data and _G.TheWorld.components.worldjump.player_data[userid] then
             if not table.contains(_G.TheWorld.components.worldjump.player_ids,userid) then -- only the first time in lobbyscreen (eg dont do it when we change char in new portal)
@@ -147,30 +140,30 @@ local function IsScreenInStackAndReturnScreen(screenname)
 end
 
 AddPrefabPostInit("forest_network",function(worldnet)
-    print("forest_network")
+    -- print("forest_network")
     _G.TUNING.TELEPORTATOMOD.adv_forcechar_prefabs = _G.net_string(worldnet.GUID, "adv_forcechar.player", "adv_forcechar_dirty")
     _G.TUNING.TELEPORTATOMOD.adv_forcechar_prefabs:set("")
     
     if CLIENT_SIDE then
         worldnet:ListenForEvent("adv_forcechar_dirty", function(worldnet) 
             local adv_forcechar = _G.TUNING.TELEPORTATOMOD.adv_forcechar_prefabs:value()
-            print(adv_forcechar)
+            -- print(adv_forcechar)
             local adv_forcechar_split = string.split(adv_forcechar, "###") -- we send userid+###+prefab within netvar
             local userid,prefab = adv_forcechar_split[1],adv_forcechar_split[2]
             if TheNet:GetUserID()==userid then
                 local lobbyscreen = IsScreenInStackAndReturnScreen("LobbyScreen")
                 if lobbyscreen then
                     lobbyscreen:Hide()
-                    print(prefab)
+                    -- print(prefab)
                     lobbyscreen.character_for_game = prefab
                     lobbyscreen.cb(lobbyscreen.character_for_game) -- currentskin is nil, but we will use the normal worldjump load to add the skin back
-                else
-                    print("no lobbyscreen")
+                -- else
+                    -- print("no lobbyscreen")
                 end
-            else
-                print("userid unequal")
-                print(TheNet:GetUserID())
-                print(userid)
+            -- else
+                -- print("userid unequal")
+                -- print(TheNet:GetUserID())
+                -- print(userid)
             end
         end)
     end
@@ -178,7 +171,7 @@ end)
 
 local function LobbyHook(self) -- force same player
     -- _G.scheduler:ExecuteInTime(0,function()
-        print("LobbyHook")
+        -- print("LobbyHook")
         UserCommands.RunUserCommand("adv_forcechar", {}, _G.TheNet:GetClientTableForUser(_G.TheNet:GetUserID()))
     -- end, "get_data_about_self")
 end
@@ -210,54 +203,56 @@ local adv_helpers = _G.require("adv_helpers")  --load it from teleportato mod
 -- we can use _G.TUNING.TELEPORTATOMOD.LEVEL and _G.TUNING.TELEPORTATOMOD.CHAPTER as soon as the game started
 -- _G.TUNING.TELEPORTATOMOD.LEVELINFOLOADED will be true after everythong was loaded.
 
-
+modimport("scripts/ADVENTURE_STRINGS") -- load DS STRINGS if the devs removed them...
 
 --world:DoTaskInTime(1,function() world.components.adventurejump:DoJump() end) end) -- endless jump for testing
 
 -- maxwell spawn for every single player only on their client side, so other players should not be able to see him
 local function SpawnMaxwell(inst)
-    print("SpawnMaxwell")
+    -- print("SpawnMaxwell")
     if _G.TUNING.TELEPORTATOMOD.CHAPTER then
         if SERVER_SIDE and inst.components~=nil and inst.components.health~=nil then
             inst.components.health:SetInvincible(true) -- make player invincible, is removed within maxwelltalker file
         end
-        inst:DoTaskInTime(0.5,function(inst)
-            print("SpawnMaxwell1")
-            
-            local maxw = _G.SpawnPrefab("maxwellintro")
-            if maxw~=nil then
-                local speechName = "ADVENTURE_1"
-                if _G.TUNING.ADV_DIFFICULTY==0 then -- DS. so no new dialog
-                    inst.dolevelspeech = false
-                end
-                -- inst.dolevelspeech = true -- test
-                if inst.dolevelspeech then -- 66% chance, different for every single player
-                    speechName = "ADVENTURE "..tostring(_G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name) -- alternative strings matching the chosen level
-                end
-                if (not inst.dolevelspeech or maxw.components.maxwelltalker.speeches[speechName]==nil) then
-                    speechName = "ADVENTURE_".._G.TUNING.TELEPORTATOMOD.CHAPTER -- strings matching the actual chapter
-                end
-                if maxw.components.maxwelltalker.speeches[speechName]~=nil then
-                    maxw:Hide() -- invisible
-                    if _G.ThePlayer==inst or SERVER_SIDE then
-                        if _G.ThePlayer==inst then
-                            maxw:Show() -- make it visible only for the player who "called" him
+        if _G.TUNING.TELEPORTATOMOD.WORLDS~=nil and _G.TUNING.TELEPORTATOMOD.LEVEL~=nil and _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name~=nil then
+            inst:DoTaskInTime(0.5,function(inst)
+                -- print("SpawnMaxwell1")
+                
+                local maxw = _G.SpawnPrefab("maxwellintro")
+                if maxw~=nil then
+                    local speechName = "ADVENTURE_1"
+                    if _G.TUNING.ADV_DIFFICULTY==0 then -- DS. so no new dialog
+                        inst.dolevelspeech = false
+                    end
+                    -- inst.dolevelspeech = true -- test
+                    if inst.dolevelspeech then -- 66% chance, different for every single player
+                        speechName = "ADVENTURE "..tostring(_G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name) -- alternative strings matching the chosen level
+                    end
+                    if (not inst.dolevelspeech or maxw.components.maxwelltalker.speeches[speechName]==nil) then
+                        speechName = "ADVENTURE_".._G.TUNING.TELEPORTATOMOD.CHAPTER -- strings matching the actual chapter
+                    end
+                    if maxw.components.maxwelltalker.speeches[speechName]~=nil then
+                        maxw:Hide() -- invisible
+                        if _G.ThePlayer==inst or SERVER_SIDE then
+                            if _G.ThePlayer==inst then
+                                maxw:Show() -- make it visible only for the player who "called" him
+                            end
+                            maxw.components.maxwelltalker:SetSpeech(speechName)
+                            maxw.components.maxwelltalker:Initialize(inst,CLIENT_SIDE)
+                            maxw:StartThread(function() maxw.components.maxwelltalker:DoTalk(CLIENT_SIDE,inst.dolevelspeech) end)
                         end
-                        maxw.components.maxwelltalker:SetSpeech(speechName)
-                        maxw.components.maxwelltalker:Initialize(inst,CLIENT_SIDE)
-                        maxw:StartThread(function() maxw.components.maxwelltalker:DoTalk(CLIENT_SIDE,inst.dolevelspeech) end)
+                    else
+                        print("AdventureMod: no speech found within maxwellintro for "..tostring(speechName))
+                        if SERVER_SIDE and inst.components~=nil and inst.components.health~=nil then
+                            inst.components.health:SetInvincible(false)
+                        end
+                        maxw:Remove()
                     end
-                else
-                    print("no speech found within maxwellintro for "..tostring(speechName))
-                    if SERVER_SIDE and inst.components~=nil and inst.components.health~=nil then
-                        inst.components.health:SetInvincible(false)
-                    end
-                    maxw:Remove()
                 end
-            end
-        end)
+            end)
+        end
     else
-        print("Adventure: SpawnMaxwell CHAPTER is nil?!")
+        print("AdventureMod: SpawnMaxwell CHAPTER is nil?!")
     end
 end
 
@@ -265,12 +260,12 @@ end
 -- some functions you can use which will be called within teleportato mod:
 -- functionatplayerfirstspawn(player) -- will be executed for every players first spawn and can eg. be used to spawn some starter items or lit some fires around him and so on. 
 -- functionpostloadworldONCE(world) -- will be executed at world start ONCE (only the first time directly after generating the world).  eg. you could add some stuff around startposition 
--- in addition you can addprefabpostinit into your modmain, but LEVEL and CHAPTER will need ~0.1 seconds to be set, so do DoTaskInTime within your Addprefabpostiint! (only continue after _G.TUNING.TELEPORTATOMOD.LEVELINFOLOADED was set to true by teleportato mod)
+-- in addition you can use addprefabpostinit in your modmain, but LEVEL and CHAPTER will need ~0.1 seconds to be set, so do DoTaskInTime within your Addprefabpostiint! (only continue after _G.TUNING.TELEPORTATOMOD.LEVELINFOLOADED was set to true by teleportato mod)
 
 local functionatplayerfirstspawn = _G.TUNING.TELEPORTATOMOD.functionatplayerfirstspawn
 local functionpostloadworldONCE = _G.TUNING.TELEPORTATOMOD.functionpostloadworldONCE
 _G.TUNING.TELEPORTATOMOD.functionatplayerfirstspawn = function(player) -- called for server and client
-    print("functionatplayerfirstspawn")
+    -- print("functionatplayerfirstspawn")
     if functionatplayerfirstspawn~=nil then -- call a previous funtion from another mod, if there is one
         functionatplayerfirstspawn(player)
     end
@@ -282,37 +277,10 @@ _G.TUNING.TELEPORTATOMOD.functionatplayerfirstspawn = function(player) -- called
         SpawnMaxwell(player)
         if SERVER_SIDE then 
             if _G.TheWorld:HasTag("forest") then
-                
-                if _G.TUNING.TELEPORTATOMOD.getstartingitems==false and _G.TUNING.TELEPORTATOMOD.CHAPTER~=nil and _G.TUNING.TELEPORTATOMOD.CHAPTER<=2 and player.starting_inventory_orig~=nil then -- give the starting items only in those 2 chapters
-                    player.starting_inventory = player.starting_inventory_orig
-                    if player.starting_inventory ~= nil and #player.starting_inventory > 0 and player.components.inventory ~= nil then -- code taken from NewSpawn within player_common.lua
-                        player.components.inventory.ignoresound = true
-                        if player.components.inventory:GetNumSlots() > 0 then
-                            for i, v in ipairs(player.starting_inventory) do
-                                player.components.inventory:GiveItem(_G.SpawnPrefab(v))
-                            end
-                        else
-                            local items = {}
-                            for i, v in ipairs(player.starting_inventory) do
-                                local item = _G.SpawnPrefab(v)
-                                if item.components.equippable ~= nil then
-                                    player.components.inventory:Equip(item)
-                                    table.insert(items, item)
-                                else
-                                    item:Remove()
-                                end
-                            end
-                            for i, v in ipairs(items) do
-                                if v.components.inventoryitem == nil or not v.components.inventoryitem:IsHeld() then
-                                    v:Remove()
-                                end
-                            end
-                        end
-                        player.components.inventory.ignoresound = false
-                    end
+                if (_G.TheWorld.components.worldjump.player_data[player.userid]==nil or (_G.TUNING.TELEPORTATOMOD.getstartingitems==false and _G.TUNING.TELEPORTATOMOD.CHAPTER~=nil and _G.TUNING.TELEPORTATOMOD.CHAPTER<=2)) and player.starting_inventory_orig~=nil then -- give the starting items only in those 2 chapters. -- if it is first spawn ever (no player_data saved), then give start items regardless of settings or chapter!
+                    ex_fns.GivePlayerStartingItems(player, player.starting_inventory_orig) -- line taken from NewSpawn within player_common.lua
                 end
-                
-                print("functionatplayerfirstspawn, level:"..tostring(_G.TUNING.TELEPORTATOMOD.LEVEL).." chapter:"..tostring(_G.TUNING.TELEPORTATOMOD.CHAPTER))
+                -- print("functionatplayerfirstspawn, level:"..tostring(_G.TUNING.TELEPORTATOMOD.LEVEL).." chapter:"..tostring(_G.TUNING.TELEPORTATOMOD.CHAPTER))
                 if _G.TUNING.ADV_DIFFICULTY~=0 and _G.TUNING.ADV_DIFFICULTY~=3 then -- spawn some helpful stuff for starting players, at least on easy and default difficutly
                     adv_helpers.FuelNearFires(player) -- always fuel nerby fires to help new starting players a bit
                     if _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Maxwells Door" and _G.TUNING.TELEPORTATOMOD.sandboxpreconfigured then 
@@ -336,10 +304,10 @@ _G.TUNING.TELEPORTATOMOD.functionatplayerfirstspawn = function(player) -- called
                         adv_helpers.SpawnPrefabAtLandPlotNearInst("axe",player,15,0,15,2/_G.TUNING.ADV_DIFFICULTY,3,3)
                         adv_helpers.SpawnPrefabAtLandPlotNearInst("skeleton",player,15,0,15,1,3,3)
                         local blueprint = adv_helpers.SpawnPrefabAtLandPlotNearInst("earmuffshat_blueprint",player,15,0,15,1,3,3)
-                        adv_helpers.MakeFireProof(blueprint,20)
+                        adv_helpers.MakeFireProof(blueprint,50)
                         local chest = adv_helpers.SpawnPrefabAtLandPlotNearInst("backpack",player,15,0,15,1,3,3)
                         adv_helpers.AddScenario(chest,"packloot_winter_start_medium")
-                        adv_helpers.MakeFireProof(chest,20)
+                        adv_helpers.MakeFireProof(chest,50)
                     elseif _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="The Game is Afoot" then
                         adv_helpers.SpawnPrefabAtLandPlotNearInst("cutgrass",player,15,0,15,6/_G.TUNING.ADV_DIFFICULTY,3,3)
                         adv_helpers.SpawnPrefabAtLandPlotNearInst("twigs",player,15,0,15,4/_G.TUNING.ADV_DIFFICULTY,3,3)
@@ -361,7 +329,7 @@ _G.TUNING.TELEPORTATOMOD.functionatplayerfirstspawn = function(player) -- called
                     elseif _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Darkness" then
                         local chest = adv_helpers.SpawnPrefabAtLandPlotNearInst("backpack",player,15,0,15,1,3,3)
                         adv_helpers.AddScenario(chest,"packloot_nightmare")
-                        adv_helpers.MakeFireProof(chest,20)
+                        adv_helpers.MakeFireProof(chest,50)
                         adv_helpers.SpawnPrefabAtLandPlotNearInst("cutgrass",player,15,0,15,20/_G.TUNING.ADV_DIFFICULTY,3,3)
                         adv_helpers.SpawnPrefabAtLandPlotNearInst("twigs",player,15,0,15,14/_G.TUNING.ADV_DIFFICULTY,3,3)
                         adv_helpers.SpawnPrefabAtLandPlotNearInst("flint",player,15,0,15,4/_G.TUNING.ADV_DIFFICULTY,3,3)
@@ -383,7 +351,7 @@ local function ConnectWormholes(x,y)
         adv_savewormholes["wormhole"..tostring(y)].components.teleporter.targetTeleporter = adv_savewormholes["wormhole"..tostring(x)]
         return true,true
     end
-    print("Adventure Mod: ERROR was not able to connect all wormholes, cause at least one (non starting and ending) island has less than 2 wormholes")
+    print("AdventureMod: ERROR was not able to connect all wormholes, cause at least one (non starting and ending) island has less than 2 wormholes")
     return adv_savewormholes["wormhole"..tostring(x)]~=nil,adv_savewormholes["wormhole"..tostring(y)]~=nil
 end
 
@@ -394,11 +362,11 @@ _G.TUNING.TELEPORTATOMOD.functionpostloadworldONCE = function(world) -- only cal
     world:DoTaskInTime(0,function() -- do the following after everything is finally done
         if SERVER_SIDE then -- only called for server anyway
             if world:HasTag("forest") then
-                print("functionpostloadworldONCE, level:"..tostring(_G.TUNING.TELEPORTATOMOD.LEVEL).." chapter:"..tostring(_G.TUNING.TELEPORTATOMOD.CHAPTER))
+                -- print("functionpostloadworldONCE, level:"..tostring(_G.TUNING.TELEPORTATOMOD.LEVEL).." chapter:"..tostring(_G.TUNING.TELEPORTATOMOD.CHAPTER))
+                local x,y,z = world.components.playerspawner.GetAnySpawnPoint() -- we only have one starting position (if 0,0,0, then no point is registered yet, this is why the code must be in DoTaskInTime )
+                local spawnpointpos = _G.Vector3(x ,y ,z )
                 if _G.TUNING.ADV_DIFFICULTY~=0 and _G.TUNING.ADV_DIFFICULTY~=3 then -- spawn some helpful stuff
                     if _G.TUNING.TELEPORTATOMOD.CHAPTER~=7 then -- everytime except in the last chosen world
-                        local x,y,z = world.components.playerspawner.GetAnySpawnPoint() -- we only have one starting position
-                        local spawnpointpos = _G.Vector3(x ,y ,z )
                         local fire = adv_helpers.SpawnPrefabAtLandPlotNearInst("firepit",spawnpointpos,7,0,7,1,3,3)
                         if _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Maxwells Door" and _G.TUNING.TELEPORTATOMOD.sandboxpreconfigured then -- in lvl 1 add a pond to get some food
                             adv_helpers.SpawnPrefabAtLandPlotNearInst("pond",spawnpointpos,30,0,30,1,15,15)
@@ -433,18 +401,46 @@ _G.TUNING.TELEPORTATOMOD.functionpostloadworldONCE = function(world) -- only cal
                     end
                 end
                 world:DoTaskInTime(1,function() -- do the following after everything is finally done
-                    if (GetModConfigData("withocean")=="wormholes" or GetModConfigData("withocean")=="oceanwormholes") and adv_savewormholes["wormhole1"]~=nil and adv_savewormholes["wormhole10"]~=nil then
-                        local islandtasks = { "IslandHop_Start", "IslandHop_Hounds", "IslandHop_Forest", "IslandHop_Savanna", "IslandHop_Rocky", "IslandHop_Merm" }
+                    if (GetModConfigData("withocean")=="wormholes" or GetModConfigData("withocean")=="oceanwormholes") then
                         if _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Archipelago" then -- an odd number is leaving the island and an even number is entering the island
-                            print("Adventure archipelago connect wormholes..")
-                            local entrances = {2,4,6,8}
-                            local pick = 0
-                            for i = 1,4 do
-                                oldpick = pick
-                                pick = _G.PickSome(1,entrances)[1]
-                                ConnectWormholes(oldpick+1,pick)
+                            local sucess = true
+                            if adv_savewormholes["wormhole1"]~=nil and adv_savewormholes["wormhole10"]~=nil then
+                                -- local islandtasks = { "IslandHop_Start", "IslandHop_Hounds", "IslandHop_Forest", "IslandHop_Savanna", "IslandHop_Rocky", "IslandHop_Merm" }
+                                -- print("Adventure archipelago connect wormholes..")
+                                local entrances = {2,4,6,8}
+                                local pick = 0
+                                local a,b
+                                for i = 1,4 do
+                                    oldpick = pick
+                                    pick = _G.PickSome(1,entrances)[1]
+                                    a,b = ConnectWormholes(oldpick+1,pick)
+                                    if not a or not b then
+                                        sucess = false
+                                    end
+                                end
+                                a,b = ConnectWormholes(pick+1,10)
+                                if not a or not b then
+                                    sucess = false
+                                end
+                            else
+                                sucess = false
                             end
-                            ConnectWormholes(pick+1,10)
+                            if sucess and GetModConfigData("withocean")=="wormholes" and GLOBAL.AllRecipes["seafaring_prototyper"] then -- we alawys spawn ocean, but if player chose to only have wormhole, we will make thinkthank unavailable if connecting wormholes suceeded
+                                GLOBAL.AllRecipes["seafaring_prototyper"].level = GLOBAL.TECH.LOST
+                            end
+                            if not sucess then
+                                print("AdventureMod: Spawning and linking wormholes failed, please use boats instead...")
+                            end
+                        elseif _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Two Worlds" then 
+                            if GetModConfigData("withocean")=="wormholes" then -- we alawys spawn ocean, but if player chose to only have wormhole, we will make thinkthank unavailable if connecting wormholes suceeded
+                                if world.firsttwoworldswormhole and world.firsttwoworldswormhole.components.teleporter.targetTeleporter and GLOBAL.AllRecipes["seafaring_prototyper"] then -- we alawys spawn ocean, but if player chose to only have wormhole, we will make thinkthank unavailable if connecting wormholes suceeded
+                                    GLOBAL.AllRecipes["seafaring_prototyper"].level = GLOBAL.TECH.LOST
+                                end
+                            end
+                        elseif not (_G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Maxwells Door" and not _G.TUNING.TELEPORTATOMOD.sandboxpreconfigured) then
+                            if GetModConfigData("withocean")=="wormholes" and GLOBAL.AllRecipes["seafaring_prototyper"] then -- we alawys spawn ocean, but if player chose to only have wormhole, we will make thinkthank unavailable
+                                GLOBAL.AllRecipes["seafaring_prototyper"].level = GLOBAL.TECH.LOST
+                            end
                         end
                     end
                 end)
@@ -488,33 +484,25 @@ AddPlayerPostInit(function(player)
     player.mynetvarMCutscene:set(false) -- set a default value
     player.dolevelspeech = true
     if CLIENT_SIDE then
-        player:ListenForEvent("DirtyEventdolevelspeech", function(player) print("set dolevelspeech for client to "..tostring(player.mynetvardolevelspeech:value()));player.dolevelspeech = player.mynetvardolevelspeech:value() end) -- also set up for client
+        player:ListenForEvent("DirtyEventdolevelspeech", function(player) print("AdventureMod: set dolevelspeech for client to "..tostring(player.mynetvardolevelspeech:value()));player.dolevelspeech = player.mynetvardolevelspeech:value() end) -- also set up for client
         player:ListenForEvent("DirtyEventMCutscene", MCutsceneClient)
     end
     player:DoTaskInTime(0, function(player)
-        if _G.TUNING.TELEPORTATOMOD.LEVEL~=nil then
+        if _G.TUNING.TELEPORTATOMOD.LEVEL~=nil and _G.TUNING.TELEPORTATOMOD.WORLDS~=nil and _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL]~=nil then
             if _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Checkmate" then -- has to be done everytime
                 _G.TheCamera:SetHeadingTarget(225) -- rotate the camera for every player making south at the top (we removed maxwellcamera, thats why we have to do it)
             end
         end
     end)
-    if _G.TUNING.TELEPORTATOMOD.getstartingitems==false then
+    if _G.TUNING.TELEPORTATOMOD.getstartingitems==false then -- at this point neither chapter nor worldjump player_data is defined!
         player.starting_inventory_orig = player.starting_inventory -- save it and give it within functionatplayerfirstspawn if the chapter is 0 or 1
         player.starting_inventory = {} -- dont give starting items generally
     end
     -- print("level bei playerpostinit ist "..tostring(_G.TUNING.TELEPORTATOMOD.LEVEL).." levelload:"..tostring(_G.TUNING.TELEPORTATOMOD.LEVELINFOLOADED))
 end)
 
-modes = {"survival","wilderness","endless"} -- overwriting every gamemode to the same, so regardless wich mode you choose, it is always the following
-for i,mode in ipairs(modes) do
-    _G.GAME_MODES[mode].spawn_mode = "fixed"
-    _G.GAME_MODES[mode].ghost_sanity_drain = true
-    _G.GAME_MODES[mode].ghost_enabled = true
-    _G.GAME_MODES[mode].reset_time = { time = 120, loadingtime = 180 }
-    _G.GAME_MODES[mode].portal_rez = true
-    _G.GAME_MODES[mode].invalid_recipes = {} -- "lifeinjector", "resurrectionstatue", "reviver"
-    _G.GAME_MODES[mode].resource_renewal = true
-end
+
+
 
 
 
@@ -543,11 +531,11 @@ AddPrefabPostInit("wormhole",function(inst)
     if SERVER_SIDE and inst.components.teleporter then
         inst:DoTaskInTime(0.5,function(inst) -- do it after _G.TUNING.TELEPORTATOMOD.LEVEL is checked (0.001) and before adv_savewormholes are used 0.1
             if (GetModConfigData("withocean")=="wormholes" or GetModConfigData("withocean")=="oceanwormholes") then
-                print("execute wormhole saving if world with wormholes...level "..tostring(_G.TUNING.TELEPORTATOMOD.LEVEL))
+                -- print("ADV: execute wormhole saving if world with wormholes...level "..tostring(_G.TUNING.TELEPORTATOMOD.LEVEL))
                 local taskandroom = ""
                 if _G.TUNING.TELEPORTATOMOD.LEVEL~=nil and _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL]~=nil then
                     if _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Archipelago" then
-                        print("save wormholes")
+                        -- print("save wormholes")
                         taskandroom = GetRoom(inst) -- eg "IslandHop_Start:2:SpiderMarsh"                
                         if string.find(taskandroom,"IslandHop_Start") and (adv_savewormholes["wormhole1"]==nil or not adv_savewormholes["wormhole1"]:IsValid()) then
                             adv_savewormholes["wormhole1"] = inst
@@ -572,7 +560,7 @@ AddPrefabPostInit("wormhole",function(inst)
                         end
                     elseif _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Two Worlds" then -- there we only have 2 wormholes
                         taskandroom = GetRoom(inst)
-                        print("connect wormholes")
+                        -- print("connect wormholes")
                         if _G.TheWorld.firsttwoworldswormhole==nil and string.find(taskandroom,"Land of Plenty") then
                             _G.TheWorld.firsttwoworldswormhole = inst
                         elseif _G.TheWorld.firsttwoworldswormhole~=nil and string.find(taskandroom,"The other side") and _G.TheWorld.firsttwoworldswormhole.components.teleporter.targetTeleporter==nil then

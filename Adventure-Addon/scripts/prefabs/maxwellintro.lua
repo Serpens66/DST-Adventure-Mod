@@ -307,14 +307,13 @@ local SPEECHES =
 	SPEECHES["ADVENTURE A Cold Reception"] = -- A Cold Reception
 	{		
 		delay = 2,
-	    appearsound = "dontstarve/maxwell/disappear",
-	    voice = "dontstarve/maxwell/talk_LP",
-		appearanim = "appear",
-		idleanim= "idle",
-		dialogpreanim = "dialog_pre",
-		dialoganim="dial_loop",
-		dialogpostanim = "dialog_pst",
-		disappearanim = "disappear",
+	    voice = "dontstarve/maxwell/talk_LP_world2",
+		appearanim = "appear2",
+		idleanim= "idle2_loop",
+		dialogpreanim = "dialog2_pre",
+		dialoganim="dialog2_loop",
+		dialogpostanim = "dialog2_pst",
+		disappearanim = "disappear2",
 		disableplayer = true,
 		skippable = true,
 		{
@@ -334,13 +333,13 @@ local SPEECHES =
 	SPEECHES["ADVENTURE King of Winter"] = -- King of Winter
 	{		
 		delay = 2,
-	    voice = "dontstarve/maxwell/talk_LP_world2",
-		appearanim = "appear2",
-		idleanim= "idle2_loop",
-		dialogpreanim = "dialog2_pre",
-		dialoganim="dialog2_loop",
-		dialogpostanim = "dialog2_pst",
-		disappearanim = "disappear2",
+	    voice = "dontstarve/maxwell/talk_LP_world3",
+		appearanim = "appear3",
+		idleanim= "idle3_loop",
+		dialogpreanim = "dialog3_pre",
+		dialoganim="dialog3_loop",
+		dialogpostanim = "dialog3_pst",
+		disappearanim = "disappear3",
 		disableplayer = true,
 		skippable = true,
 		{
@@ -378,13 +377,13 @@ local SPEECHES =
 	SPEECHES["ADVENTURE The Game is Afoot"] = -- The Game is Afoot
 	{		
 		delay = 2,
-	    voice = "dontstarve/maxwell/talk_LP_world2",
-		appearanim = "appear2",
-		idleanim= "idle2_loop",
-		dialogpreanim = "dialog2_pre",
-		dialoganim="dialog2_loop",
-		dialogpostanim = "dialog2_pst",
-		disappearanim = "disappear2",
+	    voice = "dontstarve/maxwell/talk_LP_world4",
+		appearanim = "appear4",
+		idleanim= "idle4_loop",
+		dialogpreanim = "dialog4_pre",
+		dialoganim="dialog4_loop",
+		dialogpostanim = "dialog4_pst",
+		disappearanim = "disappear4",
 		disableplayer = true,
 		skippable = true,
 		{
@@ -555,17 +554,11 @@ local function fn(Sim)
     inst:AddTag("notarget")
     
     
-    -- inst:AddComponent("talker")
-    -- inst.components.talker.fontsize = 40
-    -- inst.components.talker.font = TALKINGFONT
-    -- inst.components.talker.colour = Vector3(133/255, 140/255, 167/255)
-    -- inst.components.talker.offset = Vector3(0,-700,0)
-    inst:AddComponent("DStalker") -- the old DS talker component, because here the Say() has still a funcitonal time argument
-    inst.components.DStalker.fontsize = 40
-    inst.components.DStalker.font = TALKINGFONT
-    inst.components.DStalker.colour = Vector3(133/255, 140/255, 167/255)
-    inst.components.DStalker.offset = Vector3(0,-700,0)
-    
+    inst:AddComponent("talker")
+    inst.components.talker.fontsize = 40
+    inst.components.talker.font = TALKINGFONT
+    inst.components.talker.colour = Vector3(133/255, 140/255, 167/255)
+    inst.components.talker.offset = Vector3(0,-700,0)    
     
     inst:AddComponent("maxwelltalker")
     inst.components.maxwelltalker.speeches = SPEECHES

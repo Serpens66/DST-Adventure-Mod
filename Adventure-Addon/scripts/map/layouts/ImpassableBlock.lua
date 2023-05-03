@@ -5,7 +5,7 @@ return 	{
             start_mask = PLACE_MASK.NORMAL,
             fill_mask = PLACE_MASK.IGNORE_IMPASSABLE_BARREN_RESERVED,
             layout_position = LAYOUT_POSITION.CENTER,
-            ground_types = {GROUND.ROCKY},
+            ground_types = {WORLD_TILES.ROCKY},
             defs = 
                 {
                     rocks = {"basalt"},

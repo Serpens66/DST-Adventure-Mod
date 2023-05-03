@@ -1,9 +1,9 @@
 name = "Adventure Mode"
-description = "Requires my Teleportato mod!\n\nOvercome challenging worlds, loaded one after the other in the stlye of the Dont Starve adventure!\n\nModsettings from this and teleportato mod work together, so don't forget to adjust both to your liking.\nThis mod overwrites the Ancient Station, Thulecite, StatsSave, NewWorld and regenerate-stats setting from teleportato mod, so these settings wont do anything over there." 
+description = "Requires my Teleportato mod!\n\nOvercome challenging worlds, loaded one after the other in the stlye of the Dont Starve adventure!\n\nModsettings from this and teleportato mod work together, so don't forget to adjust both to your liking.\nThis mod overwrites the Ancient Station, Thulecite, StatsSave, NewWorld and regenerate-stats setting from teleportato mod, so these settings wont do anything over there.\n\n If you want, you can change season/daylength and other worldsettings after worldgeneration in the games settingsscreen." 
 author = "Serpens"
 forumthread = ""
 
-version = "0.961"
+version = "0.991"
 api_version = 10
 
 dst_compatible = true
@@ -19,6 +19,12 @@ priority = 9000 -- load before the teleportato mod
 --These tags allow the server running this mod to be found with filters from the server listing screen
 server_filter_tags = {"adventure","adventure mode","adventurejump","worldgen"}
 
+mod_dependencies = 
+{
+    {
+        workshop = "workshop-756229217", -- dependent on my teleportato mod. this will automatically load it, when enabling adventure mod.
+    }
+}
 
 configuration_options = 
 {
@@ -52,7 +58,7 @@ configuration_options =
 		hover = "Should the level -Maxwells Door- which is the first level, depend on your worldsettings or preconfigured?",
 		options = 
 		{
-            {description = "worldsettings", data = false, hover="Generate your custom worldsettings and place the portal somewhere."},
+            {description = "worldsettings", data = false, hover="Generate your custom worldsettings and place the portal somewhere. (variateworld from teleportato mod wont work)"},
             {description = "preconfigured", data = true, hover="A small swamp world, you will quickly find the portal and start adventure."},
         },                   
 		default = true,
@@ -60,7 +66,7 @@ configuration_options =
     {
 		name = "repickcharacter",
 		label = "Repick character?",
-		hover = "[TEST] Repick character after worldjump? If disabled, you also wont receive character-startitems for chapter 2 and onwards.",
+		hover = "Repick character after worldjump? If disabled, you also wont receive character-startitems for chapter 2 and onwards.",
 		options = 
 		{
             {description = "no repick", data = false, hover="Always same character and no startitems for chapter 2 and onwards"},
@@ -74,7 +80,7 @@ configuration_options =
 		hover = "Worlds with or without ocean? (wormholes will only spawn on island worlds)",
 		options = 
 		{
-            {description = "only wormholes", data = "wormholes", hover="no ocean, so no boats, just like in DS with wormholes"},
+            {description = "only wormholes", data = "wormholes", hover="boats are disabled, use wormholes just like in DS"},
             {description = "only ocean", data = "ocean", hover="with ocean, without wormholes, so you have to use boats."},
             {description = "ocean and wormholes", data = "oceanwormholes", hover="with ocean and wormholes, so you can also use boats."},
         },                   
@@ -114,9 +120,9 @@ configuration_options =
             {description = "winter", data = "winter", hover=""},
             {description = "spring", data = "spring", hover=""},
             {description = "summer", data = "summer", hover=""},
-            {description = "autumnorspring", data = "autumnorspring", hover=""},
-            {description = "winterorsummer", data = "winterorsummer", hover=""},
-            {description = "random", data = "random", hover=""},
+            {description = "autumnorspring", data = "autumn|spring", hover=""},
+            {description = "winterorsummer", data = "winter|summer", hover=""},
+            {description = "random", data = "autumn|winter|spring|summer", hover=""},
         },                   
 		default = false,
     },
@@ -234,9 +240,9 @@ configuration_options =
             {description = "winter", data = "winter", hover=""},
             {description = "spring", data = "spring", hover=""},
             {description = "summer", data = "summer", hover=""},
-            {description = "autumnorspring", data = "autumnorspring", hover=""},
-            {description = "winterorsummer", data = "winterorsummer", hover=""},
-            {description = "random", data = "random", hover=""},
+            {description = "autumnorspring", data = "autumn|spring", hover=""},
+            {description = "winterorsummer", data = "winter|summer", hover=""},
+            {description = "random", data = "autumn|winter|spring|summer", hover=""},
         },                   
 		default = false,
     },
@@ -354,9 +360,9 @@ configuration_options =
             {description = "winter", data = "winter", hover=""},
             {description = "spring", data = "spring", hover=""},
             {description = "summer", data = "summer", hover=""},
-            {description = "autumnorspring", data = "autumnorspring", hover=""},
-            {description = "winterorsummer", data = "winterorsummer", hover=""},
-            {description = "random", data = "random", hover=""},
+            {description = "autumnorspring", data = "autumn|spring", hover=""},
+            {description = "winterorsummer", data = "winter|summer", hover=""},
+            {description = "random", data = "autumn|winter|spring|summer", hover=""},
         },                   
 		default = false,
     },
@@ -474,9 +480,9 @@ configuration_options =
             {description = "winter", data = "winter", hover=""},
             {description = "spring", data = "spring", hover=""},
             {description = "summer", data = "summer", hover=""},
-            {description = "autumnorspring", data = "autumnorspring", hover=""},
-            {description = "winterorsummer", data = "winterorsummer", hover=""},
-            {description = "random", data = "random", hover=""},
+            {description = "autumnorspring", data = "autumn|spring", hover=""},
+            {description = "winterorsummer", data = "winter|summer", hover=""},
+            {description = "random", data = "autumn|winter|spring|summer", hover=""},
         },                   
 		default = false,
     },
@@ -594,9 +600,9 @@ configuration_options =
             {description = "winter", data = "winter", hover=""},
             {description = "spring", data = "spring", hover=""},
             {description = "summer", data = "summer", hover=""},
-            {description = "autumnorspring", data = "autumnorspring", hover=""},
-            {description = "winterorsummer", data = "winterorsummer", hover=""},
-            {description = "random", data = "random", hover=""},
+            {description = "autumnorspring", data = "autumn|spring", hover=""},
+            {description = "winterorsummer", data = "winter|summer", hover=""},
+            {description = "random", data = "autumn|winter|spring|summer", hover=""},
         },                   
 		default = false,
     },
@@ -714,9 +720,9 @@ configuration_options =
             {description = "winter", data = "winter", hover=""},
             {description = "spring", data = "spring", hover=""},
             {description = "summer", data = "summer", hover=""},
-            {description = "autumnorspring", data = "autumnorspring", hover=""},
-            {description = "winterorsummer", data = "winterorsummer", hover=""},
-            {description = "random", data = "random", hover=""},
+            {description = "autumnorspring", data = "autumn|spring", hover=""},
+            {description = "winterorsummer", data = "winter|summer", hover=""},
+            {description = "random", data = "autumn|winter|spring|summer", hover=""},
         },                   
 		default = false,
     },
@@ -831,7 +837,7 @@ configuration_options =
     },
     {
 		name = "acoldreception",
-		label = "Darkness",
+		label = "A Cold Reception",
 		hover = "Enable/Disable the default adventure worlds\nfor some you can also set the position when they will started.",
 		options = 
 		{

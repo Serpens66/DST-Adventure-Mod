@@ -35,6 +35,7 @@ local function ZoomAndFade(inst,CLIENT_SIDE)
     if not CLIENT_SIDE then
         for _,player in pairs(AllPlayers) do
             player:SetCameraDistance(15) -- do as many code as possible on server
+            player.components.health:SetInvincible(true) -- make player invincible
         end
     end
     if CLIENT_SIDE then
@@ -49,7 +50,7 @@ local function ZoomAndFade(inst,CLIENT_SIDE)
         end
         TheNet:Announce("Congratulation! You won the adventure!")
         for _,player in pairs(AllPlayers) do
-            if player~=inst.shadowlord then
+            if player~=inst.shadowlord and player.components.health and not player.components.health:IsDead() then
                 player.sg:GoToState("shadowdance")
             end
         end
@@ -97,10 +98,11 @@ local function SpawnNewPuppet(inst,CLIENT_SIDE)
         -- TheCamera:Shake("FULL", 4, 0.033, 0.1)
         for _,player in pairs(AllPlayers) do
             player:ShakeCamera(CAMERASHAKE.FULL, 4, 0.033, 0.1)
-            player.sg:GoToState("teleportato_teleport")
+            if player.components.health and not player.components.health:IsDead() then player.sg:GoToState("teleportato_teleport") end
             if player.DynamicShadow then
                 player.DynamicShadow:Enable(false)
             end
+            player.components.health:SetInvincible(true) -- make player invincible
         end
     end
     Sleep(4)
@@ -111,6 +113,7 @@ local function SpawnNewPuppet(inst,CLIENT_SIDE)
             if inst.shadowlord==nil and player:HasTag("shadowlord") then
                 inst.shadowlord = player -- double check
             end
+            player.components.health:SetInvincible(true) -- make player invincible
         end
         local puppetToSpawn = inst.shadowlord~=nil and inst.shadowlord.prefab or "wilson"
         if puppetToSpawn == "waxwell" then 
@@ -138,7 +141,7 @@ local function SpawnNewPuppet(inst,CLIENT_SIDE)
             inst.isMaxwell = false
             inst.shadowlord.Transform:SetPosition(pos.x, pos.y + 0.1, pos.z)
             inst.shadowlord:Show()
-            inst.shadowlord.sg:GoToState("throne_sit")
+            if inst.shadowlord.components.health and not inst.shadowlord.components.health:IsDead() then  inst.shadowlord.sg:GoToState("throne_sit") end
             if inst.shadowlord.HUD ~= nil then
                 inst.shadowlord.HUD:Hide()
             end
@@ -162,13 +165,15 @@ local function SpawnNewPuppet(inst,CLIENT_SIDE)
     if not CLIENT_SIDE then
         inst.SoundEmitter:PlaySound("dontstarve/common/throne/playerappear")
         for _,player in pairs(AllPlayers) do
-		if player~=inst.shadowlord then
-            SpawnPrefab("collapse_small").Transform:SetPosition(player.Transform:GetWorldPosition())
-            player.sg:GoToState("idle")
-            player.AnimState:SetMultColour(0, 0, 0, 0.7)
-            player:Show()
-		end
-	end
+            if player~=inst.shadowlord then
+                if player.endingmaxwellposition~=nil then player.Transform:SetPosition(player.endingmaxwellposition:Get()) end
+                SpawnPrefab("collapse_small").Transform:SetPosition(player.Transform:GetWorldPosition())
+                player.sg:GoToState("idle")
+                player.AnimState:SetMultColour(0, 0, 0, 0.7)
+                player:Show()
+            end
+            player.components.health:SetInvincible(true) -- make player invincible
+        end
     end
     Sleep(3)
 
@@ -212,13 +217,19 @@ local function SetUpCutscene(inst,CLIENT_SIDE) -- make it work if only server ca
     print("SetUpCutscene maxwellthrone")
     
     local pt = Vector3(inst.Transform:GetWorldPosition())
+    -- print("throne steht auf position "..tostring(pt))
     --Put game into "cutscene" mode. 
     if not CLIENT_SIDE then
-        -- remove all hostile mobs
-        local nearenemies = TheSim:FindEntities(pt.x, pt.y, pt.z, 50, nil, nil, {"hostile"})
+        -- remove all hostile mobs and extinguish all fires
+        local nearenemies = TheSim:FindEntities(pt.x, pt.y, pt.z, 100, nil, nil, {"hostile","smolder", "fire"})
         for _,enemy in pairs(nearenemies) do
             if enemy~=nil and enemy:IsValid() then
-                enemy:Remove()
+                if enemy.components~=nil and enemy.components.burnable~=nil and not string.match(enemy.prefab,"maxwelllight") then
+                    enemy.components.burnable:Extinguish(true, 0)
+                end
+                if enemy:HasTag("hostile") then
+                    enemy:Remove()
+                end
             end
         end
         
@@ -237,25 +248,35 @@ local function SetUpCutscene(inst,CLIENT_SIDE) -- make it work if only server ca
         end
         if not CLIENT_SIDE then
             player.components.health:SetInvincible(true) -- make player invincible
-            player.components.playercontroller:Enable(false)
+            if player.components.playercontroller~=nil then player.components.playercontroller:Enable(false) end
             player:ShowHUD(false)
             -- player:SetCameraDistance(15)
             player:ShakeCamera(CAMERASHAKE.FULL, 5, 0.033, 0.1)
         end
-        if _<=6 then -- only up to 6 players go to maxwell, for others there is no space left
-            if _>3 then
-                x = -2.5
+        if _<=15 then -- only up to 15 players go to maxwell, for others there is no space left
+            if _<5 then
+                x = 0
+            elseif _>=5 and _<=10 then
+                x = 1.5
+            elseif _>10 then
+                x = 3
             end
-            if _==1 or _==4 then
+            if _==1 or _==6  or _==11 then
                 y = 0
-            elseif _==2 or _==5 then
-                y = -2
-            elseif _==3 or _==6 then
-                y = 2
+            elseif _==2 or _==7 or _==12  then
+                y = -1.5
+            elseif _==3 or _==8 or _==13  then
+                y = 1.5
+            elseif _==4 or _==9 or _==14  then
+                y = 3
+            elseif _==5 or _==10 or _==15  then
+                y = -3
             end
             if player.components and player.components.locomotor then
-                player.components.locomotor:GoToPoint(pt+Vector3(-2.5-x, 0, y))
+                player.components.locomotor:GoToPoint(pt+Vector3(-3-x, 0, y))
             end
+            player.endingmaxwellposition = pt+Vector3(-3-x, 0, y)
+            -- print("player "..tostring(_).." soll zu position "..tostring(pt+Vector3(-3-x, 0, y)))
             player:FacePoint(pt)
             player:DoTaskInTime(3,function() player:FacePoint(pt) end)
         end
