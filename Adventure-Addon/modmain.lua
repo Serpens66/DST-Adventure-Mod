@@ -427,6 +427,7 @@ _G.TUNING.TELEPORTATOMOD.functionpostloadworldONCE = function(world) -- only cal
                             end
                             if sucess and GetModConfigData("withocean")=="wormholes" and GLOBAL.AllRecipes["seafaring_prototyper"] then -- we alawys spawn ocean, but if player chose to only have wormhole, we will make thinkthank unavailable if connecting wormholes suceeded
                                 GLOBAL.AllRecipes["seafaring_prototyper"].level = GLOBAL.TECH.LOST
+                                GLOBAL.AllRecipes["boat_grass_item"].level = GLOBAL.TECH.LOST
                             end
                             if not sucess then
                                 print("AdventureMod: Spawning and linking wormholes failed, please use boats instead...")
@@ -435,11 +436,13 @@ _G.TUNING.TELEPORTATOMOD.functionpostloadworldONCE = function(world) -- only cal
                             if GetModConfigData("withocean")=="wormholes" then -- we alawys spawn ocean, but if player chose to only have wormhole, we will make thinkthank unavailable if connecting wormholes suceeded
                                 if world.firsttwoworldswormhole and world.firsttwoworldswormhole.components.teleporter.targetTeleporter and GLOBAL.AllRecipes["seafaring_prototyper"] then -- we alawys spawn ocean, but if player chose to only have wormhole, we will make thinkthank unavailable if connecting wormholes suceeded
                                     GLOBAL.AllRecipes["seafaring_prototyper"].level = GLOBAL.TECH.LOST
+                                    GLOBAL.AllRecipes["boat_grass_item"].level = GLOBAL.TECH.LOST
                                 end
                             end
                         elseif not (_G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Maxwells Door" and not _G.TUNING.TELEPORTATOMOD.sandboxpreconfigured) then
                             if GetModConfigData("withocean")=="wormholes" and GLOBAL.AllRecipes["seafaring_prototyper"] then -- we alawys spawn ocean, but if player chose to only have wormhole, we will make thinkthank unavailable
                                 GLOBAL.AllRecipes["seafaring_prototyper"].level = GLOBAL.TECH.LOST
+                                GLOBAL.AllRecipes["boat_grass_item"].level = GLOBAL.TECH.LOST
                             end
                         end
                     end
