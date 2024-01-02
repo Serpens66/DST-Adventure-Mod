@@ -136,7 +136,7 @@ end
 -- adding new worldgeneration settings (only selectable by scripts I guess) to restore the old behavior of Node:PopulateExtra function (map/graphnode.lua) called from forest_map.lua to spawn some more prefabs.
 -- in an older game version (pre ~2021) setting eg "fireflies" in wordlsettings to "often" resulted in fireflies everywhere, even in areas where they usually don't spawn.
 -- in current version they only get multiplied where they usually spawn instead.
--- but the devs introduced TRANSLATE_TO_CLUMP in forest_map.lua instead, so get close to the old behaviour and the chesspieces setting is one that uses it (although I'm not sure why the condition includes "0.25 > math.random()"... does it mean even on highest clump-settings there may be areas without new prefabs? not sure...)
+-- but the devs introduced TRANSLATE_TO_CLUMP in forest_map.lua instead, so get close to the old behaviour and the chesspieces setting is one that uses it (although I'm not sure why the condition includes "0.25 > math.random()"... does it mean even on highest clump-settings there may be areas without new prefabs? not sure... but I think yes, but it is ok I think)
 -- so we will add some more stuff there, eg fireflies and maxwell-lights for the darkness level, so they will spawn everywhere, just like they should
 -- valid settings (overrides) will then be often,mostly,always,insane
 -- in addition that game update added more allowed setting values for worldgerneration settings, so instead of only having 
@@ -153,7 +153,8 @@ if forest_map.TRANSLATE_TO_CLUMP~=nil then -- devs need to add it to the returne
     forest_map.TRANSLATE_TO_CLUMP["ADV_clump_spiders"] = {"ADV_worldgen_spiderden"}
     forest_map.TRANSLATE_TO_CLUMP["ADV_clump_walrus"] = {"ADV_worldgen_walrus_camp"}
     -- the naming "often" and so on for Clump is a bit misleading. "often" here is the smallest amount of spawning new prefabs, so if you only want a very few new prefabs to spawn, you call it often, and not rare or so.
-    forest_map.CLUMP["ADV_allmap_always"] = 100 -- in how many nodes(?) we spawn the prefabs. Since we want it in nearly all areas, a extra high number
+    -- but still our "ADV_allmap_often" will mean spawn 1 or 2 entities in every single node (?) (75%chance). If we want less, we should use "often" instead, which is only up to 8 nodes.
+    forest_map.CLUMP["ADV_allmap_always"] = 100 -- in how many nodes(?) we spawn the prefabs. Since we want it in nearly all areas, a extra high number (every node still only has a 75% chance, because this is set in graphnode.lua from the game "if amt.clumpcount > 0 and 0.25 > math.random() then")
     forest_map.CLUMPSIZE["ADV_allmap_always"] = forest_map.CLUMPSIZE["always"] -- how many prefabs are spawned in a node(?)
     forest_map.CLUMP["ADV_allmap_often"] = 100
     forest_map.CLUMPSIZE["ADV_allmap_often"] = forest_map.CLUMPSIZE["often"]
@@ -347,7 +348,9 @@ local function AdventureColdReception(tasksetdata) -- A Cold Reception
     tasksetdata.overrides.hounds  =  "never" -- no hound attacks
     
     if forest_map.TRANSLATE_TO_CLUMP~=nil then
-        tasksetdata.overrides.ADV_clump_walrus  =  (_G.TUNING.ADV_DIFFICULTY==0 and "ADV_allmap_always") or (_G.TUNING.ADV_DIFFICULTY==3 and "ADV_allmap_always") or "ADV_allmap_mostly"
+        -- DS uses mactusk="always", but still only ~5 to 10 will spawn all over the world. seems somehow limited to one per task or so?
+        -- anyway, we will reduce it for DS to Clump="often" which means 1 or 2 in up to 8 nodes (ADV_allmap_often would mean 1 or 2 in nearly every node) and also reduce it a bit in other difficulties
+        tasksetdata.overrides.ADV_clump_walrus  =  (_G.TUNING.ADV_DIFFICULTY==0 and "often") or (_G.TUNING.ADV_DIFFICULTY==3 and "ADV_allmap_mostly") or (_G.TUNING.ADV_DIFFICULTY==1 and "often") or "ADV_allmap_often"
     else
         tasksetdata.overrides.walrus  =  "always"
     end
@@ -433,7 +436,9 @@ local function AdventureKingWinter(tasksetdata)
     tasksetdata.overrides.antliontribute = "never"
     tasksetdata.overrides.hounds  =  "never"
     if forest_map.TRANSLATE_TO_CLUMP~=nil then
-        tasksetdata.overrides.ADV_clump_walrus  =  (_G.TUNING.ADV_DIFFICULTY==0 and "ADV_allmap_always") or (_G.TUNING.ADV_DIFFICULTY==3 and "ADV_allmap_always") or "ADV_allmap_mostly"
+        -- DS uses mactusk="always", but still only ~5 to 10 will spawn all over the world. seems somehow limited to one per task or so?
+        -- anyway, we will reduce it for DS to Clump="often" which means 1 or 2 in up to 8 nodes (ADV_allmap_often would mean 1 or 2 in nearly every node) and also reduce it a bit in other difficulties
+        tasksetdata.overrides.ADV_clump_walrus  =  (_G.TUNING.ADV_DIFFICULTY==0 and "often") or (_G.TUNING.ADV_DIFFICULTY==3 and "ADV_allmap_mostly") or (_G.TUNING.ADV_DIFFICULTY==1 and "often") or "ADV_allmap_often"
     else
         tasksetdata.overrides.walrus  =  "always"
     end
@@ -723,7 +728,7 @@ local function AdventureDarkness(tasksetdata)
     if forest_map.TRANSLATE_TO_CLUMP~=nil then
         tasksetdata.overrides.ADV_clump_spiders = "ADV_allmap_often"
         tasksetdata.overrides.ADV_clump_fireflies = (_G.TUNING.ADV_DIFFICULTY==3 and "ADV_allmap_often") or "ADV_allmap_always"
-        tasksetdata.overrides.ADV_clump_bunnymen = (_G.TUNING.ADV_DIFFICULTY==0 and "ADV_allmap_never") or "ADV_allmap_often"
+        tasksetdata.overrides.ADV_clump_bunnymen = (_G.TUNING.ADV_DIFFICULTY==0 and "ADV_allmap_never") or (_G.TUNING.ADV_DIFFICULTY==1 and "mostly") or "ADV_allmap_often"
         tasksetdata.overrides.ADV_clump_flower_cave = (_G.TUNING.ADV_DIFFICULTY==0 and "ADV_allmap_never") or (_G.TUNING.ADV_DIFFICULTY==1 and "ADV_allmap_always") or (_G.TUNING.ADV_DIFFICULTY==2 and "ADV_allmap_mostly") or (_G.TUNING.ADV_DIFFICULTY==3 and "ADV_allmap_often") or "ADV_allmap_never"
         tasksetdata.overrides.ADV_clump_maxwelllight_area = (_G.TUNING.ADV_DIFFICULTY==0 and "ADV_allmap_always") or (_G.TUNING.ADV_DIFFICULTY==1 and "ADV_allmap_always") or (_G.TUNING.ADV_DIFFICULTY==2 and "ADV_allmap_mostly") or (_G.TUNING.ADV_DIFFICULTY==3 and "ADV_allmap_often") or "ADV_allmap_always" 
         tasksetdata.overrides.ADV_clump_pigtorch = (_G.TUNING.ADV_DIFFICULTY==0 and "ADV_allmap_never") or "ADV_allmap_often"
