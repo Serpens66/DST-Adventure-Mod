@@ -3,7 +3,7 @@ description = "Requires my Teleportato mod!\n\nOvercome challenging worlds, load
 author = "Serpens"
 forumthread = ""
 
-version = "0.991"
+version = "0.992"
 api_version = 10
 
 dst_compatible = true

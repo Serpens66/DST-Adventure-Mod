@@ -175,3 +175,42 @@ if STRINGS.UI.ENDGAME==nil then
                             YES = "For Science!",
                         }
 end
+
+-- ####################################################################################
+
+-- Above are the vanilla strings currently still active in DST.
+-- But I also used some outcommented strings, we will put them in a new STRINGS table below:
+
+if STRINGS.MAXWELL_ADVENTUREINTROS.ACR==nil then
+  STRINGS.MAXWELL_ADVENTUREINTROS.ACR = {}
+end
+if STRINGS.MAXWELL_ADVENTUREINTROS.KOW==nil then
+  STRINGS.MAXWELL_ADVENTUREINTROS.KOW = {}
+end
+if STRINGS.MAXWELL_ADVENTUREINTROS.GIA==nil then
+  STRINGS.MAXWELL_ADVENTUREINTROS.GIA = {}
+end
+if STRINGS.MAXWELL_ADVENTUREINTROS.ARCHI==nil then
+  STRINGS.MAXWELL_ADVENTUREINTROS.ARCHI = {}
+end
+if STRINGS.MAXWELL_ADVENTUREINTROS.DARKNESS==nil then
+  STRINGS.MAXWELL_ADVENTUREINTROS.DARKNESS = {}
+end
+
+STRINGS.MAXWELL_SANDBOXINTROS.MAXWELLINTRO_EXPLORE = "You have some space to explore methinks."
+STRINGS.MAXWELL_ADVENTUREINTROS.ACR.ONE = "The dew has fallen with a particularly sickening thud this morning..."
+STRINGS.MAXWELL_ADVENTUREINTROS.ACR.TWO = "I'm off to find Zem..."
+STRINGS.MAXWELL_ADVENTUREINTROS.KOW.ONE = "Well would you look at that, you survived."
+STRINGS.MAXWELL_ADVENTUREINTROS.KOW.TWO = "Now don't get a big head, you aren't the first."
+STRINGS.MAXWELL_ADVENTUREINTROS.KOW.THREE = "Let's see what you're really made of."
+STRINGS.MAXWELL_ADVENTUREINTROS.KOW.FOUR = "And by that I mean to say,"
+STRINGS.MAXWELL_ADVENTUREINTROS.KOW.FIVE = "I will enjoy inspecting your entrails once the Deerclops is done with you."
+STRINGS.MAXWELL_ADVENTUREINTROS.GIA.ONE = "Say pal, keep your chin up."
+STRINGS.MAXWELL_ADVENTUREINTROS.GIA.TWO = "You will probably find it hard to stay dapper."
+STRINGS.MAXWELL_ADVENTUREINTROS.ARCHI.ONE = "What? You're still here?"
+STRINGS.MAXWELL_ADVENTUREINTROS.ARCHI.TWO = "Must I do everything myself?"
+STRINGS.MAXWELL_ADVENTUREINTROS.ARCHI.THREE = "HOUNDS! DISPOSE OF THIS PEST!"
+STRINGS.MAXWELL_ADVENTUREINTROS.DARKNESS.ONE = "I left you a little something..."
+STRINGS.MAXWELL_ADVENTUREINTROS.DARKNESS.TWO = "I don't think it will help you though."
+STRINGS.MAXWELL_ADVENTUREINTROS.DARKNESS.THREE = "You know what I like about nighttime?"
+STRINGS.MAXWELL_ADVENTUREINTROS.DARKNESS.FOUR = "All the spiders."
