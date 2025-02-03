@@ -1,6 +1,5 @@
 -- if devs of DST removed some of the STRINGS, use the following english ones:
 
--- some strings within my files are hardcoded, eg in adventure_portal.lua in teleportato mod or in maxwellintro.lua
 
 local STRINGS = GLOBAL.STRINGS
 
