@@ -344,6 +344,11 @@ _G.TUNING.TELEPORTATOMOD.functionatplayerfirstspawn = function(player) -- called
     end)
 end
 
+local function DisableAllBoatRecipes()
+  for _,v in ipairs(GLOBAL.CRAFTING_FILTERS.SEAFARING.recipes) do
+    GLOBAL.AllRecipes[v].level = GLOBAL.TECH.LOST
+  end
+end
 
 local function ConnectWormholes(x,y)
     if adv_savewormholes["wormhole"..tostring(x)]~=nil and adv_savewormholes["wormhole"..tostring(y)]~=nil and adv_savewormholes["wormhole"..tostring(x)]:IsValid() and adv_savewormholes["wormhole"..tostring(y)]:IsValid() then
@@ -426,8 +431,7 @@ _G.TUNING.TELEPORTATOMOD.functionpostloadworldONCE = function(world) -- only cal
                                 sucess = false
                             end
                             if sucess and GetModConfigData("withocean")=="wormholes" and GLOBAL.AllRecipes["seafaring_prototyper"] then -- we alawys spawn ocean, but if player chose to only have wormhole, we will make thinkthank unavailable if connecting wormholes suceeded
-                                GLOBAL.AllRecipes["seafaring_prototyper"].level = GLOBAL.TECH.LOST
-                                GLOBAL.AllRecipes["boat_grass_item"].level = GLOBAL.TECH.LOST
+                                DisableAllBoatRecipes()
                             end
                             if not sucess then
                                 print("AdventureMod: Spawning and linking wormholes failed, please use boats instead...")
@@ -435,14 +439,12 @@ _G.TUNING.TELEPORTATOMOD.functionpostloadworldONCE = function(world) -- only cal
                         elseif _G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Two Worlds" then 
                             if GetModConfigData("withocean")=="wormholes" then -- we alawys spawn ocean, but if player chose to only have wormhole, we will make thinkthank unavailable if connecting wormholes suceeded
                                 if world.firsttwoworldswormhole and world.firsttwoworldswormhole.components.teleporter.targetTeleporter and GLOBAL.AllRecipes["seafaring_prototyper"] then -- we alawys spawn ocean, but if player chose to only have wormhole, we will make thinkthank unavailable if connecting wormholes suceeded
-                                    GLOBAL.AllRecipes["seafaring_prototyper"].level = GLOBAL.TECH.LOST
-                                    GLOBAL.AllRecipes["boat_grass_item"].level = GLOBAL.TECH.LOST
+                                    DisableAllBoatRecipes()
                                 end
                             end
                         elseif not (_G.TUNING.TELEPORTATOMOD.WORLDS[_G.TUNING.TELEPORTATOMOD.LEVEL].name=="Maxwells Door" and not _G.TUNING.TELEPORTATOMOD.sandboxpreconfigured) then
                             if GetModConfigData("withocean")=="wormholes" and GLOBAL.AllRecipes["seafaring_prototyper"] then -- we alawys spawn ocean, but if player chose to only have wormhole, we will make thinkthank unavailable
-                                GLOBAL.AllRecipes["seafaring_prototyper"].level = GLOBAL.TECH.LOST
-                                GLOBAL.AllRecipes["boat_grass_item"].level = GLOBAL.TECH.LOST
+                                DisableAllBoatRecipes()
                             end
                         end
                     end
@@ -628,6 +630,39 @@ local danceplayers =
     }
 AddStategraphState("wilson", danceplayers) -- other players who will not sit on throne will shadowdance
 AddStategraphState("wilson_client", danceplayers)
+
+
+
+-- ##################################################################
+
+-- code from wingsummer (https://steamcommunity.com/sharedfiles/filedetails/?id=3189631997), 
+-- slightly adjusted, disable sharkboi ice island:
+local function removeIceIsland(inst)
+    -- don't Initialize the Ice Island
+    inst.InitializeSharkBoiManager = function(...) end
+
+    -- block the callback
+    inst.OnSeasonChange = function(...) end		
+    inst.OnCooldownEnd = function(...) end
+
+    -- block the iceberg generation
+    inst.SetArenaState = function(...) end
+    inst.OnLoad = function(self,...) 
+        self.arena = nil
+    end
+
+    -- delete the Ice Island
+    inst.SetDesiredArenaRadius = function(self,...)
+        if self.arena~=nil then
+          self.arena.radius = -1
+        end
+    end
+end
+-- register the callback to modify 'sharkboimanager'
+AddClassPostConstruct("components/sharkboimanager", removeIceIsland)
+
+
+
 
 
 

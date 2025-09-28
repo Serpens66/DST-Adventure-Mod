@@ -336,7 +336,7 @@ local function fn()
         viewer.components.locomotor:Stop()
         if self.inst.components.talkable and self.inst.components.maxwelltalker then
             self.inst:DoTaskInTime(1,function()
-                if not self.inst.components.maxwelltalker:IsTalking() then
+                if self.inst.components.maxwelltalker and not self.inst.components.maxwelltalker:IsTalking() then
                     self.inst:PushEvent("talkedto")
                     self.inst.task = self.inst:StartThread(function() if inst.components.maxwelltalker~=nil then inst.components.maxwelltalker:EndgameDoTalk() end end)
                 end

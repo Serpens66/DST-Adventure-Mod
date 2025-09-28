@@ -228,6 +228,8 @@ local function AlwaysTinyCave(tasksetdata) -- even if cave was enabled, make it 
     tasksetdata.tasks = {"CaveExitTask1"}
             tasksetdata.numoptionaltasks = 0
             tasksetdata.optionaltasks = {}
+            tasksetdata.required_setpieces = {}
+            tasksetdata.required_prefabs = {}
             tasksetdata.set_pieces = {}
             tasksetdata.valid_start_tasks = {"CaveExitTask1"}
             if tasksetdata.overrides==nil then
@@ -302,7 +304,7 @@ local function AdventurePortalWorld(tasksetdata)
 end
 if GetModConfigData("sandboxpreconfigured") then
     table.insert(_G.TUNING.TELEPORTATOMOD.WORLDS, {name="Maxwells Door", taskdatafunctions={forest=AdventurePortalWorld, cave=AlwaysTinyCave}, defaultpositions={1}, positions=GetModConfigData("maxwellsdoor")})
-else -- othjerwise, no tiny cave
+else -- otherwise, no tiny cave
     table.insert(_G.TUNING.TELEPORTATOMOD.WORLDS, {name="Maxwells Door", taskdatafunctions={forest=AdventurePortalWorld}, defaultpositions={1}, positions=GetModConfigData("maxwellsdoor")})
 end
 
