@@ -196,7 +196,7 @@ end
 
 
 
-
+_G.TUNING.ADV_MAXWELL_INTRO_ENABLED = GetModConfigData("MaxwellIntro") -- other mods may overwrite this value
 
 _G.TUNING.ADV_DIFFICULTY = GetModConfigData("difficulty") -- also used within chest scenarios
 local adv_helpers = _G.require("adv_helpers")  --load it from teleportato mod
@@ -274,7 +274,9 @@ _G.TUNING.TELEPORTATOMOD.functionatplayerfirstspawn = function(player) -- called
             player.dolevelspeech = _G.GetRandomItem({true,false,true}) -- higher chance for true
             player.mynetvardolevelspeech:set(player.dolevelspeech) -- random and server may get differnt result for this, so we have to send the server result to client
         end
-        SpawnMaxwell(player)
+        if _G.TUNING.ADV_MAXWELL_INTRO_ENABLED then
+          SpawnMaxwell(player)
+        end
         if SERVER_SIDE then 
             if _G.TheWorld:HasTag("forest") then
                 if (_G.TheWorld.components.worldjump.player_data[player.userid]==nil or (_G.TUNING.TELEPORTATOMOD.getstartingitems==false and _G.TUNING.TELEPORTATOMOD.CHAPTER~=nil and _G.TUNING.TELEPORTATOMOD.CHAPTER<=2)) and player.starting_inventory_orig~=nil then -- give the starting items only in those 2 chapters. -- if it is first spawn ever (no player_data saved), then give start items regardless of settings or chapter!

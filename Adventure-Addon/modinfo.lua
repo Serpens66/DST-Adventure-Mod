@@ -3,7 +3,7 @@ description = "Requires my Teleportato mod!\n\nOvercome challenging worlds, load
 author = "Serpens"
 forumthread = ""
 
-version = "0.997"
+version = "0.9971"
 api_version = 10
 
 dst_compatible = true
@@ -85,6 +85,17 @@ configuration_options =
             {description = "ocean and wormholes", data = "oceanwormholes", hover="with ocean and wormholes, so you can also use boats."},
         },                   
 		default = "oceanwormholes",
+    },
+    {
+		name = "MaxwellIntro",
+		label = "Maxwell Intro",
+		hover = "Enable/Disable the Greeting of Maxwell at start of each level. Mods may disable this too if it does not fit for their levels.",
+		options = 
+		{
+            {description = "enabled", data = true, hover="With Maxwell Intro"},
+            {description = "disabled", data = false, hover="No Maxwell Intro"},
+        },                   
+		default = true,
     },
     {
 		name = "null_option",
