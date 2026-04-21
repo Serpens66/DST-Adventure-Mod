@@ -1,3 +1,6 @@
+moved here: https://github.com/Serpens66/Dont-Starve-Together-Mods-github
+
+
 # DST-Adventure-Mod
 Don't Starve Together adventure. Completing several worlds one after the other.
 
